@@ -269,7 +269,7 @@ Avoid fabricated statistics, unsupported claims, and fake urgency. List every ex
     try {
       const response = await this.withRetries(
         () => this.aiTextService.generateText(prompt, {
-          maxTokens: 4096,
+          maxTokens: 1500,
           temperature: 0.7
         }),
         `AI script generation (${this.aiTextService.providerName})`
@@ -317,7 +317,7 @@ ${gate.violations.map(v => `- ${v}`).join('\n')}
 Rewrite the full script fixing every one of these problems. Return only the JSON again.`;
         const retryResponse = await this.withRetries(
           () => this.aiTextService.generateText(correctivePrompt, {
-            maxTokens: 4096,
+            maxTokens: 1500,
             temperature: 0.5
           }),
           'AI script corrective pass'
@@ -558,7 +558,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
       });
       const parsed = await this.withRetries(
         async () => {
-          const response = await this.aiTextService.generateText(prompt, { maxTokens: 4096, temperature: 0.65, json: true });
+          const response = await this.aiTextService.generateText(prompt, { maxTokens: 1500, temperature: 0.65, json: true });
           return this.parseAIJsonResponse(response);
         },
         `AI quiz batch ${batch + 1}`
