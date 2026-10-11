@@ -118,10 +118,22 @@ class OperatorService {
     }
 
     if (scenes.length) {
-      const invalidScenes = scenes.filter(scene =>
-        !scene.assetPath || ['missing_asset', 'failed', 'generating', 'needs_rebuild', 'visual_stale'].includes(scene.status) ||
-        !['current', 'intentional_silence'].includes(scene.narrationStatus)
+      const isUnifiedVideo = Boolean(
+        production.script?.quiz?.questions?.length ||
+        ['quiz-template', 'quiz-visuals-template'].includes(production.assets?.video?.generatedWith)
       );
+      const hasFinalVideo = Boolean(production.assets?.finalVideo?.path);
+
+      const invalidScenes = scenes.filter(scene => {
+        // In unified quiz videos, the final MP4 is rendered directly as a whole.
+        // Scenes are timeline segments that only block if an operator explicitly edited one and it needs a rebuild.
+        if (isUnifiedVideo && hasFinalVideo) {
+          return ['failed', 'generating', 'needs_rebuild', 'visual_stale'].includes(scene.status) ||
+            !['current', 'intentional_silence'].includes(scene.narrationStatus);
+        }
+        return !scene.assetPath || ['missing_asset', 'failed', 'generating', 'needs_rebuild', 'visual_stale'].includes(scene.status) ||
+          !['current', 'intentional_silence'].includes(scene.narrationStatus);
+      });
       const unlicensedUploads = scenes.filter(scene => scene.assetOrigin === 'uploaded' && !scene.rightsConfirmed);
       checks.push(this.check('scene_integrity', invalidScenes.length === 0,
         invalidScenes.length === 0

@@ -409,8 +409,8 @@ class CredentialManager {
       {
         type: 'input',
         name: 'defaultCategory',
-        message: 'Enter default video category ID (22 = People & Blogs):',
-        default: '22'
+        message: 'Enter default video category ID (27 = Education, 22 = People & Blogs):',
+        default: '27'
       },
       {
         type: 'list',

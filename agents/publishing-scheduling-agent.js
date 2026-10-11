@@ -245,8 +245,8 @@ class PublishingSchedulingAgent {
     await this.db.updateScheduleEntry(scheduleEntry);
     
     // Upload thumbnail
-    if (metadata.thumbnail && metadata.thumbnail.path) {
-      await this.uploadThumbnail(videoId, metadata.thumbnail.path);
+    if (metadata.thumbnail && (metadata.thumbnail.path || metadata.thumbnail.originalPath)) {
+      await this.uploadThumbnail(videoId, metadata.thumbnail.path, metadata.thumbnail.originalPath);
     }
     
     // Upload captions
@@ -322,9 +322,21 @@ class PublishingSchedulingAgent {
       throw new Error('video file not found — refusing to upload placeholder');
     }
   }
-  async uploadThumbnail(videoId, thumbnailPath) {
+  async uploadThumbnail(videoId, thumbnailPath, originalPath = null) {
     try {
-      const thumbnailBuffer = await fs.readFile(thumbnailPath);
+      let resolvedPath = thumbnailPath;
+      const isImg = p => p && !p.endsWith('.info') && !p.endsWith('.placeholder') && /\.(png|jpe?g|webp)$/i.test(p);
+
+      if (!isImg(resolvedPath) && isImg(originalPath)) {
+        resolvedPath = originalPath;
+      }
+
+      if (!isImg(resolvedPath)) {
+        this.logger.warn(`Skipping thumbnail upload for ${videoId}: no valid image file found (got placeholder/info file).`);
+        return;
+      }
+
+      const thumbnailBuffer = await fs.readFile(resolvedPath);
       
       await this.youtube.thumbnails.set({
         videoId: videoId,
@@ -365,7 +377,7 @@ class PublishingSchedulingAgent {
           title: nextTitle,
           description: snippet.description || '',
           tags: snippet.tags || [],
-          categoryId: snippet.categoryId || '22',
+          categoryId: snippet.categoryId || process.env.YOUTUBE_CATEGORY_ID || '27',
           defaultLanguage: snippet.defaultLanguage,
           defaultAudioLanguage: snippet.defaultAudioLanguage
         }

@@ -25,7 +25,7 @@ const { SceneRepairService } = require('./utils/scene-repair-service');
 const { ShortsRepurposingService } = require('./utils/shorts-repurposing-service');
 const { AudienceEngagementService } = require('./utils/audience-engagement-service');
 const { GrowthExperimentService } = require('./utils/growth-experiment-service');
-const { AITextService } = require('./utils/ai-text-service');
+const { AITextService, PROVIDERS } = require('./utils/ai-text-service');
 const { DiscoverabilityService } = require('./utils/discoverability-service');
 const { version } = require('./package.json');
 const chalk = require('chalk');
@@ -155,7 +155,7 @@ class YouTubeAutomationAgent {
   }
 
   async initializeAgents() {
-    this.agents = {
+    const agents = {
       strategy: new ContentStrategyAgent(this.db, this.credentials),
       scriptWriter: new ScriptWriterAgent(this.db, this.credentials),
       thumbnailDesigner: new ThumbnailDesignerAgent(this.db, this.credentials),
@@ -166,10 +166,230 @@ class YouTubeAutomationAgent {
     };
 
     // Initialize each agent
-    for (const [name, agent] of Object.entries(this.agents)) {
+    for (const [name, agent] of Object.entries(agents)) {
       await agent.initialize();
       this.logger.info(`✓ ${name} agent initialized`);
     }
+
+    // Assign into the existing object when reloading (scheduler and other
+    // services hold a reference to `this.agents`, so replacing the object
+    // would leave them pointing at stale agents).
+    if (this.agents) Object.assign(this.agents, agents);
+    else this.agents = agents;
+
+    // Store a shared AI text service for lightweight API routes (e.g., title generation)
+    this.aiTextService = this.agents.scriptWriter?.aiTextService
+      || this.agents.strategy?.aiTextService
+      || new AITextService(this.credentials?.credentials || {});
+  }
+
+  // Rebuild the services that snapshot API keys at construction time
+  // (agents, scene repair, engagement, experiments). Called after
+  // credentials are saved from the dashboard so new keys apply without a
+  // process restart.
+  async reloadAIServices() {
+    if (!this.db || !this.credentials) return;
+    await this.initializeAgents();
+    this.scenes = this.agents.production?.sceneRepair || new SceneRepairService(
+      this.db,
+      this.agents.production?.aiVideoGenerator,
+      { logger: this.logger }
+    );
+    this.engagement = new AudienceEngagementService(
+      this.db,
+      this.credentials,
+      new AITextService(this.credentials?.credentials || {}),
+      { logger: this.logger }
+    );
+    this.experiments = new GrowthExperimentService(
+      this.db,
+      this.agents.analytics,
+      this.agents.publishing,
+      { logger: this.logger }
+    );
+    if (this.scheduler) {
+      this.scheduler.engagement = this.engagement;
+      this.scheduler.experiments = this.experiments;
+    }
+  }
+
+  // Masked credential status for the dashboard. Secrets are never returned —
+  // only whether they are set, their last 4 characters, and where they come
+  // from. credentials.json wins over .env wherever the code resolves keys.
+  describeCredentials() {
+    const creds = this.credentials?.credentials || {};
+    const secret = (fromFile, envValue) => {
+      if (fromFile) return { configured: true, hint: `••••${String(fromFile).slice(-4)}`, source: 'credentials.json' };
+      if (envValue) return { configured: true, hint: `••••${String(envValue).slice(-4)}`, source: '.env' };
+      return { configured: false, hint: null, source: null };
+    };
+    const providerEnvKey = Object.values(PROVIDERS).find(p => p.envKey && process.env[p.envKey]);
+    return {
+      gemini: {
+        apiKey: secret(creds.gemini?.apiKey, process.env.GEMINI_API_KEY),
+        model: creds.gemini?.model || process.env.GEMINI_TEXT_MODEL || null
+      },
+      openai: { apiKey: secret(creds.openai?.apiKey, process.env.OPENAI_API_KEY) },
+      elevenLabs: {
+        apiKey: secret(creds.elevenLabs?.apiKey, process.env.ELEVENLABS_API_KEY),
+        voiceId: creds.elevenLabs?.voiceId || process.env.ELEVENLABS_VOICE_ID || ''
+      },
+      replicate: { apiKey: secret(creds.replicate?.apiKey, process.env.REPLICATE_API_TOKEN || process.env.REPLICATE_API_KEY) },
+      textProvider: {
+        provider: creds.aiProvider?.provider || null,
+        model: creds.aiProvider?.model || null,
+        apiKey: secret(creds.aiProvider?.apiKey, providerEnvKey ? process.env[providerEnvKey.envKey] : null),
+        options: Object.entries(PROVIDERS).map(([id, preset]) => ({ id, name: preset.name, models: preset.models }))
+      },
+      videoProviders: {
+        minimax: { apiKey: secret(creds.minimax?.apiKey, process.env.MINIMAX_API_KEY) },
+        kling: {
+          accessKey: secret(creds.kling?.accessKey, process.env.KLING_ACCESS_KEY),
+          secretKey: secret(creds.kling?.secretKey, process.env.KLING_SECRET_KEY)
+        },
+        wan: { apiKey: secret(creds.wan?.apiKey, process.env.DASHSCOPE_API_KEY) }
+      },
+      youtube: {
+        clientId: secret(creds.youtube?.client_id),
+        clientSecret: secret(creds.youtube?.client_secret),
+        redirectUri: creds.youtube?.redirect_uris?.[0] || 'http://localhost:8080/oauth2callback'
+      }
+    };
+  }
+
+  // Merge credentials saved from the dashboard into credentials.json, then
+  // rebuild the services that snapshot keys at construction time. An empty
+  // string means "leave unchanged"; null clears the stored value.
+  async saveDashboardCredentials(body) {
+    if (!this.credentials) {
+      const error = new Error('Credential manager is not initialized');
+      error.status = 503;
+      throw error;
+    }
+
+    const readField = (value, label) => {
+      if (value === undefined || value === null) return { op: value === null ? 'clear' : 'skip' };
+      if (typeof value !== 'string') {
+        const error = new Error(`${label} must be a string or null`);
+        error.status = 400;
+        throw error;
+      }
+      const trimmed = value.trim();
+      if (!trimmed) return { op: 'skip' };
+      if (trimmed.length > 512) {
+        const error = new Error(`${label} is too long (max 512 characters)`);
+        error.status = 400;
+        throw error;
+      }
+      return { op: 'set', value: trimmed };
+    };
+    const applyField = (target, key, field) => {
+      if (field.op === 'clear') delete target[key];
+      else if (field.op === 'set') target[key] = field.value;
+      return field.op !== 'skip';
+    };
+
+    const creds = this.credentials.credentials || {};
+    const groups = Object.keys(body || {}).filter(key =>
+      ['gemini', 'openai', 'elevenLabs', 'replicate', 'textProvider', 'videoProviders', 'youtube'].includes(key)
+    );
+    if (groups.length === 0) {
+      const error = new Error('No credential fields provided');
+      error.status = 400;
+      throw error;
+    }
+
+    for (const group of groups) {
+      if (group === 'textProvider') {
+        const input = body.textProvider || {};
+        if (input.provider === null) {
+          // null provider clears the override entirely (fall back to keys above)
+          delete creds.aiProvider;
+          continue;
+        }
+        const providerField = readField(input.provider, 'Text provider');
+        if (providerField.op === 'skip' && !creds.aiProvider) continue;
+        const provider = providerField.op === 'set' ? providerField.value : creds.aiProvider?.provider;
+        if (providerField.op === 'clear' || !PROVIDERS[provider]) {
+          const error = new Error(`Unsupported text provider: ${provider || '(empty)'}`);
+          error.status = 400;
+          throw error;
+        }
+        creds.aiProvider = creds.aiProvider || {};
+        applyField(creds.aiProvider, 'provider', providerField);
+        applyField(creds.aiProvider, 'model', readField(input.model, 'Text provider model'));
+        applyField(creds.aiProvider, 'apiKey', readField(input.apiKey, `${provider} API key`));
+        if (!creds.aiProvider.apiKey) {
+          const error = new Error(`An API key is required for the ${PROVIDERS[provider].name} text provider`);
+          error.status = 400;
+          throw error;
+        }
+        continue;
+      }
+
+      // Keys live in per-provider sub-objects (creds.elevenLabs.apiKey, …)
+      const target = group === 'videoProviders'
+        ? (creds.videoProviders = creds.videoProviders || {})
+        : (creds[group] = creds[group] || {});
+      const input = body[group];
+      if (typeof input !== 'object' || input === null) {
+        const error = new Error(`${group} must be an object`);
+        error.status = 400;
+        throw error;
+      }
+
+      if (group === 'youtube') {
+        creds.youtube = creds.youtube || { redirect_uris: ['http://localhost:8080/oauth2callback'] };
+        const yt = creds.youtube;
+        applyField(yt, 'client_id', readField(input.clientId, 'YouTube client ID'));
+        applyField(yt, 'client_secret', readField(input.clientSecret, 'YouTube client secret'));
+        const redirect = readField(input.redirectUri, 'YouTube redirect URI');
+        if (redirect.op === 'set' && !/^https?:\/\//.test(redirect.value)) {
+          const error = new Error('YouTube redirect URI must start with http:// or https://');
+          error.status = 400;
+          throw error;
+        }
+        if (redirect.op === 'set') yt.redirect_uris = [redirect.value];
+        continue;
+      }
+
+      for (const [field, value] of Object.entries(input)) {
+        if (group === 'videoProviders') {
+          if (!['minimax', 'kling', 'wan'].includes(field)) {
+            const error = new Error(`Unsupported video provider: ${field}`);
+            error.status = 400;
+            throw error;
+          }
+          target[field] = target[field] || {};
+          const allowed = field === 'kling' ? ['accessKey', 'secretKey'] : ['apiKey'];
+          for (const [key, keyValue] of Object.entries(value || {})) {
+            if (!allowed.includes(key)) {
+              const error = new Error(`Unsupported ${field} credential: ${key}`);
+              error.status = 400;
+              throw error;
+            }
+            applyField(target[field], key, readField(keyValue, `${field} ${key}`));
+          }
+          continue;
+        }
+        if (!['apiKey', 'voiceId', 'model'].includes(field)) {
+          const error = new Error(`Unsupported ${group} credential: ${field}`);
+          error.status = 400;
+          throw error;
+        }
+        applyField(target, field, readField(value, `${group} ${field}`));
+      }
+    }
+
+    await this.credentials.saveCredentials();
+    this.logger.info('Credentials updated from the dashboard');
+
+    const applied = Boolean(this.isInitialized && this.agents);
+    if (applied) {
+      await this.reloadAIServices();
+      this.logger.success('AI services reloaded with the updated credentials');
+    }
+    return { success: true, applied, result: this.describeCredentials() };
   }
 
   async logCapabilitySummary() {
@@ -264,6 +484,10 @@ class YouTubeAutomationAgent {
         'list',
         'review',
         'story',
+        'quiz',
+        'quiz_visuals',
+        'quiz_short',
+        'quiz_short_no_image',
         'educational',
         'informative',
         'engaging',
@@ -299,6 +523,22 @@ class YouTubeAutomationAgent {
     }
 
     return { valid: true, value };
+  }
+
+  // Shared with agents for AI JSON parsing
+  parseAIJsonResponse(response) {
+    const text = String(response || '').trim();
+    const withoutFences = text
+      .replace(/^```(?:json)?\s*/i, '')
+      .replace(/```$/i, '')
+      .trim();
+    try {
+      return JSON.parse(withoutFences);
+    } catch (error) {
+      const match = withoutFences.match(/\{[\s\S]*\}/);
+      if (!match) throw error;
+      return JSON.parse(match[0]);
+    }
   }
 
   validateChannelStrategy(body = {}, current = {}) {
@@ -1199,6 +1439,56 @@ class YouTubeAutomationAgent {
       return res.status(201).json({ success: true, result: idea });
     });
 
+    // Generate an SEO-optimized YouTube title from a free-form idea description (supports both POST and GET)
+    const handleGenerateTitle = async (req, res) => {
+      const idea = String(req.body?.idea || req.query?.idea || '').trim();
+      const style = req.body?.style || req.query?.style || 'explainer';
+      if (!idea || idea.length < 3) return res.status(400).json({ error: 'Describe your idea in at least 3 characters' });
+      if (idea.length > 1000) return res.status(400).json({ error: 'Idea description must be 1000 characters or less' });
+
+      if (!this.aiTextService?.isAvailable()) {
+        return res.status(503).json({ error: 'AI text provider not configured. Add GEMINI_API_KEY or OPENROUTER_API_KEY to enable title generation.' });
+      }
+
+      try {
+        const prompt = `You are a YouTube SEO expert. Generate ONE compelling, search-optimized video title from the user's idea.
+Return only valid JSON: {"title": "SEO title under 100 characters", "reasoning": "one sentence why this title works"}
+
+User idea: "${idea}"
+Format preference: ${style}
+Target audience: ${this.channelProfile?.target_audience || 'general educational audience'}
+
+Rules:
+1. Title must be under 100 characters (YouTube limit).
+2. Include a number if the idea implies a list/quiz (e.g., "Top 50...").
+3. Include "Question and answer" or "Quiz" if format is quiz/MCQ.
+4. Include language indicator (Hindi/English) for Indian exam content.
+5. Use proven patterns: "How to...", "Top N...", "Complete Guide", "Master...", "Explained".
+6. Avoid clickbait, all caps, or misleading claims.
+7. Make it searchable: include keywords people actually type.`;
+
+        const response = await this.aiTextService.generateText(prompt, { maxTokens: 512, temperature: 0.6 });
+        // Robust JSON extraction: strip markdown fences and find the first JSON object
+        const extractJson = (raw) => {
+          const stripped = raw.replace(/```(?:json)?/gi, '').trim();
+          const match = stripped.match(/\{[\s\S]*\}/);
+          if (!match) throw new Error('No JSON object found in AI response');
+          return JSON.parse(match[0]);
+        };
+        const parsed = this.parseAIJsonResponse ? this.parseAIJsonResponse(response) : extractJson(response);
+        const title = String(parsed.title || '').trim().slice(0, 100);
+        if (!title) throw new Error('AI returned empty title');
+
+        return res.json({ success: true, result: { title, reasoning: parsed.reasoning || '' } });
+      } catch (error) {
+        this.logger.error('AI title generation failed:', error);
+        return res.status(500).json({ error: 'Failed to generate title: ' + error.message });
+      }
+    };
+
+    this.app.post('/api/ideas/generate-title', protect, handleGenerateTitle);
+    this.app.get('/api/ideas/generate-title', protect, handleGenerateTitle);
+
     this.app.patch('/api/ideas/:ideaId', protect, async (req, res) => {
       const idea = await this.db.updateContentIdea(req.params.ideaId, req.body || {});
       if (!idea) return res.status(404).json({ error: 'Idea not found' });
@@ -1226,6 +1516,19 @@ class YouTubeAutomationAgent {
         return res.status(400).json({ error: 'Action must be pause or resume' });
       }
       return res.json({ success: true, paused: !this.scheduler.isEnabled });
+    });
+
+    this.app.get('/api/settings/credentials', protect, async (_req, res) => {
+      return res.json({ success: true, result: this.describeCredentials() });
+    });
+
+    this.app.post('/api/settings/credentials', protect, async (req, res) => {
+      try {
+        return res.json(await this.saveDashboardCredentials(req.body || {}));
+      } catch (error) {
+        if ((error.status || 500) >= 500) this.logger.error('Failed to save credentials:', error);
+        return res.status(error.status || 500).json({ success: false, error: error.message });
+      }
     });
 
     this.app.put('/api/settings', protect, async (req, res) => {
@@ -1449,14 +1752,35 @@ class YouTubeAutomationAgent {
     // Step 1: Strategy
     const strategy = await this.runGenerationStage(jobId, 'strategy', 10, async () => {
       const generated = await this.agents.strategy.generateContentStrategy(topic);
-      const contentStyles = new Set(['tutorial', 'explainer', 'list', 'review', 'story']);
-      const requestedStyle = style || profile.default_style || null;
+      const contentStyles = new Set(['tutorial', 'explainer', 'list', 'review', 'story', 'quiz', 'quiz_visuals', 'quiz_short', 'quiz_short_no_image']);
+      // If the strategy already identified this as a Quiz (e.g. GK questions), preserve Quiz unless explicit style is given
+      const requestedStyle = style || (generated.contentType === 'Quiz' ? 'quiz' : profile.default_style) || null;
       if (requestedStyle && contentStyles.has(requestedStyle.toLowerCase())) {
-        generated.contentType = requestedStyle.charAt(0).toUpperCase() + requestedStyle.slice(1).toLowerCase();
+        if (requestedStyle.toLowerCase() === 'quiz_visuals') {
+          generated.contentType = 'Quiz_visuals';
+          generated.quizVisuals = true;
+        } else if (requestedStyle.toLowerCase() === 'quiz_short') {
+          generated.contentType = 'Quiz_short';
+          generated.isShort = true;
+          generated.quizShort = true;
+          generated.quizVisuals = true;
+          generated.requestedLengthKey = 'short';
+          generated.requestedLength = '45-55 seconds';
+        } else if (requestedStyle.toLowerCase() === 'quiz_short_no_image') {
+          generated.contentType = 'Quiz_short_no_image';
+          generated.isShort = true;
+          generated.quizShort = true;
+          generated.quizVisuals = false;
+          generated.noImages = true;
+          generated.requestedLengthKey = 'short';
+          generated.requestedLength = '45-55 seconds';
+        } else {
+          generated.contentType = requestedStyle.charAt(0).toUpperCase() + requestedStyle.slice(1).toLowerCase();
+        }
       }
       generated.requestedStyle = requestedStyle;
-      generated.requestedLengthKey = length;
-      generated.requestedLength = lengthLabels[length] || lengthLabels.medium;
+      generated.requestedLengthKey = generated.isShort ? 'short' : length;
+      generated.requestedLength = generated.isShort ? '45-55 seconds' : (lengthLabels[length] || lengthLabels.medium);
       generated.angle = strategyContext.angle || generated.angle;
       generated.planRationale = strategyContext.rationale || null;
       generated.targetAudience = strategyContext.audience || profile.target_audience || generated.targetAudience;
@@ -1831,8 +2155,8 @@ class YouTubeAutomationAgent {
       process.exit(1);
     }
     
-    const PORT = process.env.PORT || 3456;
-    this.app.listen(PORT, () => {
+    const PORT = Number(process.env.PORT) || 3456;
+    const server = this.app.listen(PORT, () => {
       console.log(chalk.green(`\n✅ YouTube Automation Agent running on port ${PORT}`));
       console.log(chalk.gray('─'.repeat(50)));
       console.log(chalk.white('📊 Dashboard: ') + chalk.cyan(`http://localhost:${PORT}`));
@@ -1846,11 +2170,28 @@ class YouTubeAutomationAgent {
         console.log(chalk.yellow('\n🤖 Automation is active. Approved content will be published on schedule.'));
       }
     });
+
+    server.on('error', (err) => {
+      if (err.code === 'EADDRINUSE') {
+        console.error(chalk.red(`\n❌ Port ${PORT} is already in use by another running process.`));
+        console.error(chalk.yellow(`💡 Fix: Stop the existing process or run: Stop-Process -Name node -Force\n`));
+      } else {
+        console.error(chalk.red('\n❌ Server listen error:'), err);
+      }
+      process.exit(1);
+    });
   }
 }
 
 // Start the agent
 if (require.main === module) {
+  process.on('uncaughtException', (err) => {
+    console.error(chalk.red('[Process] Uncaught exception:'), err && err.message ? err.message : err);
+  });
+  process.on('unhandledRejection', (reason) => {
+    console.warn(chalk.yellow('[Process] Unhandled rejection:'), reason && reason.message ? reason.message : reason);
+  });
+
   const agent = new YouTubeAutomationAgent();
   agent.start().catch(error => {
     console.error(chalk.red('Fatal error:'), error);

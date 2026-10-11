@@ -75,7 +75,7 @@ class AITextService {
 
     const geminiKey = credentials.gemini?.apiKey || process.env.GEMINI_API_KEY;
     if (geminiKey) {
-      return this._initGemini(geminiKey, credentials.gemini?.model);
+      return this._initGemini(geminiKey, credentials.gemini?.model || process.env.GEMINI_TEXT_MODEL);
     }
 
     this.logger.warn('No AI text provider configured — text generation unavailable');
@@ -106,20 +106,43 @@ class AITextService {
     const temperature = options.temperature ?? 0.7;
 
     if (this.gemini) {
-      const config = { maxOutputTokens: maxTokens };
-      if (!/^gemini-3\.(?:[5-9]|\d{2,})-/.test(model)) config.temperature = temperature;
-      const response = await this.gemini.models.generateContent({
-        model,
-        contents: prompt,
-        config,
-      });
-      const text = response && response.text;
-      if (typeof text !== 'string' || !text.trim()) {
-        throw new Error(
-          `${this.providerName} returned an empty response. Check the API key and model quota — free-tier Gemini keys are rate-limited and can return empty output.`
-        );
+      // Free-tier Gemini keys are frequently throttled per-model (503 "high
+      // demand", 429 quota). Try the requested model first, then rotate
+      // through the known models instead of failing the whole job.
+      const candidates = [model, ...GEMINI_MODELS.filter((m) => m !== model)];
+      let lastError = null;
+      for (const candidate of candidates) {
+        try {
+          const config = { maxOutputTokens: maxTokens };
+          if (!/^gemini-3\.(?:[5-9]|\d{2,})-/.test(candidate)) config.temperature = temperature;
+          if (options.json) config.responseMimeType = 'application/json';
+          const response = await this.gemini.models.generateContent({
+            model: candidate,
+            contents: prompt,
+            config,
+          });
+          const text = response && response.text;
+          if (typeof text !== 'string' || !text.trim()) {
+            throw new Error(
+              `${this.providerName} returned an empty response. Check the API key and model quota — free-tier Gemini keys are rate-limited and can return empty output.`
+            );
+          }
+          if (candidate !== this.model) {
+            this.logger.warn(
+              `Switching Gemini text model ${this.model} -> ${candidate} (previous model unavailable); sticking with it for this session`
+            );
+            this.model = candidate;
+          }
+          return text;
+        } catch (error) {
+          lastError = error;
+          if (!this._isTransientGeminiError(error)) throw error;
+          this.logger.warn(
+            `Gemini model ${candidate} unavailable (${this._geminiErrorSummary(error)}); trying next model...`
+          );
+        }
       }
-      return text;
+      throw lastError;
     }
 
     if (!this.client) {
@@ -176,6 +199,20 @@ class AITextService {
     }
 
     throw lastError;
+  }
+
+  _isTransientGeminiError(error) {
+    const code = error?.status || error?.code;
+    if ([429, 500, 503, 504].includes(code)) return true;
+    return /high demand|quota|fetch failed|ECONNRESET|ETIMEDOUT|EAI_AGAIN|UNAVAILABLE|empty response/i.test(
+      String(error?.message || '')
+    );
+  }
+
+  _geminiErrorSummary(error) {
+    const code = error?.status || error?.code || 'network';
+    const message = String(error?.message || '').slice(0, 140);
+    return `${code}: ${message}`;
   }
 
   _extractContent(response) {

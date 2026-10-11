@@ -31,6 +31,7 @@
         <button class="nav-item" data-view="engagement"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 11.5a8.4 8.4 0 01-9.1 8.4 9 9 0 01-3.8-.9L3 20l1-4.9A8.4 8.4 0 1121 11.5z"/><path d="M8 10h8M8 13.5h5"/></svg> Engagement</button>
         <button class="nav-item" data-view="readiness"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2.8l7.5 3v6c0 4.8-3.2 8.2-7.5 9.4-4.3-1.2-7.5-4.6-7.5-9.4v-6z"/><path d="M8.8 12.2l2.3 2.3 4.4-4.6"/></svg> Production readiness</button>
         <button class="nav-item" data-view="settings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 00.34 1.87l.06.06a2 2 0 11-2.83 2.83l-.06-.06A1.7 1.7 0 0015 19.4a1.7 1.7 0 00-1 1.55V21a2 2 0 11-4 0v-.09A1.7 1.7 0 009 19.4a1.7 1.7 0 00-1.87.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.7 1.7 0 004.6 15a1.7 1.7 0 00-1.55-1H3a2 2 0 110-4h.09A1.7 1.7 0 004.6 9a1.7 1.7 0 00-.33-1.87l-.06-.06a2 2 0 112.83-2.83l.06.06A1.7 1.7 0 009 4.6a1.7 1.7 0 001-1.55V3a2 2 0 114 0v.09a1.7 1.7 0 001 1.51 1.7 1.7 0 001.87-.34l.06-.06a2 2 0 112.83 2.83l-.06.06A1.7 1.7 0 0019.4 9c.28.66.9 1.05 1.55 1H21a2 2 0 110 4h-.09a1.7 1.7 0 00-1.51 1z"/></svg> Channel setup</button>
+        <button class="nav-item" data-view="credentials"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="14.5" r="4.5"/><path d="M11.2 11.3L20 2.5M16 6.5l2.5 2.5M13.5 9l2.5 2.5"/></svg> Configure API keys</button>
       </nav>
       <div class="sidebar-footer">
         <div class="system-pill"><i id="system-dot"></i><span id="system-label">Connecting…</span></div>
@@ -283,6 +284,49 @@
           <div class="form-actions"><button type="submit" class="button primary">Save channel setup</button><button id="api-key-button" type="button" class="button secondary">Set dashboard API key</button></div>
         </form>
       </section>
+      <section id="credentials-view" class="view">
+        <div class="section-intro"><div><h2>Configure API keys</h2><p>Provider credentials for text, audio, image, and video generation. Keys are saved to <code>config/credentials.json</code> and applied immediately — no restart needed. Leave a field blank to keep its current value.</p></div></div>
+        <form id="credentials-form" class="panel settings-form">
+          <div class="cred-group">
+            <h3>AI model keys</h3>
+            <div class="form-grid">
+              <label><span>Gemini API key</span><input name="geminiApiKey" type="password" autocomplete="off" placeholder="AIza…"><small class="cred-status" data-cred="gemini.apiKey">Checking…</small></label>
+              <label><span>Gemini text model <small>optional</small></span><input name="geminiModel" placeholder="gemini-3.7-flash"></label>
+              <label><span>OpenAI API key <small>images · TTS · text</small></span><input name="openaiApiKey" type="password" autocomplete="off" placeholder="sk-…"><small class="cred-status" data-cred="openai.apiKey">Checking…</small></label>
+              <label><span>Replicate API key <small>Seedance video</small></span><input name="replicateApiKey" type="password" autocomplete="off"><small class="cred-status" data-cred="replicate.apiKey">Checking…</small></label>
+              <label><span>ElevenLabs API key</span><input name="elevenLabsApiKey" type="password" autocomplete="off"><small class="cred-status" data-cred="elevenLabs.apiKey">Checking…</small></label>
+              <label><span>ElevenLabs voice ID</span><input name="elevenLabsVoiceId" placeholder="Voice ID used for narration"><small class="cred-status" data-cred="elevenLabs.voiceId">Checking…</small></label>
+            </div>
+          </div>
+          <div class="cred-group">
+            <h3>Text provider override <small>optional</small></h3>
+            <div class="form-grid">
+              <label><span>Provider</span><select name="textProvider"><option value="">Auto · use keys above (Gemini first)</option><option value="openai">OpenAI</option><option value="openrouter">OpenRouter</option><option value="kimi">Kimi (Moonshot AI)</option><option value="mimo">MiMo (Xiaomi)</option><option value="glm">GLM (Zhipu AI)</option></select><small>Overrides which model writes scripts and ideas.</small></label>
+              <label><span>Provider API key</span><input name="textProviderApiKey" type="password" autocomplete="off"><small class="cred-status" data-cred="textProvider.apiKey">Checking…</small></label>
+              <label class="full-row"><span>Model</span><input name="textProviderModel" placeholder="Provider default is used when blank"><small class="cred-status" data-cred="textProvider.meta">Checking…</small></label>
+            </div>
+          </div>
+          <div class="cred-group">
+            <h3>External video providers <small>optional</small></h3>
+            <div class="form-grid">
+              <label><span>MiniMax API key</span><input name="minimaxApiKey" type="password" autocomplete="off"><small class="cred-status" data-cred="videoProviders.minimax.apiKey">Checking…</small></label>
+              <label><span>Wan (DashScope) API key</span><input name="wanApiKey" type="password" autocomplete="off"><small class="cred-status" data-cred="videoProviders.wan.apiKey">Checking…</small></label>
+              <label><span>Kling access key</span><input name="klingAccessKey" type="password" autocomplete="off"><small class="cred-status" data-cred="videoProviders.kling.accessKey">Checking…</small></label>
+              <label><span>Kling secret key</span><input name="klingSecretKey" type="password" autocomplete="off"><small class="cred-status" data-cred="videoProviders.kling.secretKey">Checking…</small></label>
+            </div>
+          </div>
+          <div class="cred-group">
+            <h3>YouTube OAuth app</h3>
+            <div class="form-grid">
+              <label class="full-row"><span>Client ID</span><input name="youtubeClientId" autocomplete="off" placeholder="xxxxx.apps.googleusercontent.com"><small class="cred-status" data-cred="youtube.clientId">Checking…</small></label>
+              <label><span>Client secret</span><input name="youtubeClientSecret" type="password" autocomplete="off"><small class="cred-status" data-cred="youtube.clientSecret">Checking…</small></label>
+              <label><span>Redirect URI</span><input name="youtubeRedirectUri"><small>Must match the URI registered in Google Cloud Console.</small></label>
+            </div>
+            <p class="callout">After saving YouTube OAuth credentials, complete the one-time Google consent flow with <code>npm run credentials:setup</code> so an upload token is stored.</p>
+          </div>
+          <div class="form-actions"><button type="submit" class="button primary">Save API keys</button></div>
+        </form>
+      </section>
     </main>
   </div>
 
@@ -291,11 +335,37 @@
       <div class="dialog-heading"><div><p class="eyebrow">NEW GENERATION JOB</p><h2>Create a video</h2></div><button type="button" class="close-button" data-close>×</button></div>
       <label><span>Topic <small>optional—leave blank for agent selection</small></span><input name="topic" maxlength="200" placeholder="How small teams can automate repetitive work"></label>
       <div class="form-grid two">
-        <label><span>Format</span><select name="style"><option value="explainer">Explainer</option><option value="tutorial">Tutorial</option><option value="list">List</option><option value="review">Review</option><option value="story">Story</option></select></label>
+        <label><span>Format</span><select name="style"><option value="explainer">Explainer</option><option value="tutorial">Tutorial</option><option value="list">List</option><option value="review">Review</option><option value="story">Story</option><option value="quiz">Quiz (MCQ)</option><option value="quiz_visuals">Quiz + Visuals</option><option value="quiz_short">⚡ Short Quiz (9:16 Rapid-Fire + Visuals)</option><option value="quiz_short_no_image">⚡ Short Quiz (9:16 Structured Typography - Without Images)</option></select></label>
         <label><span>Length</span><select name="length"><option value="short">Short · 2–4 min</option><option value="medium" selected>Medium · 8–12 min</option><option value="long">Long · 15–20 min</option></select></label>
       </div>
       <p class="callout">Generation runs in the background. You can follow each stage and cancel between stages.</p>
       <div class="form-actions"><button type="submit" class="button primary">Start generation</button><button type="button" class="button ghost" data-close>Cancel</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="idea-input-dialog" class="dialog">
+    <form id="idea-input-form" method="dialog">
+      <div class="dialog-heading"><div><p class="eyebrow">STEP 1 OF 2</p><h2>Describe your video idea</h2></div><button type="button" class="close-button" data-close>×</button></div>
+      <label><span>What do you want the video to be about? <small>Write freely — your rough idea, target audience, angle, or just a topic</small></span><textarea name="idea" rows="4" maxlength="1000" placeholder="e.g. I want a Hindi quiz video with 50 science MCQs for SSC exam prep. Focus on physics and chemistry questions that repeat every year. Target audience is Hindi-medium students preparing for government exams." required></textarea></label>
+      <p class="callout">We&apos;ll generate an SEO-optimized YouTube title from your idea. You can review and edit it in the next step.</p>
+      <div class="form-actions"><button type="submit" class="button primary">Generate title & continue</button><button type="button" class="button ghost" data-close>Cancel</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="title-confirm-dialog" class="dialog">
+    <form id="title-confirm-form" method="dialog">
+      <div class="dialog-heading"><div><p class="eyebrow">STEP 2 OF 2</p><h2>Review your video title</h2></div><button type="button" class="close-button" data-close>×</button></div>
+      <label><span>AI-generated SEO title <small>Edit if needed, or regenerate</small></span><input name="topic" maxlength="200" required></label>
+      <div class="form-grid two">
+        <label><span>Format</span><select name="style"><option value="explainer">Explainer</option><option value="tutorial">Tutorial</option><option value="list">List</option><option value="review">Review</option><option value="story">Story</option><option value="quiz">Quiz (MCQ)</option><option value="quiz_visuals">Quiz + Visuals</option><option value="quiz_short">⚡ Short Quiz (9:16 Rapid-Fire + Visuals)</option><option value="quiz_short_no_image">⚡ Short Quiz (9:16 Structured Typography - Without Images)</option></select></label>
+        <label><span>Length</span><select name="length"><option value="short">Short · 2–4 min</option><option value="medium" selected>Medium · 8–12 min</option><option value="long">Long · 15–20 min</option></select></label>
+      </div>
+      <p class="callout">This title will be used for the video. Generation runs in the background.</p>
+      <div class="form-actions">
+        <button type="button" class="button secondary" id="regenerate-title-btn">Regenerate title</button>
+        <button type="submit" class="button primary">Start generation</button>
+        <button type="button" class="button ghost" data-close>Cancel</button>
+      </div>
     </form>
   </dialog>
 

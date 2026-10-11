@@ -31,16 +31,26 @@ function requestApiKey() {
 }
 
 async function api(url, options = {}, retry = true) {
+  let requestOptions = options;
+  if (typeof options === 'string') {
+    const method = options.toUpperCase();
+    const payload = retry && typeof retry === 'object' ? retry : undefined;
+    requestOptions = {
+      method,
+      body: payload !== undefined ? JSON.stringify(payload) : undefined
+    };
+    retry = true;
+  }
   const key = apiKey();
   const response = await fetch(url, {
-    ...options,
+    ...requestOptions,
     headers: {
-      ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+      ...(requestOptions.body ? { 'Content-Type': 'application/json' } : {}),
       ...(key ? { 'x-api-key': key } : {}),
-      ...(options.headers || {})
+      ...(requestOptions.headers || {})
     }
   });
-  if (response.status === 401 && retry && requestApiKey() !== null) return api(url, options, false);
+  if (response.status === 401 && retry && requestApiKey() !== null) return api(url, requestOptions, false);
   const data = await response.json().catch(() => ({}));
   if (!response.ok) {
     const error = new Error(data.error || response.statusText || 'Request failed');
@@ -98,6 +108,7 @@ async function refreshDashboard(silent = false) {
   try {
     ui.state = await api('/api/dashboard');
     renderDashboard();
+    if (ui.currentView === 'credentials') loadCredentialStatus(false);
   } catch (error) {
     $('#system-label').textContent = 'Dashboard unavailable';
     $('#system-dot').classList.remove('online');
@@ -185,7 +196,7 @@ function renderReviews(reviews) {
   }
   container.innerHTML = reviews.slice(0, 5).map(item => `
     <article class="review-card">
-      ${item.hasThumbnail ? `<img class="review-thumb" src="/api/content/${encodeURIComponent(item.id)}/asset/thumbnail" alt="">` : '<div class="review-thumb"></div>'}
+      ${item.hasThumbnail ? `<img class="review-thumb" src="/api/content/${encodeURIComponent(item.id)}/asset/thumbnail" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"><div class="review-thumb fallback" style="display:none;"></div>` : '<div class="review-thumb fallback"></div>'}
       <div class="review-meta"><strong>${escapeHTML(item.title)}</strong><div class="meta-line">${statusChip(item.review_status)} · Quality ${qualityScore(item.qualityChecks)}%</div></div>
       <button class="button secondary small" data-open-content="${escapeHTML(item.id)}">Review</button>
     </article>`).join('');
@@ -792,10 +803,12 @@ function switchView(view) {
     analytics: ['PERFORMANCE', 'Turn results into the next move.'],
     engagement: ['AUDIENCE ENGAGEMENT', 'Talk with the people watching.'],
     readiness: ['PRODUCTION READINESS', 'Verify before autonomy runs.'],
-    settings: ['CHANNEL GUARDRAILS', 'Make every agent sound like you.']
+    settings: ['CHANNEL GUARDRAILS', 'Make every agent sound like you.'],
+    credentials: ['API CREDENTIALS', 'Keys for every model provider.']
   };
   $('#view-eyebrow').textContent = titles[view][0];
   $('#view-title').textContent = titles[view][1];
+  if (view === 'credentials') loadCredentialStatus(true);
   location.hash = view;
 }
 
@@ -1032,7 +1045,7 @@ async function openContent(productionId) {
             <label class="toggle"><input name="rightsConfirmed" type="checkbox" ${data.rightsConfirmed ? 'checked' : ''}><span></span> Media rights confirmed</label>
           </div>
           ${item.schedule && !['published', 'uploading', 'uploaded', 'reconciliation_required'].includes(item.schedule.status) ? `<div class="form-actions"><button type="button" class="button secondary" data-reschedule-content="${escapeHTML(item.id)}">Reschedule</button><button type="button" class="button primary" data-publish-now-content="${escapeHTML(item.id)}">Publish now</button><button type="button" class="button danger" data-delete-schedule="${escapeHTML(item.id)}">Delete schedule</button></div>` : ''}
-          ${canReview ? `<div class="form-actions"><button type="button" class="button primary" data-approve-content="${escapeHTML(item.id)}">Approve & schedule</button><button type="button" class="button secondary" data-save-content="${escapeHTML(item.id)}">Save draft</button><button type="button" class="button danger" data-reject-content="${escapeHTML(item.id)}">Reject</button><button type="button" class="button ghost" data-retry-content="${escapeHTML(item.id)}">Regenerate</button></div>` : `<a class="button secondary" href="${escapeHTML(item.schedule?.youtube_url || '#')}" target="_blank" rel="noopener">Open on YouTube</a>`}
+          ${canReview ? `<div class="form-actions"><button type="button" class="button primary" data-approve-content="${escapeHTML(item.id)}" ${data.factChecked && data.rightsConfirmed ? '' : 'disabled title="Confirm both review checks above first"'}>Approve & schedule</button><button type="button" class="button secondary" data-save-content="${escapeHTML(item.id)}">Save draft</button><button type="button" class="button danger" data-reject-content="${escapeHTML(item.id)}">Reject</button><button type="button" class="button ghost" data-retry-content="${escapeHTML(item.id)}">Regenerate</button></div>` : `<a class="button secondary" href="${escapeHTML(item.schedule?.youtube_url || '#')}" target="_blank" rel="noopener">Open on YouTube</a>`}
       </form>`;
     $('#content-review-form').dataset.productionId = item.id;
     $('#content-dialog').showModal();
@@ -1613,6 +1626,16 @@ document.addEventListener('change', event => {
     const input = $('#content-review-form [name="title"]');
     if (title && input) input.value = title;
   }
+  if (event.target.matches('[name="factChecked"], [name="rightsConfirmed"]')) {
+    const form = event.target.closest('#content-review-form');
+    const approveButton = form?.querySelector('[data-approve-content]');
+    if (approveButton) {
+      const ready = form.elements.factChecked?.checked && form.elements.rightsConfirmed?.checked;
+      approveButton.disabled = !ready;
+      if (ready) approveButton.removeAttribute('title');
+      else approveButton.setAttribute('title', 'Confirm both review checks above first');
+    }
+  }
   if (event.target.matches('[data-scene-upload]')) {
     const file = event.target.files?.[0];
     const card = event.target.closest('[data-scene-card]');
@@ -1623,7 +1646,8 @@ document.addEventListener('change', event => {
   }
 });
 
-$('#generate-button').addEventListener('click', () => $('#generate-dialog').showModal());
+// Open the new two-step flow: idea → AI title → generate
+$('#generate-button').addEventListener('click', () => $('#idea-input-dialog').showModal());
 $('#add-idea-button').addEventListener('click', () => $('#idea-dialog').showModal());
 $('#refresh-button').addEventListener('click', () => refreshDashboard());
 $('#pipeline-filter').addEventListener('change', () => renderPipeline(ui.state?.pipeline || []));
@@ -1713,6 +1737,65 @@ $('#generate-form').addEventListener('submit', async event => {
   } catch (_error) { /* toast already shown */ }
 });
 
+// Step 1: Idea input → AI title generation
+$('#idea-input-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const values = Object.fromEntries(new FormData(event.currentTarget));
+  const idea = values.idea.trim();
+  const style = values.style || 'explainer';
+  if (!idea) return;
+  try {
+    const data = await api('/api/ideas/generate-title', {
+      method: 'POST',
+      body: JSON.stringify({ idea, style })
+    });
+    // Store the generated title and original idea for step 2
+    const titleInput = $('#title-confirm-form [name="topic"]');
+    if (titleInput) titleInput.value = data.result.title;
+    // Pass the original idea through a hidden field or data attr
+    $('#title-confirm-form').dataset.originalIdea = idea;
+    $('#title-confirm-form').dataset.style = style;
+    $('#title-confirm-form').dataset.length = values.length || 'medium';
+    $('#idea-input-dialog').close();
+    $('#title-confirm-dialog').showModal();
+  } catch (error) {
+    showToast(error.message || 'Failed to generate title');
+  }
+});
+
+// Regenerate title button
+$('#regenerate-title-btn').addEventListener('click', async () => {
+  const form = $('#title-confirm-form');
+  const idea = form.dataset.originalIdea;
+  const style = form.dataset.style || 'explainer';
+  if (!idea) return;
+  try {
+    const data = await api('/api/ideas/generate-title', {
+      method: 'POST',
+      body: JSON.stringify({ idea, style })
+    });
+    const titleInput = form.querySelector('[name="topic"]');
+    if (titleInput) titleInput.value = data.result.title;
+  } catch (error) {
+    showToast(error.message || 'Failed to regenerate title');
+  }
+});
+
+// Step 2: Title confirmation → start generation
+$('#title-confirm-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const values = Object.fromEntries(new FormData(event.currentTarget));
+  const topic = values.topic.trim();
+  const style = values.style;
+  const length = values.length || 'medium';
+  if (!topic) return;
+  try {
+    await mutate('/generate', 'POST', { topic, style, length }, 'Generation job started.');
+    $('#title-confirm-dialog').close();
+    event.currentTarget.reset();
+  } catch (_error) { /* toast already shown */ }
+});
+
 $('#idea-form').addEventListener('submit', async event => {
   event.preventDefault();
   const values = Object.fromEntries(new FormData(event.currentTarget));
@@ -1745,7 +1828,112 @@ $('#api-key-button').addEventListener('click', () => {
   if (requestApiKey() !== null) showToast('Dashboard API key saved in this browser.');
 });
 
+function setCredentialStatus(selector, data) {
+  const node = $(`[data-cred="${selector}"]`);
+  if (!node) return;
+  if (data?.configured) {
+    node.textContent = `Configured ${data.hint}${data.source ? ` · from ${data.source}` : ''}`;
+    node.className = 'cred-status configured';
+  } else {
+    node.textContent = 'Not configured';
+    node.className = 'cred-status missing';
+  }
+}
+
+// fillValues: set the non-secret inputs (voice ID, models, redirect URI).
+// Only done on view entry or after saving, never on background refresh,
+// so in-progress edits are not overwritten.
+async function loadCredentialStatus(fillValues = false) {
+  let result;
+  try {
+    result = (await api('/api/settings/credentials')).result || {};
+  } catch (_error) {
+    return; // status lines simply keep their last state
+  }
+  const form = $('#credentials-form');
+  setCredentialStatus('gemini.apiKey', result.gemini?.apiKey);
+  setCredentialStatus('openai.apiKey', result.openai?.apiKey);
+  setCredentialStatus('replicate.apiKey', result.replicate?.apiKey);
+  setCredentialStatus('elevenLabs.apiKey', result.elevenLabs?.apiKey);
+  setCredentialStatus('elevenLabs.voiceId', result.elevenLabs?.voiceId ? { configured: true, hint: result.elevenLabs.voiceId } : { configured: false });
+  setCredentialStatus('textProvider.apiKey', result.textProvider?.apiKey);
+  const metaNode = $('[data-cred="textProvider.meta"]');
+  if (metaNode) {
+    metaNode.textContent = result.textProvider?.provider
+      ? `Override active: ${result.textProvider.provider}${result.textProvider.model ? ` (${result.textProvider.model})` : ''}`
+      : 'No override — Gemini or the keys above are used.';
+    metaNode.className = `cred-status ${result.textProvider?.provider ? 'configured' : 'missing'}`;
+  }
+  setCredentialStatus('videoProviders.minimax.apiKey', result.videoProviders?.minimax?.apiKey);
+  setCredentialStatus('videoProviders.wan.apiKey', result.videoProviders?.wan?.apiKey);
+  setCredentialStatus('videoProviders.kling.accessKey', result.videoProviders?.kling?.accessKey);
+  setCredentialStatus('videoProviders.kling.secretKey', result.videoProviders?.kling?.secretKey);
+  setCredentialStatus('youtube.clientId', result.youtube?.clientId);
+  setCredentialStatus('youtube.clientSecret', result.youtube?.clientSecret);
+  if (fillValues && form) {
+    form.elements.geminiModel.value = result.gemini?.model || '';
+    form.elements.elevenLabsVoiceId.value = result.elevenLabs?.voiceId || '';
+    form.elements.textProvider.value = result.textProvider?.provider || '';
+    form.elements.textProviderModel.value = result.textProvider?.model || '';
+    form.elements.youtubeRedirectUri.value = result.youtube?.redirectUri || '';
+  }
+}
+
+$('#credentials-form').addEventListener('submit', async event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const val = name => (form.elements[name]?.value || '').trim();
+  const payload = {};
+
+  const gemini = {};
+  if (val('geminiApiKey')) gemini.apiKey = val('geminiApiKey');
+  if (val('geminiModel')) gemini.model = val('geminiModel');
+  if (Object.keys(gemini).length) payload.gemini = gemini;
+
+  const openai = {};
+  if (val('openaiApiKey')) openai.apiKey = val('openaiApiKey');
+  if (Object.keys(openai).length) payload.openai = openai;
+
+  const elevenLabs = {};
+  if (val('elevenLabsApiKey')) elevenLabs.apiKey = val('elevenLabsApiKey');
+  if (val('elevenLabsVoiceId')) elevenLabs.voiceId = val('elevenLabsVoiceId');
+  if (Object.keys(elevenLabs).length) payload.elevenLabs = elevenLabs;
+
+  if (val('replicateApiKey')) payload.replicate = { apiKey: val('replicateApiKey') };
+
+  // The "Auto" option explicitly removes any stored provider override (null).
+  const textProvider = { provider: val('textProvider') || null };
+  if (textProvider.provider) {
+    if (val('textProviderApiKey')) textProvider.apiKey = val('textProviderApiKey');
+    if (val('textProviderModel')) textProvider.model = val('textProviderModel');
+  }
+  payload.textProvider = textProvider;
+
+  const videoProviders = {};
+  if (val('minimaxApiKey')) videoProviders.minimax = { apiKey: val('minimaxApiKey') };
+  if (val('wanApiKey')) videoProviders.wan = { apiKey: val('wanApiKey') };
+  if (val('klingAccessKey') || val('klingSecretKey')) {
+    videoProviders.kling = {};
+    if (val('klingAccessKey')) videoProviders.kling.accessKey = val('klingAccessKey');
+    if (val('klingSecretKey')) videoProviders.kling.secretKey = val('klingSecretKey');
+  }
+  if (Object.keys(videoProviders).length) payload.videoProviders = videoProviders;
+
+  const youtube = {};
+  if (val('youtubeClientId')) youtube.clientId = val('youtubeClientId');
+  if (val('youtubeClientSecret')) youtube.clientSecret = val('youtubeClientSecret');
+  if (val('youtubeRedirectUri')) youtube.redirectUri = val('youtubeRedirectUri');
+  if (Object.keys(youtube).length) payload.youtube = youtube;
+
+  try {
+    const response = await mutate('/api/settings/credentials', 'POST', payload, 'API keys saved.');
+    if (response?.applied === false) showToast('Keys stored, but the pipeline is not initialized yet — they load when the agent starts.');
+    form.querySelectorAll('input[type="password"]').forEach(input => { input.value = ''; });
+    await loadCredentialStatus(true);
+  } catch (_error) { /* toast already shown */ }
+});
+
 const initialView = location.hash.slice(1);
-if (['overview', 'operator', 'pipeline', 'calendar', 'analytics', 'engagement', 'readiness', 'settings'].includes(initialView)) switchView(initialView);
+if (['overview', 'operator', 'pipeline', 'calendar', 'analytics', 'engagement', 'readiness', 'settings', 'credentials'].includes(initialView)) switchView(initialView);
 refreshDashboard();
 setInterval(() => refreshDashboard(true), 8000);

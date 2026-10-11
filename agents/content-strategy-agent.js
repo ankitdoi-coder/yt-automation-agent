@@ -230,6 +230,12 @@ class ContentStrategyAgent {
     try {
       let topic, angle, targetAudience, contentType;
 
+      const normalizedTopic = this.normalizeRequestedTopic(requestedTopic);
+      if (normalizedTopic) {
+        this.logger.info(`Normalizing requested topic: "${requestedTopic}" -> "${normalizedTopic}"`);
+      }
+      requestedTopic = normalizedTopic;
+
       const aiStrategy = await this.generateContentStrategyWithAI(requestedTopic);
       if (aiStrategy) {
         await this.db.saveContentStrategy(aiStrategy);
@@ -260,6 +266,7 @@ class ContentStrategyAgent {
         angle,
         targetAudience,
         contentType,
+        language: this.detectLanguage(topic) || (['Quiz', 'Quiz_visuals', 'Quiz_short'].includes(contentType) ? 'hi' : 'en'),
         keywords: this.extractKeywords(topic),
         estimatedViews: this.predictViews(topic),
         bestPublishTime: this.calculateBestPublishTime(),
@@ -276,6 +283,44 @@ class ContentStrategyAgent {
       this.logger.error('Failed to generate content strategy:', error);
       throw error;
     }
+  }
+
+  // Operator-supplied topics can arrive as raw, unstructured sentences (the
+  // "now i want to cratea a video series..." case). Extract the core subject
+  // so the script writer and image model get something teachable to work with.
+  normalizeRequestedTopic(requestedTopic) {
+    if (!requestedTopic) return null;
+    let topic = String(requestedTopic).trim().replace(/\s+/g, ' ');
+    if (!topic) return null;
+
+    const noisePatterns = [
+      /^now\s+i\s+want\s+(to\s+)?cratea?\s+a?\s*video\s+series\s+where\s+i\s+am\s+going\s+to\s+/i,
+      /^how\s+to\s+now\s+i\s+want\s+/i,
+      /\s+series\s+where\s+i\s+am\s+going\s+to\s+build\s+/i,
+      /\s+so\s+in\s+my\s+[\w\s]+?\s+project\s+but\s+first\s+video\s+should\s+be\s+/i,
+      /\s+but\s+first\s+video\s+should\s+be\s+/i,
+      /\s+7\s+day\s+series\s+so\s+/i,
+      /\s+so\s+/i
+    ];
+    for (const pattern of noisePatterns) {
+      topic = topic.replace(pattern, '').trim();
+    }
+    topic = topic.replace(/^(how to|how\s+to\s+now|how to|how to)\s+/i, '').trim();
+
+    // A video topic should be a short, concrete subject — anything longer than
+    // ~15 words is a plan, not a topic.
+    const words = topic.split(/\s+/);
+    if (words.length > 15) {
+      topic = words.slice(0, 15).join(' ');
+    }
+
+    // Never let a topic be a bare stop-word or a fragment with no real subject.
+    const meaningful = words.filter(w => w.length > 3 && !['want', 'cratea', 'series', 'going', 'build', 'video', 'feature', 'first', 'explain', 'everything', 'about'].includes(w.toLowerCase()));
+    if (meaningful.length === 0) {
+      return null;
+    }
+
+    return topic.replace(/\s+/g, ' ').trim();
   }
 
   async researchAndPlanChannel(channelStrategy) {
@@ -436,13 +481,16 @@ Return only valid JSON with this exact shape:
   "topic": "specific video topic",
   "angle": "distinct content angle",
   "targetAudience": "specific audience",
-  "contentType": "Tutorial|Explainer|List|Review|Story|News",
+  "contentType": "Tutorial|Explainer|List|Review|Story|News|Quiz",
+  "language": "hi|en",
   "keywords": ["keyword"]
 }
 
 Requested topic: ${requestedTopic || 'none'}
 Trending topics available: ${trendingTopics || 'Technology Trends'}
 Channel target audience: ${process.env.TARGET_AUDIENCE || 'General audience interested in educational content'}
+Pick "Quiz" when the requested topic asks for quiz/MCQ/GK questions or a numbered question set. Quiz videos are lists of multiple-choice questions with answers.
+Set "language" to "hi" when the topic is Hindi, Hinglish, or an Indian exam quiz (SSC, UPSC, railway, police); otherwise "en".
 Avoid fabricated claims and unsupported numbers.`;
 
     try {
@@ -461,6 +509,9 @@ Avoid fabricated claims and unsupported numbers.`;
       const keywords = Array.isArray(parsed.keywords) && parsed.keywords.length > 0
         ? parsed.keywords.map(keyword => String(keyword).trim()).filter(Boolean)
         : this.extractKeywords(topic);
+      const language = this.detectLanguage(parsed.language) ||
+        this.detectLanguage(topic) ||
+        (['Quiz', 'Quiz_visuals', 'Quiz_short'].includes(contentType) ? 'hi' : 'en');
 
       this.logger.info(`Using AI content strategy via ${this.aiTextService.providerName}`);
       return {
@@ -468,6 +519,7 @@ Avoid fabricated claims and unsupported numbers.`;
         angle: String(parsed.angle || await this.generateAngle(topic)).trim(),
         targetAudience: String(parsed.targetAudience || await this.identifyTargetAudience(topic)).trim(),
         contentType,
+        language,
         keywords,
         estimatedViews: this.predictViews(topic),
         bestPublishTime: this.calculateBestPublishTime(),
@@ -498,12 +550,38 @@ Avoid fabricated claims and unsupported numbers.`;
     }
   }
 
-  normalizeContentType(contentType, topic) {
-    const allowed = new Set(['Tutorial', 'Explainer', 'List', 'Review', 'Story', 'News']);
+  normalizeContentType(contentType, topic = '') {
     const normalized = String(contentType || '').trim();
+    if (normalized.toLowerCase() === 'quiz_short') {
+      return 'Quiz_short';
+    }
+    if (normalized.toLowerCase() === 'quiz_short_no_image') {
+      return 'Quiz_short_no_image';
+    }
+    if (normalized.toLowerCase() === 'quiz_visuals') {
+      return 'Quiz_visuals';
+    }
+
+    const t = String(topic).toLowerCase();
+    const quizSignals = ['quiz', 'mcq', 'gk', 'general knowledge', 'questions and answers', 'question and answer', 'प्रश्न', 'सामान्य ज्ञान', 'वस्तुनिष्ठ'];
+    if (quizSignals.some(sig => t.includes(sig))) {
+      return 'Quiz';
+    }
+
+    const allowed = new Set(['Tutorial', 'Explainer', 'List', 'Review', 'Story', 'News', 'Quiz', 'Quiz_visuals', 'Quiz_short', 'Quiz_short_no_image']);
     const titleCased = normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
 
     return allowed.has(titleCased) ? titleCased : this.selectContentType(topic);
+  }
+
+  // Quiz channels serve Hindi-speaking exam audiences; everything else defaults
+  // to English unless the topic itself asks for a language.
+  detectLanguage(...values) {
+    const text = values.filter(Boolean).join(' ');
+    if (/[\u0900-\u097F]/.test(text)) return 'hi';
+    if (/\b(hindi|hinglish)\b|हिंदी|हिन्दी/i.test(text)) return 'hi';
+    if (/\b(english|angrezi)\b/i.test(text)) return 'en';
+    return null;
   }
   selectOptimalTopic() {
     // Use scoring algorithm to select best topic
@@ -567,24 +645,31 @@ Avoid fabricated claims and unsupported numbers.`;
   }
 
   async identifyTargetAudience(topic) {
-    // Simplified audience identification
+    // Audience identification tailored for educational reach
+    const defaultAudience = process.env.TARGET_AUDIENCE || 'Students, competitive exam aspirants (SSC, UPSC, Railway, State PCS), and lifelong learners';
     const audiences = {
-      tech: 'Tech enthusiasts, developers, early adopters',
+      education: defaultAudience,
+      tech: 'Tech enthusiasts, developers, engineering students',
       business: 'Entrepreneurs, business owners, professionals',
-      education: 'Students, educators, lifelong learners',
       entertainment: 'General audience, entertainment seekers',
       lifestyle: 'Lifestyle enthusiasts, self-improvement seekers'
     };
 
     const category = this.categorize(topic);
-    return audiences[category] || audiences.entertainment;
+    return audiences[category] || defaultAudience;
   }
 
   categorize(topic) {
     const categories = {
+      education: [
+        'learn', 'tutorial', 'how to', 'guide', 'course', 'study',
+        'gk', 'quiz', 'exam', 'upsc', 'ssc', 'rrb', 'ntpc', 'pcs',
+        'question', 'questions', 'mcq', 'general knowledge', 'samanya gyan',
+        'history', 'geography', 'polity', 'science', 'facts', 'lucent',
+        'competitive', 'prashn', 'hindi gk', 'current affairs'
+      ],
       tech: ['technology', 'software', 'app', 'ai', 'code', 'programming', 'crypto', 'blockchain'],
       business: ['business', 'money', 'finance', 'startup', 'entrepreneur', 'marketing'],
-      education: ['learn', 'tutorial', 'how to', 'guide', 'course', 'study'],
       lifestyle: ['life', 'health', 'fitness', 'food', 'travel', 'fashion']
     };
 
@@ -596,11 +681,12 @@ Avoid fabricated claims and unsupported numbers.`;
       }
     }
 
-    return 'entertainment';
+    return 'education';
   }
 
   selectContentType(topic) {
     const types = [
+      { type: 'Quiz', suitableFor: ['quiz', 'mcq', 'gk', 'general knowledge', 'questions and answers', 'question and answer', 'प्रश्न', 'सामान्य ज्ञान', 'वस्तुनिष्ठ'] },
       { type: 'Tutorial', suitableFor: ['how to', 'guide', 'learn'] },
       { type: 'List', suitableFor: ['best', 'top', 'worst'] },
       { type: 'Review', suitableFor: ['review', 'vs', 'comparison'] },
@@ -710,14 +796,14 @@ Avoid fabricated claims and unsupported numbers.`;
     // Adjust score based on target audience size
     const category = this.categorize(topic);
     const multipliers = {
+      education: 1.35,
       tech: 1.2,
       business: 1.1,
-      education: 1.0,
       entertainment: 1.3,
       lifestyle: 1.15
     };
     
-    return multipliers[category] || 1.0;
+    return multipliers[category] || 1.25;
   }
 }
 

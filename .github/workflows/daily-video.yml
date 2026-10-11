@@ -1,0 +1,85 @@
+name: Daily YouTube Video Automation
+
+on:
+  schedule:
+    # Runs daily at 02:30 UTC = 08:00 AM IST (Indian Standard Time)
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+    inputs:
+      topic:
+        description: 'Optional custom topic (leave blank for auto-strategy)'
+        required: false
+        default: ''
+      style:
+        description: 'Video style'
+        required: true
+        default: 'quiz'
+        type: choice
+        options:
+          - quiz
+          - evergreen
+          - educational
+      privacy_status:
+        description: 'Default privacy status on upload'
+        required: true
+        default: 'private'
+        type: choice
+        options:
+          - private
+          - unlisted
+          - public
+
+jobs:
+  generate-and-publish:
+    name: Generate & Publish Video
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install System FFmpeg
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Restore Credentials & Secrets
+        run: |
+          mkdir -p config data/thumbnails data/audio data/videos logs
+
+          # Write .env
+          echo "${{ secrets.ENV_FILE }}" > .env
+
+          # Write Google Credentials JSON
+          echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > config/credentials.json
+
+          # Write YouTube Tokens JSON
+          echo '${{ secrets.YOUTUBE_TOKENS_JSON }}' > config/tokens.json
+
+      - name: Run Video Generation & Publishing Pipeline
+        env:
+          VIDEO_TOPIC: ${{ github.event.inputs.topic }}
+          VIDEO_STYLE: ${{ github.event.inputs.style || 'quiz' }}
+          DEFAULT_PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || 'private' }}
+          CI: true
+        run: npm run daily:job
+
+      - name: Upload Logs on Failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-failure-logs
+          path: |
+            logs/
+            data/*.sqlite
+          retention-days: 7

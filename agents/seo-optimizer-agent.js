@@ -31,34 +31,124 @@ class SEOOptimizerAgent {
     try {
       this.logger.info(`Optimizing SEO for: ${script.title}`);
       
-      const aiSEO = await this.generateSEOWithAI(script, strategy);
+      const profile = await this.db.getChannelProfile?.().catch(() => null);
+      const brand = profile?.channel_name || process.env.CHANNEL_NAME || 'ExamIQ';
+
+      // Create chapters/timestamps first so they can be injected into description
+      const chapters = await this.generateChapters(script);
+      const timestampsBlock = chapters.length > 0
+        ? chapters.map(ch => `${ch.time} ${ch.title}`).join('\n')
+        : '';
+
+      const isQuizShort = Boolean(
+        script.isShort ||
+        strategy.isShort ||
+        String(strategy.contentType || '').toLowerCase() === 'quiz_short' ||
+        String(strategy.requestedStyle || '').toLowerCase() === 'quiz_short' ||
+        String(strategy.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
+        String(strategy.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
+      );
+
       let title, description, tags;
 
-      if (aiSEO) {
-        ({ title, description, tags } = aiSEO);
+      if (isQuizShort) {
+        this.logger.info('Generating viral Short Quiz SEO metadata with high-CTR packaging and educational tags');
+        const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 10;
+        const topicRaw = strategy.topic || script.title || 'General Knowledge';
+        const cleanTopic = topicRaw
+          .replace(/^top\s+\d+\s+/i, '')
+          .replace(/#\w+/g, '')
+          .replace(/\|.*$/g, '')
+          .trim();
+        
+        // High-CTR, mobile-optimized Short title with numbers, exam hooks, year, and viral tags
+        const year = new Date().getFullYear();
+        let shortTitle = `Top ${qCount} ${cleanTopic} Questions (${year}) | GK Quiz in Hindi | Lucent GK #Shorts #GK`;
+        if (shortTitle.length > 95) {
+          shortTitle = `Top ${qCount} ${cleanTopic} Questions (${year}) | GK Quiz #Shorts #GK`;
+        }
+        if (shortTitle.length > 95) {
+          shortTitle = `Top ${qCount} GK Questions (${year}) | GK Quiz in Hindi #Shorts #GK`;
+        }
+        title = shortTitle;
+
+        description = this.generateShortQuizDescription(title, brand, cleanTopic);
+        tags = [
+          'Shorts',
+          'GK Shorts',
+          'gk questions',
+          'gk quiz',
+          'gk in hindi',
+          'lucent gk',
+          'gk questions and answers',
+          'samanya gyan',
+          'gk mcq',
+          'ssc gk',
+          'railway gk',
+          'upsc gk',
+          'static gk',
+          'education',
+          'study tips',
+          'competitive exams',
+          cleanTopic.toLowerCase(),
+          brand,
+          'general knowledge'
+        ];
       } else {
-        this.logger.info('Using template SEO optimization');
-        // Generate optimized title
-        title = await this.optimizeTitle(script.title, strategy);
-        
-        // Generate description
-        description = await this.generateDescription(script, strategy);
-        
-        // Extract and optimize tags
-        tags = await this.generateTags(script, strategy);
+        const aiSEO = await this.generateSEOWithAI(script, strategy, brand, chapters);
+
+        if (aiSEO) {
+          ({ title, description, tags } = aiSEO);
+        } else {
+          this.logger.info('Using template SEO optimization');
+          title = await this.optimizeTitle(script.title, strategy);
+          description = await this.generateDescription(script, strategy);
+          tags = await this.generateTags(script, strategy);
+        }
       }
-      
+
+      // Ensure brand is in title if space permits (under 100 characters)
+      if (brand && !title.toLowerCase().includes(brand.toLowerCase())) {
+        if (title.length + brand.length + 3 <= 100) {
+          title = `${title} | ${brand}`;
+        }
+      }
+
+      // Ensure description contains brand in the opening 200 words (for SEO & GEO salience)
+      const openingWords = description.split(/\s+/).slice(0, 50).join(' ');
+      if (brand && !openingWords.toLowerCase().includes(brand.toLowerCase())) {
+        description = `Welcome to ${brand}! ${description}`;
+      }
+
+      // Ensure description contains timestamps if not already present
+      if (timestampsBlock && !description.includes('00:00') && !description.toLowerCase().includes('timestamps')) {
+        description += `\n\n⏱️ TIMESTAMPS:\n${timestampsBlock}`;
+      }
+
+      // Ensure description contains verified educational reference links
+      if (!description.includes('ncert.nic.in') && !description.includes('wikipedia.org')) {
+        description += `\n\n📚 STUDY RESOURCES & VERIFIED REFERENCES:\n• NCERT Official: https://ncert.nic.in\n• Wikipedia Knowledge Base: https://en.wikipedia.org\n• Legislative & Polity Portal: https://legislative.gov.in`;
+      }
+
+      // Ensure tags include brand and top competitive exam keywords
+      const examTags = [brand, 'Education', 'GK in Hindi', 'General Knowledge Quiz', 'SSC CGL GK', 'UPSC Prelims', 'RRB NTPC GK', 'Static GK', 'Lucent GK'];
+      for (const et of examTags) {
+        if (!tags.some(t => t.toLowerCase() === et.toLowerCase())) {
+          tags.unshift(et);
+        }
+      }
+
       // Generate hashtags
-      const hashtags = await this.generateHashtags(strategy);
-      
-      // Create chapters/timestamps
-      const chapters = await this.generateChapters(script);
+      const hashtags = isQuizShort
+        ? ['#generalknowledge', '#gkinhindi', '#gkquestion', '#gkquiz', '#examgkquestions', '#science', '#currentaffairs', '#gk', '#gkfacts', '#education', '#shorts']
+        : await this.generateHashtags(strategy);
       
       // Generate end screen elements
       const endScreen = await this.generateEndScreenStrategy();
       
       // Calculate SEO score
       const seoScore = await this.calculateSEOScore(title, description, tags);
+      const categoryId = String(process.env.YOUTUBE_CATEGORY_ID || this.selectCategory(strategy) || 27);
       
       const seoData = {
         title,
@@ -68,12 +158,13 @@ class SEOOptimizerAgent {
         chapters,
         endScreen,
         seoScore,
+        categoryId,
         metadata: {
           primaryKeyword: strategy.keywords[0],
           secondaryKeywords: strategy.keywords.slice(1, 5),
           targetLength: this.calculateOptimalLength(strategy.contentType),
-          language: 'en',
-          category: this.selectCategory(strategy)
+          language: strategy.language || (strategy.contentType === 'Quiz' ? 'hi' : 'en'),
+          category: parseInt(categoryId, 10)
         },
         createdAt: new Date().toISOString()
       };
@@ -89,31 +180,58 @@ class SEOOptimizerAgent {
     }
   }
 
-  async generateSEOWithAI(script, strategy) {
+  async generateSEOWithAI(script, strategy, brand = 'ExamIQ', chapters = []) {
     if (!this.aiTextService.isAvailable()) {
       this.logger.info('Using template SEO optimization because no AI text provider is configured');
       return null;
     }
 
-    const prompt = `You are optimizing YouTube metadata.
+    const timestampsText = (chapters && chapters.length > 0)
+      ? chapters.map(ch => `${ch.time} ${ch.title}`).join('\n')
+      : '00:00 Introduction\n00:30 Main Questions\n03:00 Summary';
+
+    const prompt = `You are a legendary YouTube Master & SEO Strategist managing 10+ high-traffic educational channels.
+Your goal is to optimize this video for MAXIMUM ALGORITHMIC REACH (Browse Features, Suggested Videos, and YouTube Search) in the YouTube Education Category (Category ID 27).
+
 Return only valid JSON with this exact shape:
 {
-  "title": "SEO title under 100 characters",
-  "description": "YouTube description with useful summary and timestamps if relevant",
-  "tags": ["tag"]
+  "title": "High-CTR, search-optimized educational title under 95 characters",
+  "description": "Engaging, comprehensive, keyword-dense educational description with timestamps, study links, and comment hook",
+  "tags": ["tag1", "tag2"]
 }
 
-Video title: ${script.title}
-Topic: ${strategy.topic}
-Angle: ${strategy.angle}
-Content type: ${strategy.contentType}
-Target audience: ${strategy.targetAudience}
-Keywords: ${(strategy.keywords || []).join(', ')}
-Keep tags under YouTube's 500 character total guidance. Avoid fabricated statistics and unsupported claims.`;
+CHANNEL BRAND: ${brand}
+VIDEO TITLE: ${script.title}
+TOPIC: ${strategy.topic}
+CONTENT TYPE: ${strategy.contentType}
+TARGET AUDIENCE: ${strategy.targetAudience} (Competitive Exam Aspirants: SSC CGL, UPSC, RRB NTPC, State PCS, Police Exams, and Lifelong Learners)
+KEYWORDS: ${(strategy.keywords || []).join(', ')}
+CATEGORY: Education (ID 27)
+
+YOUTUBE MASTER RULES FOR MAXIMUM RECOMMENDATIONS & REACH:
+1. TITLE:
+   - High Click-Through Rate (CTR) for mobile & desktop feeds. Must be punchy, under 90 characters.
+   - Use numbers, authority exam tags, or high-intent educational hooks: e.g. "Top 25 GK Questions for SSC CGL & Railway (${new Date().getFullYear()}) | ${brand}" or "${script.title} | Complete Exam Guide | ${brand}".
+   - Ensure "${brand}" is cleanly integrated.
+2. DESCRIPTION (Structured for YouTube Algorithm & Viewer Retention):
+   - Hook (First 150 characters): Immediately delivers the value proposition and core search keyword before the "Show more" cut.
+   - WHAT YOU WILL LEARN: 3-5 bullet points packed with semantic educational keywords (LSI keywords).
+   - TIMESTAMPS: Include verified timestamps for Key Moments search indexing:
+${timestampsText}
+   - AUDIENCE CHALLENGE / PINNED COMMENT HOOK: "🎯 Daily Challenge: How many questions did you answer correctly? Comment your score below to get pinned! 🏆" (Viewer comments multiply algorithmic reach!).
+   - STUDY RESOURCES & REFERENCES (GEO / E-E-A-T Trust):
+     • NCERT Official: https://ncert.nic.in
+     • Wikipedia Knowledge Base: https://en.wikipedia.org
+     • Government of India Legislative Portal: https://legislative.gov.in
+   - SYLLABUS & EXAM RELEVANCE: Mention target exams (SSC CGL, CHSL, MTS, UPSC Prelims, Railway RRB NTPC, State PCS, Police Constable & SI).
+   - CALL TO ACTION: Like, share, subscribe to ${brand}.
+   - HASHTAGS: #${brand} #Education #GKQuiz #GeneralKnowledge #ExamPrep #SSCCGL #UPSC.
+3. TAGS:
+   - 15-22 high-search-volume keywords: Exact match, long-tail queries, exam variants ("SSC CGL GK", "UPSC Prelims", "RRB NTPC"), bilingual variants ("GK in Hindi", "Samanya Gyan", "Lucent GK"), and "${brand}". Total tag character length under 450.`;
 
     try {
       const response = await this.aiTextService.generateText(prompt, {
-        maxTokens: 1400,
+        maxTokens: 1800,
         temperature: 0.6
       });
       const parsed = this.parseAIJsonResponse(response);
@@ -169,36 +287,73 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
 
     return uniqueTags;
   }
+
+  generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge') {
+    const year = new Date().getFullYear();
+    return `${title}
+
+🎯 DAILY QUIZ CHALLENGE:
+How many questions can you answer correctly? Test your general knowledge and drop your score (e.g. 8/10) in the comments below! 👇
+
+📚 TOPICS COVERED & SYLLABUS:
+• ${cleanTopic} Questions and Answers in Hindi & English
+• Lucent GK & Samanya Gyan Important MCQs (${year})
+• Most Repeated Questions for Competitive Exams
+• Target Exams: SSC CGL, CHSL, MTS, UPSC Prelims, RRB NTPC, State PCS, Police Exams
+
+⏱️ TIMESTAMPS:
+00:00 Question 1
+00:15 Question 2
+00:30 Final Question & Score Reveal
+
+🔍 RELATED SEARCH QUERIES:
+${cleanTopic} questions, ${cleanTopic} quiz, gk questions and answers, gk in hindi, lucent gk in hindi, gk quiz hindi, general knowledge quiz, samanya gyan, ssc cgl gk, railway gk, upsc prelims gk, static gk mcq test.
+
+📖 VERIFIED STUDY RESOURCES & REFERENCES:
+• NCERT Official Portal: https://ncert.nic.in
+• Wikipedia Knowledge Base: https://en.wikipedia.org
+• Government Legislative Portal: https://legislative.gov.in
+
+🔔 Subscribe to ${brand} for daily exam-prep quiz challenges & high-scoring educational study material!
+
+#Shorts #GKQuiz #GKInHindi #GeneralKnowledge #LucentGK #Education #ExamPrep #SSCCGL #UPSC #${brand.replace(/\s+/g, '')}
+
+⚠️ DISCLAIMER:
+This video is created strictly for educational purposes. Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, comment, news reporting, teaching, scholarship, education, and research.`;
+  }
+
   async optimizeTitle(originalTitle, strategy) {
-    // YouTube title limit: 100 characters, optimal: 60-70
+    // YouTube title limit: 100 characters, optimal: 60-75 for high mobile CTR
     let optimizedTitle = originalTitle;
     
-    // Add power words if not present
-    const powerWords = ['Ultimate', 'Complete', 'Essential', 'Proven', 'Secret', 'Amazing', 'Powerful'];
-    const hasPowerWord = powerWords.some(word => 
+    // Add educational power words if not present
+    const eduPowerWords = ['Top 25', 'Complete Guide', 'Must-Know', 'Most Repeated', 'Ultimate', 'Essential', 'Important'];
+    const hasPowerWord = eduPowerWords.some(word => 
       originalTitle.toLowerCase().includes(word.toLowerCase())
     );
     
-    if (!hasPowerWord && originalTitle.length < 60) {
-      const randomPowerWord = powerWords[Math.floor(Math.random() * powerWords.length)];
-      optimizedTitle = `${randomPowerWord} ${originalTitle}`;
+    if (!hasPowerWord && originalTitle.length < 55) {
+      const powerWord = eduPowerWords[Math.floor(Math.random() * eduPowerWords.length)];
+      optimizedTitle = `${powerWord} ${optimizedTitle}`;
     }
     
     // Add year if relevant and not present
     const currentYear = new Date().getFullYear();
-    if (!optimizedTitle.includes(currentYear.toString()) && optimizedTitle.length < 70) {
+    if (!optimizedTitle.includes(currentYear.toString()) && optimizedTitle.length < 68) {
       optimizedTitle = `${optimizedTitle} (${currentYear})`;
     }
     
     // Ensure primary keyword is in title
-    const primaryKeyword = strategy.keywords[0];
+    const primaryKeyword = strategy.keywords && strategy.keywords[0];
     if (primaryKeyword && !optimizedTitle.toLowerCase().includes(primaryKeyword.toLowerCase())) {
-      optimizedTitle = `${optimizedTitle} - ${primaryKeyword}`;
+      if (optimizedTitle.length + primaryKeyword.length + 3 <= 85) {
+        optimizedTitle = `${optimizedTitle} - ${primaryKeyword}`;
+      }
     }
     
     // Truncate if too long
-    if (optimizedTitle.length > 100) {
-      optimizedTitle = optimizedTitle.substring(0, 97) + '...';
+    if (optimizedTitle.length > 95) {
+      optimizedTitle = optimizedTitle.substring(0, 92).trim() + '...';
     }
     
     // Capitalize properly
@@ -219,15 +374,16 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
   }
 
   async generateDescription(script, strategy) {
-    // YouTube description limit: 5000 characters, first 125 shown in search
-    
+    // YouTube description limit: 5000 characters, first 125-150 shown in search preview
     let description = '';
+    const brand = process.env.CHANNEL_NAME || 'ExamIQ';
+    const year = new Date().getFullYear();
     
-    // First 125 characters - most important for SEO
-    const hook = `${script.title} - In this video, you'll discover ${strategy.angle.toLowerCase()}.`;
+    // First 125 characters - high-salience hook for YouTube & Google search snippets
+    const hook = `Welcome to ${brand}! ${script.title} - In this comprehensive educational guide, you will master ${strategy.angle ? strategy.angle.toLowerCase() : strategy.topic}.`;
     description += hook + '\n\n';
     
-    // Video overview
+    // Video overview & learning outcomes
     description += '📺 WHAT YOU\'LL LEARN:\n';
     if (script.mainContent && script.mainContent.sections) {
       script.mainContent.sections.slice(0, 5).forEach(section => {
@@ -235,67 +391,59 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
           description += `• ${section.title}\n`;
         }
       });
+    } else {
+      description += `• Complete breakdown of ${strategy.topic}\n`;
+      description += `• Top questions and important concepts for competitive exams\n`;
+      description += `• Practical problem-solving tips and study tricks\n`;
     }
     description += '\n';
     
-    // Timestamps/Chapters
+    // Interactive Challenge (Comment ranking multiplier)
+    description += '🎯 AUDIENCE SCORE CHALLENGE:\n';
+    description += 'How many questions did you answer correctly? Drop your score in the comments below to get pinned! 🏆\n\n';
+
+    // Timestamps/Chapters for YouTube "Key Moments" and Google Search indexing
     description += '⏱️ TIMESTAMPS:\n';
-    description += '00:00 Introduction\n';
-    let timestamp = 20;
-    if (script.mainContent && script.mainContent.sections) {
-      script.mainContent.sections.forEach(section => {
-        const minutes = Math.floor(timestamp / 60);
-        const seconds = timestamp % 60;
-        description += `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} ${section.title || 'Section'}\n`;
-        timestamp += section.duration || 60;
-      });
-    }
+    const chapters = await this.generateChapters(script);
+    chapters.forEach(ch => {
+      description += `${ch.time} ${ch.title}\n`;
+    });
     description += '\n';
     
-    // Keywords paragraph (SEO optimized)
-    description += '📝 ABOUT THIS VIDEO:\n';
-    description += `This comprehensive guide on ${strategy.topic} covers everything you need to know. `;
-    description += `Whether you're a beginner or advanced, you'll find valuable insights about ${strategy.keywords.slice(0, 3).join(', ')}. `;
-    description += `Perfect for ${strategy.targetAudience}.\n\n`;
+    // Keywords paragraph (SEO & LSI optimized)
+    description += '📝 ABOUT THIS VIDEO & SYLLABUS COVERAGE:\n';
+    description += `This comprehensive educational video on ${strategy.topic} covers key syllabus areas for competitive exams. `;
+    description += `Whether preparing for SSC CGL, CHSL, UPSC Prelims, RRB NTPC, or State PCS, you will gain essential knowledge on ${(strategy.keywords || []).slice(0, 4).join(', ')}. `;
+    description += `Target Audience: ${strategy.targetAudience || 'Competitive exam aspirants and lifelong learners'}.\n\n`;
     
-    // Links section
-    description += '🔗 USEFUL LINKS:\n';
-    description += `• Subscribe: [Your Channel URL]\n`;
+    // Verified Study Resources & References (E-E-A-T & GEO Trust Network)
+    description += '📚 STUDY RESOURCES & VERIFIED REFERENCES:\n';
+    description += '• NCERT Official Portal: https://ncert.nic.in\n';
+    description += '• Wikipedia Knowledge Base: https://en.wikipedia.org\n';
+    description += '• Legislative & Polity Portal: https://legislative.gov.in\n\n';
+
+    // Links section & Playlists
+    description += '🔗 USEFUL LINKS & PLAYLISTS:\n';
+    description += `• Subscribe to ${brand}: [Your Channel URL]\n`;
+    description += `• More Educational Quizzes & Guides: [Playlist URL]\n`;
     description += `• Website: ${process.env.WEBSITE_URL || '[Your Website]'}\n`;
     description += `• Social Media: ${process.env.SOCIAL_LINKS || '[Your Social Media]'}\n\n`;
     
-    // Related videos
-    description += '📹 RELATED VIDEOS:\n';
-    description += '• [Related Video 1]\n';
-    description += '• [Related Video 2]\n';
-    description += '• [Related Video 3]\n\n';
-    
-    // Equipment/Tools (if applicable)
-    if (strategy.contentType === 'Tutorial') {
-      description += '🛠️ TOOLS & RESOURCES MENTIONED:\n';
-      description += '• [Tool/Resource 1]\n';
-      description += '• [Tool/Resource 2]\n\n';
-    }
-    
-    // Contact/Business
+    // Business inquiries
     description += '📧 BUSINESS INQUIRIES:\n';
     description += `${process.env.BUSINESS_EMAIL || '[Your Business Email]'}\n\n`;
     
     // Tags/Hashtags
-    description += '🏷️ TAGS:\n';
+    description += '🏷️ HASHTAGS:\n';
     const hashtags = await this.generateHashtags(strategy);
     description += hashtags.join(' ') + '\n\n';
     
-    // Disclaimer if needed
+    // Educational Disclaimer
     description += '⚠️ DISCLAIMER:\n';
-    description += 'This video is for educational purposes only.\n\n';
+    description += 'This video is created strictly for educational purposes. Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for teaching, scholarship, education, and research.\n\n';
     
     // Copyright
-    description += `© ${new Date().getFullYear()} All Rights Reserved\n`;
-    
-    // Music credits if applicable
-    description += '\n🎵 MUSIC:\n';
-    description += 'Background music from YouTube Audio Library\n';
+    description += `© ${year} ${brand}. All Rights Reserved\n`;
     
     return description;
   }
@@ -367,12 +515,18 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
   }
 
   identifyNiche(strategy) {
-    const topic = strategy.topic.toLowerCase();
+    const topic = (strategy.topic || '').toLowerCase();
     
     const niches = {
+      'education': [
+        'learn', 'study', 'course', 'tutorial', 'education', 'teach',
+        'gk', 'quiz', 'exam', 'upsc', 'ssc', 'rrb', 'ntpc', 'pcs',
+        'question', 'questions', 'mcq', 'knowledge', 'history', 'science',
+        'geography', 'polity', 'facts', 'general knowledge', 'samanya gyan',
+        'lucent', 'test', 'competitive', 'prashn', 'hindi gk', 'current affairs'
+      ],
       'technology': ['tech', 'software', 'hardware', 'gadget', 'computer', 'phone', 'app'],
       'gaming': ['game', 'gaming', 'gamer', 'play', 'stream'],
-      'education': ['learn', 'study', 'course', 'tutorial', 'education', 'teach'],
       'business': ['business', 'entrepreneur', 'startup', 'money', 'finance', 'invest'],
       'lifestyle': ['life', 'lifestyle', 'daily', 'routine', 'habit'],
       'health': ['health', 'fitness', 'workout', 'diet', 'nutrition', 'wellness'],
@@ -385,22 +539,27 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
       }
     }
     
-    return 'general';
+    return 'education';
   }
 
   getNicheTags(niche) {
     const nicheTags = {
+      'education': [
+        'educational', 'learning', 'study tips', 'online learning', 'general knowledge',
+        'gk in hindi', 'gk quiz', 'gk questions', 'samanya gyan', 'lucent gk',
+        'exam preparation', 'ssc cgl gk', 'upsc prelims', 'rrb ntpc gk', 'static gk',
+        'competitive exams', 'current affairs', 'general science'
+      ],
       'technology': ['tech', 'technology', 'innovation', 'future tech', 'tech news'],
       'gaming': ['gaming', 'gameplay', 'walkthrough', 'lets play', 'game review'],
-      'education': ['educational', 'learning', 'study tips', 'online learning', 'edtech'],
       'business': ['business tips', 'entrepreneurship', 'startup', 'business strategy', 'success'],
       'lifestyle': ['lifestyle', 'life hacks', 'daily routine', 'productivity', 'self improvement'],
       'health': ['health tips', 'fitness', 'healthy living', 'wellness', 'nutrition'],
       'entertainment': ['entertainment', 'fun', 'viral', 'trending', 'must watch'],
-      'general': ['video', 'youtube', 'content', 'new', 'latest']
+      'general': ['education', 'learning', 'study', 'exam preparation', 'knowledge']
     };
     
-    return nicheTags[niche] || nicheTags.general;
+    return nicheTags[niche] || nicheTags.education;
   }
 
   generateLongTailKeywords(strategy) {
@@ -495,10 +654,39 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
     return hashtags.slice(0, 15);
   }
 
+  truncateText(text, maxLength) {
+    const str = String(text || '').trim();
+    if (str.length <= maxLength) return str;
+    return `${str.slice(0, maxLength - 1).trimEnd()}…`;
+  }
+
   async generateChapters(script) {
     const chapters = [];
     let currentTime = 0;
-    
+
+    if (script.quiz?.questions?.length) {
+      chapters.push({
+        time: '00:00',
+        title: 'Intro',
+        seconds: 0
+      });
+      currentTime = 4;
+      const questions = script.quiz.questions;
+      const secondsPerQ = script.quiz.language === 'hi' ? 8 : 7;
+      questions.forEach((question, index) => {
+        const minutes = Math.floor(currentTime / 60);
+        const seconds = currentTime % 60;
+        const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        chapters.push({
+          time: timeString,
+          title: `Q${question.number}: ${this.truncateText(question.question, 60)}`,
+          seconds: currentTime
+        });
+        currentTime += secondsPerQ;
+      });
+      return chapters;
+    }
+
     // Introduction
     chapters.push({
       time: '00:00',
@@ -581,7 +769,7 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
     if (description.includes('TIMESTAMPS')) score += 5;
     if (description.includes('http')) score += 5; // Contains links
     if (description.split('\n').length > 10) score += 5; // Well formatted
-    if (description.substring(0, 125).includes(tags[0])) score += 5; // Primary keyword in first 125 chars
+    if (description.substring(0, 200).toLowerCase().includes(String(tags[0] || '').toLowerCase()) || tags.slice(0, 5).some(t => description.toLowerCase().includes(t.toLowerCase()))) score += 5;
     
     // Tags scoring (30 points max)
     if (tags.length >= 10) score += 10;
@@ -599,17 +787,21 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
       'Explainer': '5-10 minutes',
       'Review': '8-12 minutes',
       'List': '8-15 minutes',
-      'Story': '10-20 minutes'
+      'Story': '10-20 minutes',
+      'Quiz': '6-12 minutes'
     };
     
     return optimalLengths[contentType] || '8-12 minutes';
   }
 
   selectCategory(strategy) {
+    if (process.env.YOUTUBE_CATEGORY_ID) {
+      return parseInt(process.env.YOUTUBE_CATEGORY_ID, 10);
+    }
     const categories = {
+      'education': 27, // Education
       'technology': 28, // Science & Technology
       'gaming': 20, // Gaming
-      'education': 27, // Education
       'business': 27, // Education (closest match)
       'lifestyle': 22, // People & Blogs
       'health': 26, // Howto & Style
@@ -617,7 +809,7 @@ Keep tags under YouTube's 500 character total guidance. Avoid fabricated statist
     };
     
     const niche = this.identifyNiche(strategy);
-    return categories[niche] || 22; // Default to People & Blogs
+    return categories[niche] || 27; // Default to Education (Category 27)
   }
 }
 

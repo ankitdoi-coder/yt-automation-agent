@@ -513,7 +513,7 @@ class SetupWalkthrough {
       ...existing,
       channelName: answers.channelName,
       channelDescription: existing.channelDescription || 'Automated content channel',
-      defaultCategory: existing.defaultCategory || '22',
+      defaultCategory: existing.defaultCategory || process.env.YOUTUBE_CATEGORY_ID || '27',
       defaultPrivacy: existing.defaultPrivacy || 'private'
     };
     this.cm.credentials.content = {

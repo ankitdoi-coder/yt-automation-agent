@@ -39,7 +39,7 @@ function normalizeYouTubeMetadata(metadata = {}) {
     title: cleanText(snippet.title).slice(0, MAX_TITLE_LENGTH),
     description: removeControlCharacters(snippet.description).slice(0, MAX_DESCRIPTION_LENGTH).trim(),
     tags: normalizeTags(snippet.tags),
-    categoryId: String(snippet.categoryId ?? snippet.metadata?.category ?? '22').trim(),
+    categoryId: String(snippet.categoryId ?? snippet.metadata?.category ?? process.env.YOUTUBE_CATEGORY_ID ?? '27').trim(),
     defaultLanguage: String(snippet.defaultLanguage ?? snippet.metadata?.language ?? 'en').trim(),
     defaultAudioLanguage: String(snippet.defaultAudioLanguage ?? snippet.metadata?.language ?? 'en').trim()
   };

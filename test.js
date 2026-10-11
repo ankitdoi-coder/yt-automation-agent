@@ -65,7 +65,9 @@ class SystemTest {
       { name: 'Reply Approval and Posting', test: () => this.testReplyApprovalAndPosting() },
       { name: 'Engagement AI Provider Wiring', test: () => this.testEngagementAIProviderWiring() },
       { name: 'Engagement Sync Schedule', test: () => this.testEngagementSyncSchedule() },
-      { name: 'Growth Experiment Refresh Schedule', test: () => this.testGrowthExperimentRefreshSchedule() }
+      { name: 'Growth Experiment Refresh Schedule', test: () => this.testGrowthExperimentRefreshSchedule() },
+      { name: 'Strict Quiz Narration and Script Formatting', test: () => this.testStrictQuizNarration() },
+      { name: 'FreeTTS Integration and Fallback Chain', test: () => this.testFreeTTSIntegration() }
     ];
 
     let passed = 0;
@@ -3467,8 +3469,14 @@ class SystemTest {
     // (manager.credentials), the shape the walkthrough writes to credentials.json.
     // Passing the CredentialManager itself leaves the engagement studio permanently
     // in fallback mode on installs with no provider environment variables.
-    const savedEnv = process.env.OPENAI_API_KEY;
-    delete process.env.OPENAI_API_KEY;
+    const envKeys = ['OPENAI_API_KEY', 'GEMINI_API_KEY', 'OPENROUTER_API_KEY', 'MOONSHOT_API_KEY', 'MIMO_API_KEY', 'GLM_API_KEY'];
+    const savedEnv = {};
+    for (const key of envKeys) {
+      if (process.env[key] !== undefined) {
+        savedEnv[key] = process.env[key];
+        delete process.env[key];
+      }
+    }
     try {
       const configured = new AITextService({
         aiProvider: { provider: 'openai', apiKey: 'test-key', model: 'gpt-5.6' }
@@ -3484,8 +3492,10 @@ class SystemTest {
         throw new Error('A CredentialManager-shaped argument must not look configured; index.js has to unwrap it');
       }
     } finally {
-      if (savedEnv === undefined) delete process.env.OPENAI_API_KEY;
-      else process.env.OPENAI_API_KEY = savedEnv;
+      for (const key of envKeys) {
+        if (savedEnv[key] !== undefined) process.env[key] = savedEnv[key];
+        else delete process.env[key];
+      }
     }
   }
 
@@ -3541,6 +3551,206 @@ class SystemTest {
     }
     const noService = new DailyAutomation({}, {}, {});
     await noService.refreshGrowthExperiments();
+  }
+
+  async testStrictQuizNarration() {
+    const {
+      formatStrictQuizScript,
+      questionNarration,
+      answerNarration,
+      numberToHindiWords,
+      convertNumbersInText,
+      cleanQuestionText,
+      cleanAnswerText
+    } = require('./utils/quiz-narration');
+    const { ScriptWriterAgent } = require('./agents/script-writer-agent');
+    const { AIVideoGenerator } = require('./utils/ai-video-generator');
+    const { ProductionManagementAgent } = require('./agents/production-management-agent');
+
+    // 1. Verify numbers to Hindi words conversion (Rule 18)
+    if (numberToHindiWords(1947) !== 'उन्नीस सौ सैंतालीस') {
+      throw new Error(`numberToHindiWords(1947) failed, got: ${numberToHindiWords(1947)}`);
+    }
+    if (numberToHindiWords(206) !== 'दो सौ छह') {
+      throw new Error(`numberToHindiWords(206) failed, got: ${numberToHindiWords(206)}`);
+    }
+    if (numberToHindiWords(1000) !== 'एक हज़ार') {
+      throw new Error(`numberToHindiWords(1000) failed, got: ${numberToHindiWords(1000)}`);
+    }
+    if (numberToHindiWords(1050) !== 'एक हज़ार पचास') {
+      throw new Error(`numberToHindiWords(1050) failed, got: ${numberToHindiWords(1050)}`);
+    }
+
+    // 2. Verify cleaning questions and answers (Rules 1, 2, 3, 8)
+    const cleanedQ = cleanQuestionText('1. भारत की राजधानी क्या है? सोचिए आपका समय शुरू होता है...');
+    if (cleanedQ !== 'भारत की राजधानी क्या है') {
+      throw new Error(`cleanQuestionText failed, got: "${cleanedQ}"`);
+    }
+
+    const cleanedA = cleanAnswerText('B) नई दिल्ली — भारत की राजधानी');
+    if (cleanedA !== 'नई दिल्ली') {
+      throw new Error(`cleanAnswerText failed, got: "${cleanedA}"`);
+    }
+
+    // 3. Verify exact output example from user request (Rules 4, 13, 14, 15, 16, 17)
+    const sampleQuestions = [
+      { question: 'भारत की राजधानी क्या है?', options: ['मुंबई', 'नई दिल्ली', 'कोलकाता', 'चेन्नई'], answerIndex: 1 },
+      { question: 'भारत का राष्ट्रीय पशु कौन-सा है?', options: ['बाघ', 'शेर', 'हाथी', 'चीता'], answerIndex: 0 },
+      { question: 'भारत का राष्ट्रीय पक्षी कौन-सा है?', options: ['तोता', 'कबूतर', 'मोर', 'चील'], answerIndex: 2 }
+    ];
+
+    const scriptText = formatStrictQuizScript(sampleQuestions, 'hi');
+    const expected =
+`आपका पहला सवाल है— भारत की राजधानी क्या है?
+इसका सही जवाब है— नई दिल्ली।
+
+आपका अगला सवाल है— भारत का राष्ट्रीय पशु कौन-सा है?
+इसका सही जवाब है— बाघ।
+
+आपका आखिरी सवाल है— भारत का राष्ट्रीय पक्षी कौन-सा है?
+इसका सही जवाब है— मोर।`;
+
+    if (scriptText !== expected) {
+      throw new Error(`formatStrictQuizScript does not match expected output.\nExpected:\n${expected}\nGot:\n${scriptText}`);
+    }
+
+    // 4. Verify ScriptWriterAgent formatFullScript uses strict format with dynamic intro
+    const { introNarration } = require('./utils/quiz-narration');
+    if (introNarration('सामान्य ज्ञान', 3, 'hi') !== 'आज हम देखेंगे सामान्य ज्ञान के टॉप तीन महत्वपूर्ण प्रश्न।') {
+      throw new Error(`introNarration for 3 questions failed: ${introNarration('सामान्य ज्ञान', 3, 'hi')}`);
+    }
+    if (introNarration('इतिहास', 15, 'hi') !== 'आज हम देखेंगे इतिहास के टॉप पंद्रह महत्वपूर्ण प्रश्न।') {
+      throw new Error(`introNarration for 15 questions failed: ${introNarration('इतिहास', 15, 'hi')}`);
+    }
+    if (introNarration('विज्ञान', 20, 'hi') !== 'आज हम देखेंगे विज्ञान के टॉप बीस महत्वपूर्ण प्रश्न।') {
+      throw new Error(`introNarration for 20 questions failed: ${introNarration('विज्ञान', 20, 'hi')}`);
+    }
+    if (introNarration('सामान्य विज्ञान', 50, 'hi') !== 'आज हम देखेंगे सामान्य विज्ञान के टॉप पचास महत्वपूर्ण प्रश्न।') {
+      throw new Error(`introNarration for 50 questions failed: ${introNarration('सामान्य विज्ञान', 50, 'hi')}`);
+    }
+
+    const writer = new ScriptWriterAgent();
+    const quizScriptObj = {
+      title: 'Top 3 GK Questions',
+      quiz: {
+        type: 'quiz',
+        language: 'hi',
+        subjectHindi: 'सामान्य ज्ञान',
+        questions: sampleQuestions
+      }
+    };
+    const fullScript = writer.formatFullScript(quizScriptObj);
+    if (!fullScript.includes('आज हम देखेंगे सामान्य ज्ञान के टॉप तीन महत्वपूर्ण प्रश्न।')) {
+      throw new Error(`writer.formatFullScript missing dynamic intro line.\nGot:\n${fullScript}`);
+    }
+    if (!fullScript.includes('आपका पहला सवाल है— भारत की राजधानी क्या है?')) {
+      throw new Error(`writer.formatFullScript missing question 1.\nGot:\n${fullScript}`);
+    }
+    if (fullScript.includes('A)') || fullScript.includes('B)') || fullScript.includes('MAIN CONTENT') || fullScript.includes('HOOK')) {
+      throw new Error('formatFullScript must not include options or technical headers for quiz videos');
+    }
+
+    // 5. Verify ProductionManagementAgent formatQuizScriptForTTS
+    const prodAgent = new ProductionManagementAgent();
+    const ttsScript = prodAgent.formatQuizScriptForTTS(quizScriptObj);
+    if (!ttsScript.includes('आज हम देखेंगे सामान्य ज्ञान के टॉप तीन महत्वपूर्ण प्रश्न।') || !ttsScript.includes('आपका पहला सवाल है—')) {
+      throw new Error(`prodAgent.formatQuizScriptForTTS failed, got:\n${ttsScript}`);
+    }
+
+    // 6. Verify AIVideoGenerator buildQuizSlideData builds 1 title slide + 2N slides with dynamic count
+    const videoGen = new AIVideoGenerator();
+    const slides = videoGen.buildQuizSlideData(quizScriptObj);
+    if (slides.length !== 1 + sampleQuestions.length * 2) {
+      throw new Error(`Expected ${1 + sampleQuestions.length * 2} slides (Title + Q + A per item), got ${slides.length}`);
+    }
+    if (slides[0].kind !== 'quizTitle' || slides[0].narrationText !== 'आज हम देखेंगे सामान्य ज्ञान के टॉप तीन महत्वपूर्ण प्रश्न।') {
+      throw new Error(`Slide 0 title narration mismatch: ${slides[0].narrationText}`);
+    }
+    if (slides[1].kind !== 'quizQuestion' || slides[1].narrationText !== 'आपका पहला सवाल है— भारत की राजधानी क्या है?') {
+      throw new Error(`Slide 1 narration mismatch: ${slides[1].narrationText}`);
+    }
+    if (slides[2].kind !== 'quizAnswer' || slides[2].narrationText !== 'इसका सही जवाब है— नई दिल्ली।') {
+      throw new Error(`Slide 2 narration mismatch: ${slides[2].narrationText}`);
+    }
+    if (slides[5].kind !== 'quizQuestion' || slides[5].narrationText !== 'आपका आखिरी सवाल है— भारत का राष्ट्रीय पक्षी कौन-सा है?') {
+      throw new Error(`Slide 5 narration mismatch: ${slides[5].narrationText}`);
+    }
+    if (slides[6].kind !== 'quizAnswer' || slides[6].narrationText !== 'इसका सही जवाब है— मोर।') {
+      throw new Error(`Slide 6 narration mismatch: ${slides[6].narrationText}`);
+    }
+  }
+
+  async testFreeTTSIntegration() {
+    const { AIVideoGenerator } = require('./utils/ai-video-generator');
+    const path = require('path');
+    const os = require('os');
+    const fs = require('fs').promises;
+
+    // 1. Verify AIVideoGenerator initializes FreeTTS configuration
+    const generator = new AIVideoGenerator({
+      freeTts: { apiKey: 'ft_live_test_key_123' }
+    });
+
+    // Disable higher-priority providers on test instance to isolate FreeTTS and Edge TTS
+    generator.gemini = null;
+    generator.elevenLabsApiKey = null;
+    generator.elevenLabsApiKeys = [];
+
+    if (generator.freeTtsApiKey !== 'ft_live_test_key_123') {
+      throw new Error(`freeTtsApiKey was not set correctly: got ${generator.freeTtsApiKey}`);
+    }
+    if (generator.freeTtsVoice !== 'hi-IN-MadhurNeural') {
+      throw new Error(`freeTtsVoice did not default to hi-IN-MadhurNeural: got ${generator.freeTtsVoice}`);
+    }
+
+    // 2. Verify fallback behavior when FreeTTS encounters an error
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'freetts-test-'));
+    const testOut = path.join(tmpDir, 'test-audio.mp3');
+
+    try {
+      // FreeTTS mock that fails with 403 (simulating Cloudflare challenge or quota limit)
+      generator.generateFreeTTS = async () => {
+        const err = new Error('Request failed with status code 403');
+        err.response = { status: 403 };
+        throw err;
+      };
+
+      // Mock Edge TTS so we don't actually invoke external network in test
+      let edgeTtsInvoked = false;
+      generator.generateEdgeTTS = async (text, outPath) => {
+        edgeTtsInvoked = true;
+        await fs.writeFile(outPath, Buffer.from('mock edge audio data'));
+        return outPath;
+      };
+      generator.isUsableAudioFile = async () => true;
+
+      const result = await generator.generateTTSAudio('नमस्ते, यह एक टेस्ट है।', testOut);
+      if (!edgeTtsInvoked) {
+        throw new Error('Edge TTS fallback was not invoked after FreeTTS failure');
+      }
+      if (generator.lastNarrationResult?.provider !== 'edge-tts') {
+        throw new Error(`Expected provider 'edge-tts', got ${generator.lastNarrationResult?.provider}`);
+      }
+
+      // 3. Verify successful FreeTTS flow
+      let freeTtsCalled = false;
+      generator._ttsCooldowns = {}; // Reset cooldowns
+      generator.generateFreeTTS = async (text, outPath) => {
+        freeTtsCalled = true;
+        await fs.writeFile(outPath, Buffer.from('mock freetts audio data'));
+        return outPath;
+      };
+
+      const freeResult = await generator.generateTTSAudio('नमस्ते, यह एक टेस्ट है।', testOut);
+      if (!freeTtsCalled) {
+        throw new Error('FreeTTS was not invoked when available');
+      }
+      if (generator.lastNarrationResult?.provider !== 'freetts') {
+        throw new Error(`Expected provider 'freetts', got ${generator.lastNarrationResult?.provider}`);
+      }
+    } finally {
+      await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
+    }
   }
 }
 

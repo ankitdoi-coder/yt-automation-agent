@@ -18,6 +18,32 @@ function textFromSection(section = {}) {
 
 function scriptScenes(script = {}) {
   const scenes = [];
+  if (script.quiz?.questions?.length) {
+    const questions = script.quiz.questions;
+    const language = script.quiz.language === 'en' ? 'en' : 'hi';
+    const { questionNarration, answerNarration } = require('./quiz-narration');
+    const LETTERS = ['A', 'B', 'C', 'D'];
+    questions.forEach((question, index) => {
+      const qNum = question.number;
+      const qNarration = questionNarration(question, language, index, questions.length);
+      const options = (question.options || []).map((opt, i) => `${LETTERS[i]}) ${opt}`).join(' | ');
+      scenes.push({
+        label: `Q${qNum}`,
+        scriptText: qNarration,
+        prompt: `${question.question} | ${options}. MCQ question slide on white background with red header, four options displayed.`
+      });
+      const aNarration = answerNarration(question, language);
+      const answerIdx = Number.isInteger(question.answerIndex) ? question.answerIndex : 0;
+      const answerText = `${LETTERS[answerIdx]}) ${(question.options || [])[answerIdx]}`;
+      scenes.push({
+        label: `Q${qNum} Answer`,
+        scriptText: aNarration,
+        prompt: `${question.question} | Correct answer highlighted in green: ${answerText}. Answer reveal slide.`
+      });
+    });
+    return scenes;
+  }
+
   if (script.hook?.text || script.title) {
     scenes.push({
       label: 'Hook',
@@ -84,17 +110,25 @@ function buildInitialSceneManifest(production = {}, providerResult = {}) {
     ? 'intentional_silence'
     : audio.simulated || audio.status === 'unavailable' ? 'unavailable' : 'current';
 
+  const isQuiz = Boolean(
+    production.script?.quiz?.questions?.length ||
+    ['quiz-template', 'quiz-visuals-template'].includes(production.assets?.video?.generatedWith)
+  );
+  const finalVideoPath = production.assets?.finalVideo?.path || null;
+
   return blueprints.map((scene, position) => {
     const generatedScene = generated.find(item => String(item.label || '').toLowerCase() === scene.label.toLowerCase()) || generated[position];
     const imagePath = visualAssets[position % Math.max(1, visualAssets.length)] || null;
-    const assetPath = generatedScene?.path || imagePath;
-    const assetType = generatedScene?.path ? 'video' : imagePath ? 'image' : 'missing';
-    const provider = generatedScene?.provider || (assetType === 'image' ? 'image-provider' : providerResult.actualProvider || 'slideshow');
+    const assetPath = generatedScene?.path || imagePath || (isQuiz ? finalVideoPath : null);
+    const assetType = generatedScene?.path ? 'video' : imagePath ? 'image' : (isQuiz && finalVideoPath ? 'video' : 'missing');
+    const provider = generatedScene?.provider || (assetType === 'image' ? 'image-provider' : (isQuiz ? 'quiz-template' : (providerResult.actualProvider || 'slideshow')));
     return {
       id: `scene_${crypto.randomUUID()}`,
       position,
       ...scene,
-      duration: Math.max(2, Number(((wordCounts[position] / totalWords) * totalDuration).toFixed(2))),
+      duration: Array.isArray(audio.slideDurations) && Number.isFinite(audio.slideDurations[position])
+        ? Number(audio.slideDurations[position].toFixed(2))
+        : Math.max(2, Number(((wordCounts[position] / totalWords) * totalDuration).toFixed(2))),
       assetType,
       assetOrigin: 'generated',
       assetPath,
@@ -162,7 +196,15 @@ class SceneRepairService {
     for (const scene of scenes) {
       const output = path.join(directory, `${String(scene.position).padStart(3, '0')}_r1.mp3`);
       try {
-        await runFFmpeg(['-y', '-ss', start.toFixed(2), '-t', Number(scene.duration).toFixed(2), '-i', audioPath, '-vn', '-c:a', 'libmp3lame', output]);
+        let exists = false;
+        try {
+          const st = await fs.stat(output);
+          exists = st.isFile() && st.size > 0;
+        } catch (_e) {}
+
+        if (!exists) {
+          await runFFmpeg(['-y', '-ss', start.toFixed(2), '-t', Number(scene.duration).toFixed(2), '-i', audioPath, '-vn', '-c:a', 'libmp3lame', output]);
+        }
         scene.audioPath = output;
         scene.narrationStatus = 'current';
         scene.narrationProvider = audio.provider || null;

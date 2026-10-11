@@ -150,11 +150,15 @@ class ProductionManagementAgent {
       originalPath: scriptPath,
       ttsPath: scriptPath.replace('.json', '_tts.txt'),
       duration: script.duration,
-      sections: script.mainContent.sections.length
+      sections: script.quiz?.totalQuestions || script.mainContent.sections.length
     };
   }
 
   formatScriptForTTS(script) {
+    if (script.quiz?.questions?.length) {
+      return this.formatQuizScriptForTTS(script);
+    }
+
     let ttsText = '';
     
     // Add hook
@@ -164,16 +168,24 @@ class ProductionManagementAgent {
     
     // Add introduction
     if (script.introduction) {
-      ttsText += `${script.introduction.greeting}\n`;
-      ttsText += `${script.introduction.topicIntro}\n`;
-      ttsText += `${script.introduction.valueProposition}\n`;
-      ttsText += `${script.introduction.credibility}\n\n`;
+      if (Array.isArray(script.introduction.lines)) {
+        ttsText += `${script.introduction.lines.join('\n')}\n\n`;
+      } else {
+        ttsText += `${script.introduction.greeting}\n`;
+        ttsText += `${script.introduction.topicIntro}\n`;
+        ttsText += `${script.introduction.valueProposition}\n`;
+        ttsText += `${script.introduction.credibility}\n\n`;
+      }
     }
-    
+
     // Add main content
     if (script.mainContent && script.mainContent.sections) {
       script.mainContent.sections.forEach((section, index) => {
-        ttsText += `Section ${index + 1}: ${section.title}\n`;
+        // The AI script writes its own spoken transitions; a robotic
+        // "Section 6: Real-World Examples" header reads badly aloud.
+        if (script.metadata?.generationSource !== 'ai') {
+          ttsText += `Section ${index + 1}: ${section.title}\n`;
+        }
         
         if (Array.isArray(section.content)) {
           section.content.forEach(line => {
@@ -201,7 +213,7 @@ class ProductionManagementAgent {
     // Add conclusion
     if (script.conclusion) {
       script.conclusion.recap.forEach(line => {
-        if (typeof line === 'string') {
+        if (typeof line === 'string' && !line.trim().startsWith('[')) {
           ttsText += `${line}\n`;
         }
       });
@@ -218,15 +230,46 @@ class ProductionManagementAgent {
     return ttsText;
   }
 
+  // Quiz narration: strictly implements the user's GK Quiz voice-over script format:
+  // "आपका पहला सवाल है— [Question]\nइसका सही जवाब है— [Answer]" etc.
+  // Options are shown on screen only and are NOT read aloud.
+  formatQuizScriptForTTS(script) {
+    const quiz = script.quiz || {};
+    const language = quiz.language === 'en' ? 'en' : 'hi';
+    const { formatStrictQuizScript, introNarration } = require('../utils/quiz-narration');
+    const questions = quiz.questions || [];
+    const subject = quiz.subjectHindi || quiz.subject || 'सामान्य ज्ञान';
+    const introText = script.hook?.text || introNarration(subject, questions.length, language);
+    return formatStrictQuizScript(questions, language, { introText, subject });
+  }
+
   async processThumbnail(thumbnail, script) {
     try {
-      // Try to generate AI thumbnail first
+      // If ThumbnailDesignerAgent already generated a valid image thumbnail, preserve and use it!
+      if (thumbnail && thumbnail.path) {
+        const ext = path.extname(thumbnail.path).toLowerCase();
+        if (['.png', '.jpg', '.jpeg', '.webp'].includes(ext)) {
+          const exists = await fs.access(thumbnail.path).then(() => true).catch(() => false);
+          if (exists) {
+            this.logger.info(`Using generated thumbnail: ${thumbnail.path}`);
+            return {
+              path: thumbnail.path,
+              originalPath: thumbnail.path,
+              dimensions: thumbnail.dimensions || { width: 1280, height: 720 },
+              fileSize: thumbnail.fileSize || 0,
+              generatedWith: thumbnail.concept ? 'ThumbnailDesigner' : 'AI'
+            };
+          }
+        }
+      }
+
+      // Otherwise try to generate AI thumbnail
       const thumbnailScript = thumbnail.script || script || { title: thumbnail.title || 'Untitled Video' };
       const aiThumbnail = await this.aiVideoGenerator.generateThumbnail(thumbnailScript, 'ethereal');
       
       return {
         path: aiThumbnail.path,
-        originalPath: thumbnail.path,
+        originalPath: thumbnail?.path || aiThumbnail.path,
         dimensions: aiThumbnail.dimensions,
         fileSize: aiThumbnail.fileSize,
         generatedWith: 'AI'
@@ -298,12 +341,99 @@ class ProductionManagementAgent {
     
     try {
       const { script } = productionData;
+
+      // Quiz videos:
+      // - Standard 'quiz': pure typography slides (question + options + answer) on MCQ template
+      // - 'quiz_visuals': generates answer-related AI images for ~50% of questions
+      if (script.quiz?.questions?.length) {
+        const isQuizShortNoImage = Boolean(
+          script.noImages ||
+          script.quizShortNoImage ||
+          String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
+          String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
+        );
+        const isQuizShort = Boolean(
+          isQuizShortNoImage ||
+          script.isShort ||
+          script.quizShort ||
+          String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_short' ||
+          String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short'
+        );
+        const isQuizVisuals = !isQuizShortNoImage && Boolean(
+          isQuizShort ||
+          script.quizVisuals ||
+          String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_visuals' ||
+          String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_visuals'
+        );
+
+        if (isQuizShortNoImage) {
+          // Dedicated Short Quiz WITHOUT visuals: zero image generation, pure typography layout
+          this.logger.info('Short Quiz (Without Visuals) mode selected — skipping image generation.');
+          productionData.assets.video = {
+            visualAssets: [],
+            duration: productionData.estimatedDuration,
+            format: 'mp4',
+            resolution: '1080x1920',
+            fps: 30,
+            generatedWith: 'quiz-short-no-image-template'
+          };
+          productionData.timeline.videoGenerated = new Date().toISOString();
+          return [];
+        }
+
+        if (!isQuizVisuals) {
+          // Standard Quiz (completely untouched)
+          productionData.assets.video = {
+            visualAssets: [],
+            duration: productionData.estimatedDuration,
+            format: 'mp4',
+            resolution: '1920x1080',
+            fps: 30,
+            generatedWith: 'quiz-template'
+          };
+          productionData.timeline.videoGenerated = new Date().toISOString();
+          return [];
+        }
+
+        // Quiz + Visuals & Quiz Short mode: generate answer visuals for every question
+        this.logger.info(`Generating AI answer visuals for ${isQuizShort ? 'Quiz Short (9:16)' : 'Quiz + Visuals'} mode (all questions)...`);
+        const visualAssets = [];
+        for (let i = 0; i < script.quiz.questions.length; i++) {
+          const q = script.quiz.questions[i];
+          const answerOption = (q.options || [])[q.answerIndex] || '';
+          const prompt = this.buildContextAwareVisualPrompt(q);
+          this.logger.info(`Question ${i + 1} visual prompt: "${prompt}"`);
+          try {
+            const assets = await this.aiVideoGenerator.generateVisualAssets(prompt, 'quiz_visuals', 1);
+            if (assets && assets[0]) {
+              q.visualImage = assets[0];
+              visualAssets.push(assets[0]);
+              this.logger.info(`Generated visual for Quiz Question ${i + 1} (${answerOption}): ${assets[0]}`);
+            }
+          } catch (err) {
+            this.logger.warn(`Could not generate visual for quiz question ${i + 1}: ${err.message}`);
+          }
+        }
+
+        productionData.assets.video = {
+          visualAssets: visualAssets,
+          duration: productionData.estimatedDuration,
+          format: 'mp4',
+          resolution: isQuizShort ? '1080x1920' : '1920x1080',
+          fps: 30,
+          generatedWith: isQuizShort ? 'quiz-short-template' : 'quiz-visuals-template'
+        };
+        productionData.timeline.videoGenerated = new Date().toISOString();
+        return visualAssets;
+      }
       
       // Generate visual assets using DALL-E
       const visualPrompts = this.createVisualPromptsFromScript(script);
       const visualAssets = [];
       const profile = await this.db.getChannelProfile?.() || {};
-      const visualStyle = profile.visual_style || 'ethereal';
+      // Dreamy "ethereal" art is wrong for teaching content; only use it when the
+      // channel explicitly set it, otherwise pick a style that fits the format.
+      const visualStyle = profile.visual_style || this.defaultVisualStyleFor(script);
       
       for (const prompt of visualPrompts) {
         const assets = await this.aiVideoGenerator.generateVisualAssets(prompt, visualStyle, 1);
@@ -426,14 +556,30 @@ class ProductionManagementAgent {
       // Read the TTS script
       const ttsText = await fs.readFile(productionData.assets.script.ttsPath, 'utf8');
       
-      // Generate audio using AI TTS and retain the provider evidence returned by the generator.
-      const generatedPath = await this.aiVideoGenerator.generateTTSAudio(ttsText, audioPath);
+      let generatedPath;
+      let slideDurations = null;
+      if (productionData.script?.quiz?.questions?.length) {
+        this.logger.info('Generating slide-synchronized quiz narration audio...');
+        const quizAudioResult = await this.aiVideoGenerator.generateQuizAudio(
+          productionData.script,
+          audioPath,
+          { productionId: productionData.id }
+        );
+        generatedPath = quizAudioResult.audioPath;
+        slideDurations = quizAudioResult.slideDurations;
+      } else {
+        generatedPath = await this.aiVideoGenerator.generateTTSAudio(ttsText, audioPath);
+      }
+
       const evidence = this.aiVideoGenerator.lastNarrationResult || {};
       const usable = await this.aiVideoGenerator.isUsableAudioFile(generatedPath);
 
       productionData.assets.audio = {
         path: generatedPath,
-        duration: productionData.estimatedDuration,
+        duration: slideDurations
+          ? slideDurations.reduce((sum, d) => sum + d, 0)
+          : productionData.estimatedDuration,
+        slideDurations: slideDurations || null,
         format: 'mp3',
         generatedWith: 'AI',
         quality: usable ? 'high' : null,
@@ -497,12 +643,14 @@ class ProductionManagementAgent {
     
     // Process script sections for captions
     const processText = (text, startTime, duration) => {
-      const words = text.split(' ');
+      const words = String(text || '').trim().split(/\s+/).filter(Boolean);
       const wordsPerCaption = 8; // Optimal words per caption
+      if (!words.length) return;
       
       for (let i = 0; i < words.length; i += wordsPerCaption) {
         const captionWords = words.slice(i, i + wordsPerCaption);
-        const captionDuration = (duration / Math.ceil(words.length / wordsPerCaption));
+        const count = Math.ceil(words.length / wordsPerCaption);
+        const captionDuration = duration / count;
         const captionStartTime = startTime + (i / words.length) * duration;
         const captionEndTime = captionStartTime + captionDuration;
         
@@ -513,6 +661,20 @@ class ProductionManagementAgent {
         captionIndex++;
       }
     };
+
+    if (script.quiz?.questions?.length) {
+      const slides = this.aiVideoGenerator.buildQuizSlideData(script);
+      const durations = productionData.assets.audio?.slideDurations || [];
+      for (let i = 0; i < slides.length; i++) {
+        const slide = slides[i];
+        const dur = durations[i] || slide.estimatedSpeechDuration || 5;
+        const text = slide.narrationText || '';
+        const speechDur = Math.max(1.0, dur - (Number(slide.pauseAfter) || 0));
+        processText(text, currentTime, speechDur);
+        currentTime += dur;
+      }
+      return srt;
+    }
     
     // Hook
     if (script.hook && script.hook.text) {
@@ -585,7 +747,8 @@ class ProductionManagementAgent {
         {
           jobId: productionData.jobId,
           productionId: productionData.id,
-          estimatedDuration: productionData.estimatedDuration
+          estimatedDuration: productionData.assets.audio?.duration || productionData.estimatedDuration,
+          durations: productionData.assets.audio?.slideDurations || null
         }
       );
 
@@ -597,12 +760,21 @@ class ProductionManagementAgent {
       // Get file stats
       const stats = await fs.stat(finalVideoPath);
       
+      const isQuizShort = Boolean(
+        productionData.script?.isShort ||
+        productionData.script?.quizShort ||
+        String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_short' ||
+        String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short' ||
+        String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
+        String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
+      );
+
       productionData.assets.finalVideo = {
         path: finalVideoPath,
         fileSize: stats.size,
         duration: productionData.estimatedDuration,
         generatedWith: 'AI',
-        resolution: '1920x1080',
+        resolution: isQuizShort ? '1080x1920' : '1920x1080',
         format: 'mp4',
         provider: this.aiVideoGenerator.lastVideoResult || { actualProvider: 'slideshow', model: 'local-ffmpeg' }
       };
@@ -656,28 +828,116 @@ class ProductionManagementAgent {
     return ready[0] || null;
   }
 
+  defaultVisualStyleFor(script) {
+    const contentType = String(script.metadata?.strategy?.contentType || '').toLowerCase();
+    if (['explainer', 'tutorial', 'review'].includes(contentType)) {
+      return 'educational';
+    }
+    return 'ethereal';
+  }
+
+  buildContextAwareVisualPrompt(q) {
+    if (q.visualPrompt && q.visualPrompt.trim().length > 10) {
+      return q.visualPrompt.trim();
+    }
+
+    const answerOption = (q.options || [])[q.answerIndex] || '';
+    const explanation = q.explanation || '';
+    const question = q.question || '';
+    const combined = `${answerOption} ${explanation} ${question}`.toLowerCase();
+    const optLower = answerOption.toLowerCase();
+
+    // 1. Geography / State / River / City / Place
+    const isGeoAnswer = /(राज्य|शहर|देश|नदी|पर्वत|पहाड़|महासागर|घाटी|राजधानी|bihar|delhi|mumbai|state|city|river|mountain|lake|valley)/i.test(optLower) ||
+      /(बिहार|उत्तर प्रदेश|मध्य प्रदेश|राजस्थान|गुजरात|महाराष्ट्र|पंजाब|हरियाणा|बंगाल|केरल|तमिलनाडु|कर्नाटक|ओडिशा|असम|कश्मीर)/i.test(optLower);
+
+    if (isGeoAnswer) {
+      const landmarkDetail = explanation ? ` Context: ${explanation}.` : '';
+      return `Scenic documentary geographic landscape or heritage photo of ${answerOption}.${landmarkDetail} Authentic geography of India, natural daylight, National Geographic style`;
+    }
+
+    // 2. Person: check answerOption first, or question specifically asks about a person/leader
+    const isPersonAnswer = /(वायसराय|गवर्नर|राजा|सम्राट|सुल्तान|शासक|प्रधान\s*मंत्री|राष्ट्रपति|लेखक|कवि|वैज्ञानिक|महात्मा|गुरु|भगत|शास्त्री|नेहरू|गांधी|अम्बेडकर|लॉर्ड|डॉ\.|स्वामी|viceroy|governor|emperor|king|president|prime minister|leader|scientist|author|poet|lord|dr\.|swami)/i.test(optLower) ||
+      /(किसने|किस शासक|किस राजा|किस वायसराय|किस गवर्नर|किस वैज्ञानिक|किसने की थी|संस्थापक कौन|अध्यक्ष कौन|who was|who is)/i.test(question);
+
+    if (isPersonAnswer) {
+      return `Historical archival portrait photograph or classic realistic painting of ${answerOption}, formal historical attire, authentic facial features, dignitary portrait, documentary museum quality`;
+    }
+
+    // 3. Battle / War / Revolt / Movement / Incident
+    const isEvent = /(युद्ध|लड़ाई|आंदोलन|क्रांति|विद्रोह|घटना|कांड|सत्याग्रह|मार्च|बैठक|संधि|battle|war|revolt|movement|incident|massacre|treaty|revolution)/i.test(combined);
+    if (isEvent) {
+      return `Historical archival reenactment painting or illustration depicting ${answerOption || question}, dramatic Indian history scene, authentic era setting, atmospheric lighting`;
+    }
+
+    // 4. Constitution / Law / Article / Parliament / Government
+    const isLegal = /(संविधान|अनुच्छेद|अनुसूची|धारा|संशोधन|संसद|न्यायालय|कानून|अधिनियम|constitution|article|schedule|amendment|parliament|court|act)/i.test(combined);
+    if (isLegal) {
+      return `Parchment manuscript of the Constitution of India with official Lion Capital emblem of Ashoka, gold emblem seal, legal calligraphy document, dignified national presentation`;
+    }
+
+    // 5. Science / Biology / Anatomy / Space / Planet
+    const isScience = /(ग्रह|सूर्य|चंद्रमा|तारा|कोशिका|रक्त|ग्रंथि|अंग|यकृत|हृदय|परमाणु|धातु|गैस|planet|solar system|moon|cell|organ|liver|heart|element|chemical|dna)/i.test(combined);
+    if (isScience) {
+      return `Scientific educational 3D anatomical or documentary photo representing ${answerOption}, high resolution, scientific accuracy, clean background`;
+    }
+
+    // 6. Specific Historical Concept / Dynasty / Inscription / Coin / Book / Art
+    const isCulturalArtifact = /(सिक्का|अभिलेख|स्तंभ|शिलालेख|मुद्रा|ग्रंथ|पुस्तक|रचना|दर्पण|coin|inscription|pillar|edict|manuscript|book|literature|dynasty|वंश)/i.test(combined);
+    if (isCulturalArtifact) {
+      return `Museum archival artifact photograph of authentic ancient Indian ${answerOption || question}, historical Gupta or Maurya era artifact, clean museum presentation, macro detail lighting`;
+    }
+
+    // 7. Temple / Fort / Palace / Cave / Monument / Architecture / Ruins (ONLY when explicitly a monument)
+    const isMonument = /(मंदिर|किला|महल|स्तूप|गुफा|मकबरा|मस्जिद|इमारत|मीनार|खंडहर|temple|fort|palace|cave|stupa|tomb|monument|ruins)/i.test(optLower);
+    if (isMonument) {
+      return `Architectural documentary photograph of ${answerOption}, historic Indian heritage site, majestic daylight view, authentic craftsmanship`;
+    }
+
+    // 8. General Geography / Mountain / River fallback
+    const isGeography = /(नदी|पर्वत|पहाड़|झील|महासागर|सागर|घाटी|राज्य|जिला|देश|राजधानी|द्वीप|river|mountain|lake|ocean|state|capital|island|geography|map)/i.test(combined);
+    if (isGeography) {
+      return `Scenic documentary geographic landscape photograph of ${answerOption}, authentic terrain, natural daylight, National Geographic style`;
+    }
+
+    // High quality study material documentary fallback
+    const detail = explanation ? ` Context: ${explanation}.` : '';
+    return `High quality educational documentary photograph specifically illustrating ${answerOption} in the context of: ${question}.${detail} Authentic historical, scientific or cultural accuracy of India, clear single focal subject, 8k resolution study material visual`;
+  }
+
   // Helper method to create visual prompts from script content
   createVisualPromptsFromScript(script) {
     const prompts = [];
-    
+    const topic = script.metadata?.strategy?.topic || script.title || '';
+
     // Title prompt
-    prompts.push(`${script.title}, clear visual storytelling`);
-    
-    // Content-based prompts
+    prompts.push(`Bold hero illustration representing ${topic}. Clear visual storytelling, single focal subject`);
+
+    // Content-based prompts. Prefer the per-scene visual direction the script
+    // writer produced ("isometric diagram of a load balancer routing requests
+    // to four servers"); a bare section title like "Deep Dive" gives the image
+    // model nothing to draw.
     if (script.mainContent && script.mainContent.sections) {
       script.mainContent.sections.forEach(section => {
-        if (section.title) {
-          prompts.push(`${section.title}, relevant explanatory visual`);
+        if (section.visual) {
+          prompts.push(`${section.visual}. Context: ${topic}`);
+          return;
+        }
+        const detail = Array.isArray(section.content)
+          ? section.content.filter(line => typeof line === 'string' && !line.startsWith('[')).slice(0, 2).join('; ')
+          : (typeof section.content === 'string' ? section.content : '');
+        if (section.title || detail) {
+          prompts.push(`Explanatory illustration of ${section.title || topic}. ${detail}. Concrete subjects and layout, no text, letters or labels in the image`.trim());
         }
       });
     }
-    
+
     // Ensure we have at least 3 prompts
     while (prompts.length < 3) {
-      prompts.push(`${script.title || 'Video topic'}, supporting explanatory visual`);
+      prompts.push(`${script.title || 'Video topic'}, supporting explanatory visual, concrete subjects, no text in image`);
     }
-    
-    return prompts.slice(0, 5); // Limit to 5 for cost control
+
+    return prompts.slice(0, 12); // one usable image per scene
   }
 
   // Fallback simulation methods
