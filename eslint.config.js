@@ -56,7 +56,9 @@ module.exports = [
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_',
         caughtErrors: 'none'
-      }]
+      }],
+      'no-useless-escape': 'off',
+      'no-empty': 'off'
     }
   }
 ];
