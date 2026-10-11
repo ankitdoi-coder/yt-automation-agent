@@ -1,6 +1,11 @@
 name: Daily YouTube Video Automation
 
 on:
+  push:
+    branches:
+      - master
+    paths:
+      - '.github/workflows/daily-video.yml'
   schedule:
     # Runs daily at 02:30 UTC = 08:00 AM IST (Indian Standard Time)
     - cron: '30 2 * * *'
