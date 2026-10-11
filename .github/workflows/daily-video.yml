@@ -7,38 +7,41 @@ on:
     paths:
       - '.github/workflows/daily-video.yml'
   schedule:
-    # Runs daily at 02:30 UTC = 08:00 AM IST (Indian Standard Time)
-    - cron: '30 2 * * *'
+    # Runs daily at 00:30 UTC = 06:00 AM IST (Indian Standard Time)
+    # Generates today's 4 videos (2 Long + 2 Shorts) and schedules them for their peak viewing hours
+    - cron: '30 0 * * *'
   workflow_dispatch:
     inputs:
-      topic:
-        description: 'Optional custom topic (leave blank for auto-strategy)'
-        required: false
-        default: ''
-      style:
-        description: 'Video style'
+      target_slot:
+        description: 'Which slot to generate'
         required: true
-        default: 'quiz'
+        default: 'all'
         type: choice
         options:
-          - quiz
-          - evergreen
-          - educational
+          - all (2 Long + 2 Shorts)
+          - slot1 (11:30 AM IST Long Quiz)
+          - slot2 (01:30 PM IST Shorts)
+          - slot3 (04:30 PM IST Long Quiz)
+          - slot4 (08:00 PM IST Shorts)
       privacy_status:
-        description: 'Default privacy status on upload'
+        description: 'Target privacy status (public = auto-publishes to everyone)'
         required: true
-        default: 'private'
+        default: 'public'
         type: choice
         options:
+          - public
           - private
           - unlisted
-          - public
+      topic:
+        description: 'Optional custom topic (leave blank for fresh AI trend research)'
+        required: false
+        default: ''
 
 jobs:
   generate-and-publish:
-    name: Generate & Publish Video
+    name: Generate & Publish Daily Videos
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
 
     steps:
       - name: Checkout Code
@@ -89,9 +92,9 @@ jobs:
 
       - name: Run Video Generation & Publishing Pipeline
         env:
+          TARGET_SLOT: ${{ github.event.inputs.target_slot || 'all' }}
           VIDEO_TOPIC: ${{ github.event.inputs.topic }}
-          VIDEO_STYLE: ${{ github.event.inputs.style || 'quiz' }}
-          DEFAULT_PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || 'private' }}
+          DEFAULT_PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || 'public' }}
           CI: true
         run: npm run daily:job
 
