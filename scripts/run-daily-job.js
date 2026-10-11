@@ -12,7 +12,8 @@ const SCHEDULE_SLOTS = [
     timeIST: '11:30',
     style: 'quiz',
     length: 'medium',
-    contentType: 'quiz'
+    contentType: 'quiz',
+    defaultTopic: 'भारत का इतिहास एवं संविधान: 50 सबसे महत्वपूर्ण प्रश्न | Indian History & Polity GK'
   },
   {
     id: 'slot2',
@@ -20,7 +21,8 @@ const SCHEDULE_SLOTS = [
     timeIST: '13:30',
     style: 'quiz_short',
     length: 'short',
-    contentType: 'quiz_short'
+    contentType: 'quiz_short',
+    defaultTopic: 'रामायण एवं महाभारत के 5 रोचक व महत्वपूर्ण सवाल | Ramayan & Mahabharat GK Shorts'
   },
   {
     id: 'slot3',
@@ -28,7 +30,8 @@ const SCHEDULE_SLOTS = [
     timeIST: '16:30',
     style: 'quiz',
     length: 'medium',
-    contentType: 'quiz'
+    contentType: 'quiz',
+    defaultTopic: 'भारत का भूगोल एवं सामान्य विज्ञान: 50 अति महत्वपूर्ण प्रश्न | Indian Geography & Science GK'
   },
   {
     id: 'slot4',
@@ -36,7 +39,8 @@ const SCHEDULE_SLOTS = [
     timeIST: '20:00',
     style: 'quiz_short',
     length: 'short',
-    contentType: 'quiz_short'
+    contentType: 'quiz_short',
+    defaultTopic: 'भारत में प्रथम व रोचक सामान्य ज्ञान: Top 5 GK Questions | ExamIQ Bharat Shorts'
   }
 ];
 
@@ -114,7 +118,7 @@ async function run() {
 
     try {
       const job = await agent.startGenerationJob({
-        topic: process.env.VIDEO_TOPIC || null, // fresh trending topic via AI strategy
+        topic: process.env.VIDEO_TOPIC || slot.defaultTopic || null,
         style: slot.style,
         length: slot.length,
         source: 'scheduler'

@@ -471,27 +471,33 @@ Do not invent trend data, statistics, sources, URLs, or factual claims. Use only
       return null;
     }
 
-    const trendingTopics = this.trendingTopics
-      .slice(0, 10)
-      .map(topic => topic.topic)
-      .join(', ');
-    const prompt = `You are selecting a YouTube content strategy.
+    const prompt = `You are the lead content strategist for "ExamIQ Bharat", India's top educational and family GK YouTube channel.
+Channel Audience: Indian students preparing for competitive exams (SSC CGL, Railway RRB, UPSC, State Police), school/college students, and Indian families/elders who love Ramayan, Mahabharat, and Indian history/culture trivia.
+Channel Language: Hindi (Devanagari) educational quiz format.
+
 Return only valid JSON with this exact shape:
 {
-  "topic": "specific video topic",
-  "angle": "distinct content angle",
-  "targetAudience": "specific audience",
-  "contentType": "Tutorial|Explainer|List|Review|Story|News|Quiz",
-  "language": "hi|en",
-  "keywords": ["keyword"]
+  "topic": "specific Hindi educational GK topic title",
+  "angle": "distinct content angle with high student curiosity",
+  "targetAudience": "SSC, Railway, UPSC, State PCS aspirants & general Indian learners",
+  "contentType": "Quiz",
+  "language": "hi",
+  "keywords": ["keyword1", "keyword2", "keyword3"]
 }
 
 Requested topic: ${requestedTopic || 'none'}
-Trending topics available: ${trendingTopics || 'Technology Trends'}
-Channel target audience: ${process.env.TARGET_AUDIENCE || 'General audience interested in educational content'}
-Pick "Quiz" when the requested topic asks for quiz/MCQ/GK questions or a numbered question set. Quiz videos are lists of multiple-choice questions with answers.
-Set "language" to "hi" when the topic is Hindi, Hinglish, or an Indian exam quiz (SSC, UPSC, railway, police); otherwise "en".
-Avoid fabricated claims and unsupported numbers.`;
+Core Indian GK Pillars (Choose strictly from these):
+1. Indian History (प्राचीन भारत, मध्यकालीन भारत, आधुनिक भारत, 1857 की क्रांति, स्वतंत्रता संग्राम सेनानी)
+2. Indian Constitution & Polity (भारतीय संविधान, प्रमुख अनुच्छेद, राष्ट्रपति, प्रधानमंत्री, संसद)
+3. Indian Geography (भारत की प्रमुख नदियां, पर्वत श्रृंखलाएं, राज्य, बांध, राष्ट्रीय उद्यान)
+4. Ramayan & Mahabharat Mythology GK (रामायण, महाभारत, भगवान राम, श्रीकृष्ण, कुरुक्षेत्र)
+5. General Science & Space/ISRO (मानव शरीर, जीव विज्ञान, चंद्रयान, प्रमुख वैज्ञानिक खोजें)
+6. First in India (भारत में प्रथम - पुरुष व महिला, प्रथम उपग्रह, प्रथम नोबेल)
+7. Maths & Reasoning Brain Teasers & Puzzles (रोचक गणित व रीजनिंग पहेलियां)
+
+Rules:
+- NEVER generate Western business, corporate MBA, self-help, or tech topics (e.g. negotiation, productivity, side hustles).
+- Always set "contentType": "Quiz" and "language": "hi".`;
 
     try {
       const response = await this.aiTextService.generateText(prompt, {
@@ -610,21 +616,21 @@ Avoid fabricated claims and unsupported numbers.`;
 
   getEvergreenFallbackTopics() {
     return [
-      'Time Management Strategies That Actually Work',
-      'Beginner Mistakes to Avoid When Learning a New Skill',
-      'How to Start a Side Project With Zero Budget',
-      'Simple Habits That Improve Focus and Productivity',
-      'How to Learn Anything Faster Using Proven Study Techniques',
-      'Practical Ways to Save Money Every Month',
-      'How Artificial Intelligence Is Changing Everyday Life',
-      'The Science of Building Habits That Stick',
-      'How to Give a Presentation People Actually Remember',
-      'Getting Started With Investing: A Beginner Roadmap',
-      'Digital Minimalism: Reclaiming Your Attention',
-      'How to Negotiate Anything: Tactics That Work',
-      'The Psychology of Procrastination and How to Beat It',
-      'Remote Work Productivity: Setting Up for Success',
-      'How to Read More Books Without Finding Extra Time'
+      'रामायण एवं महाभारत से जुड़े 50 सबसे महत्वपूर्ण प्रश्न | Ramayan & Mahabharat GK Quiz',
+      'भारत का संविधान: 50 सबसे महत्वपूर्ण अनुच्छेद और प्रश्न | Indian Polity GK Quiz',
+      'भारत का इतिहास: प्राचीन से आधुनिक भारत के 50 महत्वपूर्ण प्रश्न | Indian History GK Quiz',
+      'भारत का भूगोल: प्रमुख नदियां, पर्वत और राष्ट्रीय उद्यान | Indian Geography GK Quiz',
+      'सामान्य विज्ञान (General Science): मानव शरीर व अंतरिक्ष के 50 महत्वपूर्ण प्रश्न | Science GK',
+      'भारत में प्रथम (First in India): सबसे ज्यादा पूछे जाने वाले सामान्य ज्ञान प्रश्न | Static GK',
+      'रामायण सामान्य ज्ञान: भगवान राम व अयोध्या से जुड़े महत्वपूर्ण प्रश्न | Ramayan GK Quiz',
+      'महाभारत सामान्य ज्ञान: कुरुक्षेत्र युद्ध व भगवान कृष्ण से जुड़े रोचक प्रश्न | Mahabharat GK',
+      'भारत के प्रमुख ऐतिहासिक युद्ध और 1857 की क्रांति | Indian History Battle GK Quiz',
+      'भारत की नदियां एवं बांध: प्रतियोगी परीक्षाओं के महत्वपूर्ण प्रश्न | Indian Rivers GK Quiz',
+      'प्रसिद्ध वैज्ञानिक खोजें और आविष्कार सामान्य ज्ञान | Science Inventions GK Quiz',
+      'भारत के प्रमुख मंदिर, किले और धरोहर स्थल | Indian Heritage & Culture GK Quiz',
+      'गणित व रीजनिंग के 10 रोचक दिमाग घुमाने वाले सवाल व पहेलियां | Maths & Reasoning Puzzles',
+      'भारत के प्रमुख राष्ट्रीय उद्यान व वन्यजीव अभयारण्य | National Parks GK Quiz',
+      'विश्व व भारत का भूगोल: सौरमंडल और पृथ्वी से जुड़े महत्वपूर्ण प्रश्न | Solar System & Geography GK'
     ];
   }
 

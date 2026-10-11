@@ -1532,7 +1532,7 @@ class AIVideoGenerator {
             color: #000000;
             display: flex;
             flex-direction: column;
-            font-family: 'Nirmala UI', 'Noto Sans Devanagari', 'Mangal', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', 'Segoe UI', Arial, sans-serif;
         }
         .quiz-header {
             background: #e00000;

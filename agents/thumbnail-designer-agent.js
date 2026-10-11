@@ -88,9 +88,8 @@ class ThumbnailDesignerAgent {
     // Dynamic subjects
     const subjectHindi = quiz.subjectHindi || quiz.subject || this.extractSubjectFromTitle(script.title) || 'सामान्य ज्ञान';
     const subjectEng = quiz.subject || this.extractEnglishSubject(script.title) || 'General Knowledge';
-    // Language selection: if language is explicitly 'en', or title has no Devanagari and language is not 'hi'
-    const isEn = quiz.language === 'en' || (quiz.language !== 'hi' && !/[\u0900-\u097F]/.test(script.title || '') && !/[\u0900-\u097F]/.test(quiz.subject || ''));
-    const isHindi = !isEn;
+    // Language selection: Always use high-CTR Hindi Exam thumbnail for ExamIQ Bharat unless explicitly English only
+    const isHindi = quiz.language !== 'en' || /[\u0900-\u097F]/.test(script.title || '') || /[\u0900-\u097F]/.test(quiz.subject || '') || !quiz.language;
 
     const width = 1280;
     const height = 720;
@@ -295,13 +294,13 @@ class ThumbnailDesignerAgent {
       <!-- Top Red/Yellow Brush Banner: Top X -->
       <g filter="url(#shadow)">
         <rect x="25" y="24" width="${bannerWidth}" height="92" rx="16" fill="#D32F2F"/>
-        <text x="45" y="94" font-family="Arial Black, Impact, sans-serif" font-size="76" font-weight="900" fill="#FFFFFF">${countStr} <tspan dx="16" font-family="Nirmala UI, Mangal, Arial" font-size="52" font-weight="900" fill="#FFF200">${topTag}</tspan></text>
+        <text x="45" y="94" font-family="Arial Black, Impact, sans-serif" font-size="76" font-weight="900" fill="#FFFFFF">${countStr} <tspan dx="16" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="52" font-weight="900" fill="#FFF200">${topTag}</tspan></text>
       </g>
 
       <!-- Main Hero Title -->
       <g filter="url(#shadow)">
         <rect x="25" y="130" width="670" height="84" rx="12" fill="#FFEA00"/>
-        <text x="40" y="190" font-family="Nirmala UI, Mangal, Arial" font-size="46" font-weight="900" fill="#0D47A1">${this.escapeHtml(displaySubjectHindi)}</text>
+        <text x="40" y="190" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="46" font-weight="900" fill="#0D47A1">${this.escapeHtml(displaySubjectHindi)}</text>
       </g>
 
       <!-- Category Banners: GK Quiz + English Pill -->
@@ -316,7 +315,7 @@ class ThumbnailDesignerAgent {
       <!-- Checklist Box -->
       <g filter="url(#shadow)">
         <rect x="25" y="306" width="670" height="284" rx="16" fill="#FAFAFA" stroke="#DDDDDD" stroke-width="2"/>
-        <g transform="translate(0, 348)" font-family="Nirmala UI, Mangal, Arial" font-size="21" font-weight="700">
+        <g transform="translate(0, 348)" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="21" font-weight="700">
           ${renderColumn(col1, 45)}
           ${renderColumn(col2, 365)}
         </g>
@@ -326,7 +325,7 @@ class ThumbnailDesignerAgent {
       <g filter="url(#shadow)">
         <rect x="25" y="608" width="670" height="66" rx="33" fill="#D32F2F"/>
         <text x="55" y="650" font-size="28">🎯</text>
-        <text x="100" y="650" font-family="Nirmala UI, Mangal, Arial" font-size="28" font-weight="900" fill="#FFFFFF">सभी प्रतियोगी परीक्षाओं के लिए महत्वपूर्ण !</text>
+        <text x="100" y="650" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="28" font-weight="900" fill="#FFFFFF">सभी प्रतियोगी परीक्षाओं के लिए महत्वपूर्ण !</text>
       </g>
     </svg>`;
   }
