@@ -15,7 +15,7 @@ on:
       target_slot:
         description: 'Which slot to generate'
         required: true
-        default: 'all'
+        default: 'all (2 Long + 2 Shorts)'
         type: choice
         options:
           - all (2 Long + 2 Shorts)

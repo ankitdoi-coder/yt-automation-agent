@@ -977,7 +977,7 @@ class Database {
 
   async getGenerationJob(id) {
     const row = await this.getRow('SELECT * FROM generation_jobs WHERE id = ?', [id]);
-    return row ? { ...row, details: JSON.parse(row.details || '{}'), cancelRequested: Boolean(row.cancel_requested) } : null;
+    return row ? { ...row, productionId: row.production_id, details: JSON.parse(row.details || '{}'), cancelRequested: Boolean(row.cancel_requested) } : null;
   }
 
   async updateGenerationJob(id, changes = {}) {

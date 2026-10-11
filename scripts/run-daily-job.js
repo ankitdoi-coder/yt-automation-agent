@@ -85,12 +85,16 @@ async function run() {
   const targetSlotInput = (process.env.TARGET_SLOT || 'all').toLowerCase();
   let slotsToRun = SCHEDULE_SLOTS;
 
-  if (targetSlotInput !== 'all') {
-    const matched = SCHEDULE_SLOTS.filter(s => s.id === targetSlotInput || s.style === targetSlotInput);
+  if (!targetSlotInput.startsWith('all')) {
+    const matched = SCHEDULE_SLOTS.filter(s =>
+      targetSlotInput.includes(s.id) ||
+      s.id === targetSlotInput ||
+      s.style === targetSlotInput
+    );
     if (matched.length > 0) {
       slotsToRun = matched;
     } else {
-      logger.warn(`Unknown TARGET_SLOT "${targetSlotInput}", defaulting to all 4 daily slots`);
+      logger.warn(`Unknown TARGET_SLOT "${process.env.TARGET_SLOT}", defaulting to all 4 daily slots`);
     }
   }
 
@@ -124,15 +128,20 @@ async function run() {
         continue;
       }
 
-      logger.success(`✅ Generation complete! Production ID: ${finished.productionId}`);
+      const productionId = finished.production_id || finished.productionId || finished.contentId;
+      if (!productionId) {
+        throw new Error(`Generation completed but production_id not found on job ${job.id}`);
+      }
+
+      logger.success(`✅ Generation complete! Production ID: ${productionId}`);
 
       // Publish / Schedule directly to YouTube
-      if (finished.productionId && agent.agents?.publishing) {
+      if (agent.agents?.publishing) {
         logger.info(`Uploading to YouTube with target schedule: ${slotTiming.isoString}...`);
 
         // If target slot is future, update scheduled time before upload so YouTube native publishAt is set
         if (!slotTiming.isPast) {
-          const entry = await agent.db.getLatestScheduleEntry?.(finished.productionId);
+          const entry = await agent.db.getLatestScheduleEntry?.(productionId);
           if (entry) {
             entry.publishTime = slotTiming.isoString;
             entry.metadata = {
@@ -141,9 +150,19 @@ async function run() {
             };
             await agent.db.saveScheduleEntry(entry);
           }
+          if (Array.isArray(agent.agents.publishing.publishQueue)) {
+            const queueEntry = agent.agents.publishing.publishQueue.find(e => e.productionId === productionId || e.id === productionId);
+            if (queueEntry) {
+              queueEntry.publishTime = slotTiming.isoString;
+              queueEntry.metadata = {
+                ...queueEntry.metadata,
+                privacyStatus: 'public'
+              };
+            }
+          }
         }
 
-        const publishResult = await agent.agents.publishing.publishContent(finished.productionId, {
+        const publishResult = await agent.agents.publishing.publishContent(productionId, {
           publishNow: slotTiming.isPast || process.env.PUBLISH_IMMEDIATELY === 'true'
         });
 
