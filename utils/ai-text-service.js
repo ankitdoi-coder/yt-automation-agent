@@ -2,11 +2,12 @@ const OpenAI = require('openai');
 const { Logger } = require('./logger');
 
 const GEMINI_MODELS = [
+  'gemini-3.5-flash',
   'gemini-3.7-flash',
-  'gemini-3.1-pro-preview',
   'gemini-3.5-flash-lite',
+  'gemini-3.1-pro-preview',
 ];
-const GEMINI_DEFAULT_MODEL = GEMINI_MODELS[0];
+const GEMINI_DEFAULT_MODEL = process.env.GEMINI_TEXT_MODEL || GEMINI_MODELS[0];
 
 const PROVIDERS = {
   openai: {
@@ -66,16 +67,16 @@ class AITextService {
       return this._initOpenAICompatible(PROVIDERS[provider], apiKey, model);
     }
 
+    const geminiKey = credentials.gemini?.apiKey || process.env.GEMINI_API_KEY;
+    if (geminiKey) {
+      return this._initGemini(geminiKey, credentials.gemini?.model || process.env.GEMINI_TEXT_MODEL || GEMINI_DEFAULT_MODEL);
+    }
+
     for (const [, preset] of Object.entries(PROVIDERS)) {
       const key = process.env[preset.envKey];
       if (key) {
         return this._initOpenAICompatible(preset, key);
       }
-    }
-
-    const geminiKey = credentials.gemini?.apiKey || process.env.GEMINI_API_KEY;
-    if (geminiKey) {
-      return this._initGemini(geminiKey, credentials.gemini?.model || process.env.GEMINI_TEXT_MODEL);
     }
 
     this.logger.warn('No AI text provider configured — text generation unavailable');
@@ -102,8 +103,8 @@ class AITextService {
 
   async generateText(prompt, options = {}) {
     const model = options.model || this.model;
-    const maxTokensLimit = parseInt(process.env.MAX_OUTPUT_TOKENS || '1500', 10);
-    const maxTokens = Math.min(options.maxTokens || 1500, maxTokensLimit);
+    const maxTokensLimit = parseInt(process.env.MAX_OUTPUT_TOKENS || '4096', 10);
+    const maxTokens = Math.min(options.maxTokens || 4096, maxTokensLimit);
     const temperature = options.temperature ?? 0.7;
 
     if (this.gemini) {
