@@ -53,10 +53,10 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install System FFmpeg
+      - name: Install System FFmpeg & Indian Devanagari Fonts
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-deva fonts-indic fonts-freefont-ttf
 
       - name: Install Node Dependencies
         run: npm ci

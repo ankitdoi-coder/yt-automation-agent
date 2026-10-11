@@ -1122,6 +1122,8 @@ class AIVideoGenerator {
       const imageAssets = await this.filterImageAssets(visualAssets);
       const slides = this.buildSlideData(script, imageAssets);
       await page.setContent(this.createSlideshowHTML(script, imageAssets, slides));
+      // Ensure Hindi/Devanagari web fonts are fully loaded before rendering
+      await page.evaluate(() => document.fonts.ready).catch(() => {});
 
       // Freeze CSS transitions/animations so each still is captured fully rendered
       await page.addStyleTag({ content: '* { transition: none !important; animation: none !important; }' });
@@ -1367,7 +1369,11 @@ class AIVideoGenerator {
 <html>
 <head>
     <meta charset="UTF-8">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap');
         * { box-sizing: border-box; }
         body {
             margin: 0;
@@ -1375,7 +1381,7 @@ class AIVideoGenerator {
             width: ${bodyWidth}px;
             height: ${bodyHeight}px;
             background: #0b1220;
-            font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', 'Segoe UI', Arial, sans-serif;
             overflow: hidden;
             color: #f4f6fb;
         }
@@ -2491,27 +2497,34 @@ class AIVideoGenerator {
 
     questions.forEach((question, index) => {
       let imageUri = null;
-      if (!isNoImageShort && question.visualImage) {
-        if (typeof question.visualImage === 'string' && question.visualImage.startsWith('data:')) {
-          imageUri = question.visualImage;
-        } else if (typeof question.visualImage === 'string') {
-          try {
-            const ext = path.extname(question.visualImage).toLowerCase().replace('.', '');
-            const mime = (ext === 'jpg' || ext === 'jpeg') ? 'image/jpeg' : `image/${ext}`;
-            const buf = require('fs').readFileSync(question.visualImage);
-            imageUri = `data:${mime};base64,${buf.toString('base64')}`;
-          } catch (_e) {
+      if (!isNoImageShort && question.visualImage && typeof question.visualImage === 'string') {
+        const isInfoOrSim = question.visualImage.endsWith('.info') || question.visualImage.includes('_sim_');
+        const isDataImage = question.visualImage.startsWith('data:image/');
+        const ext = path.extname(question.visualImage).toLowerCase().replace('.', '');
+        const isValidImageExt = ['png', 'jpg', 'jpeg', 'webp'].includes(ext);
+
+        if (!isInfoOrSim) {
+          if (isDataImage) {
             imageUri = question.visualImage;
+          } else if (isValidImageExt) {
+            try {
+              const mime = (ext === 'jpg' || ext === 'jpeg') ? 'image/jpeg' : `image/${ext}`;
+              const buf = require('fs').readFileSync(question.visualImage);
+              imageUri = `data:${mime};base64,${buf.toString('base64')}`;
+            } catch (_e) {
+              imageUri = null;
+            }
           }
         }
       }
 
       if (isShort) {
-        // Rapid-fire Short question & answer: no intro, no option speaking, no explanation
+        // Rapid-fire Short question & answer: if no real AI image was produced, use clean reference layout
+        const useCleanTemplate = isNoImageShort || !imageUri;
         const qText = shortQuestionNarration(question, language);
         const aText = shortAnswerNarration(question, language);
         slides.push({
-          kind: isNoImageShort ? 'shortQuizCleanQuestion' : 'shortQuizQuestion',
+          kind: useCleanTemplate ? 'shortQuizCleanQuestion' : 'shortQuizQuestion',
           index: slides.length + 1,
           total,
           header,
@@ -2524,15 +2537,15 @@ class AIVideoGenerator {
           totalQuestions: actualCount,
           subjectHindi,
           partNumber,
-          noImages: isNoImageShort,
-          image: isNoImageShort ? null : imageUri,
+          noImages: useCleanTemplate,
+          image: imageUri,
           narrationText: qText,
           pauseAfter: 0.6,
           estimatedSpeechDuration: Math.max(1.8, estimateSpeechDuration(qText, language)),
           narrationWords: Math.max(3, wordCount(qText))
         });
         slides.push({
-          kind: isNoImageShort ? 'shortQuizCleanAnswer' : 'shortQuizAnswer',
+          kind: useCleanTemplate ? 'shortQuizCleanAnswer' : 'shortQuizAnswer',
           index: slides.length + 1,
           total,
           header,
@@ -2545,8 +2558,8 @@ class AIVideoGenerator {
           totalQuestions: actualCount,
           subjectHindi,
           partNumber,
-          noImages: isNoImageShort,
-          image: isNoImageShort ? null : imageUri,
+          noImages: useCleanTemplate,
+          image: imageUri,
           narrationText: aText,
           pauseAfter: 0.6,
           estimatedSpeechDuration: Math.max(1.2, estimateSpeechDuration(aText, language)),
