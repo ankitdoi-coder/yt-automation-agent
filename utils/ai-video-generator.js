@@ -166,27 +166,8 @@ class AIVideoGenerator {
       });
     }
 
-    // 3. FreeTTS: 5,000 chars/day, 15,000/month (fallback before Microsoft Edge TTS)
-    if (this.freeTtsApiKey && (!this._ttsCooldowns.freetts || (now - this._ttsCooldowns.freetts > cooldownMs))) {
-      attempts.push({
-        provider: 'freetts',
-        model: this.freeTtsVoice || 'hi-IN-MadhurNeural',
-        run: async () => {
-          try {
-            return await this.generateFreeTTS(text, outputPath);
-          } catch (err) {
-            const status = err.response?.status;
-            if (status === 401 || status === 402 || status === 403 || status === 429) {
-              this._ttsCooldowns.freetts = Date.now();
-            }
-            throw err;
-          }
-        }
-      });
-    }
-
-    // 4. Microsoft Edge TTS: 100% Free, Unlimited neural voices (Madhur Male Hindi / Prabhat)
-    // Placed right after FreeTTS so we don't stall on zero-balance Pollinations
+    // 3. Microsoft Edge TTS: 100% Free, Unlimited neural voices (Madhur Male Hindi / Prabhat)
+    // Clean studio audio with ZERO audio watermarks
     attempts.push({
       provider: 'edge-tts',
       model: process.env.EDGE_TTS_VOICE || 'hi-IN-MadhurNeural',
