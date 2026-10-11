@@ -59,17 +59,33 @@ jobs:
         run: npm ci
 
       - name: Restore Credentials & Secrets
+        env:
+          ENV_SECRET: ${{ secrets.ENV_FILE }}
+          CREDS_SECRET: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          TOKENS_SECRET: ${{ secrets.YOUTUBE_TOKENS_JSON }}
         run: |
           mkdir -p config data/thumbnails data/audio data/videos logs
 
-          # Write .env
-          echo "${{ secrets.ENV_FILE }}" > .env
+          if [ -z "$ENV_SECRET" ]; then
+            echo "::error::GitHub Secret 'ENV_FILE' is empty or not set in Settings > Secrets > Actions"
+            exit 1
+          fi
 
-          # Write Google Credentials JSON
-          echo '${{ secrets.GOOGLE_CREDENTIALS_JSON }}' > config/credentials.json
+          if [ -z "$CREDS_SECRET" ]; then
+            echo "::error::GitHub Secret 'GOOGLE_CREDENTIALS_JSON' is empty or not set in Settings > Secrets > Actions"
+            exit 1
+          fi
 
-          # Write YouTube Tokens JSON
-          echo '${{ secrets.YOUTUBE_TOKENS_JSON }}' > config/tokens.json
+          if [ -z "$TOKENS_SECRET" ]; then
+            echo "::error::GitHub Secret 'YOUTUBE_TOKENS_JSON' is empty or not set in Settings > Secrets > Actions"
+            exit 1
+          fi
+
+          printf '%s\n' "$ENV_SECRET" > .env
+          printf '%s\n' "$CREDS_SECRET" > config/credentials.json
+          printf '%s\n' "$TOKENS_SECRET" > config/tokens.json
+
+          echo "✅ Secrets successfully restored (.env, credentials.json, tokens.json)"
 
       - name: Run Video Generation & Publishing Pipeline
         env:

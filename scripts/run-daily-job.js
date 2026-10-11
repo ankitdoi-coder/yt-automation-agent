@@ -13,6 +13,11 @@ async function run() {
     throw new Error('Agent initialization failed. Check credentials and configuration.');
   }
 
+  if (agent.setupRequired) {
+    const missing = agent.credentials?.getMissingCredentials?.() || [];
+    throw new Error(`Setup is required: Missing credentials for ${missing.join(', ') || 'YouTube or AI provider'}. Verify your GitHub Secrets.`);
+  }
+
   const topic = process.env.VIDEO_TOPIC || null;
   const style = process.env.VIDEO_STYLE || 'quiz';
   const length = process.env.VIDEO_LENGTH || 'medium';
