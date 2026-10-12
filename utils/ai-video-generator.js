@@ -36,13 +36,21 @@ class AIVideoGenerator {
       this.logger.warn('Replicate API key not found - advanced video generation unavailable');
     }
 
-    // Gemini media generation (images + native TTS) — free-tier alternative to OpenAI
-    const geminiKey = resolvedCredentials.gemini?.apiKey || process.env.GEMINI_API_KEY;
-    if (geminiKey) {
+    // Gemini media generation (images + native TTS) — supports multiple API keys pool
+    const rawGeminiKeys = process.env.GEMINI_API_KEYS || process.env.GEMINI_API_KEY || '';
+    const geminiPool = rawGeminiKeys.split(',').map(k => k.trim()).filter(Boolean);
+    const resolvedGemKey = resolvedCredentials.gemini?.apiKey || process.env.GEMINI_API_KEY || null;
+    const combinedGemini = [...geminiPool];
+    if (resolvedGemKey && !combinedGemini.includes(resolvedGemKey)) {
+      combinedGemini.unshift(resolvedGemKey);
+    }
+    this.geminiApiKeys = combinedGemini;
+    this.geminiApiKeyIndex = 0;
+    if (this.geminiApiKeys.length > 0) {
       try {
         const { GoogleGenAI } = require('@google/genai');
-        this.gemini = new GoogleGenAI({ apiKey: geminiKey });
-        this.logger.info('Gemini media service initialized (images + TTS)');
+        this.gemini = new GoogleGenAI({ apiKey: this.geminiApiKeys[0] });
+        this.logger.info(`Gemini media service initialized (pool of ${this.geminiApiKeys.length} key(s))`);
       } catch (error) {
         this.logger.warn('Failed to initialize Gemini media service:', error.message);
       }
@@ -147,8 +155,26 @@ class AIVideoGenerator {
       });
     }
 
-    // 2. Google Gemini TTS: neural voice provider (Male Puck/Charon preferred)
-    if (this.gemini && (!this._ttsCooldowns.gemini || (now - this._ttsCooldowns.gemini > cooldownMs))) {
+    // 2. Azure Speech TTS: Official Microsoft SDK with generous free tier (500k chars/mo)
+    // 100% reliable in GitHub Actions without 403 blocks (hi-IN-MadhurNeural studio voice)
+    if (this.azureSpeechKey && this.azureSpeechRegion && (!this._ttsCooldowns.azure || (now - this._ttsCooldowns.azure > cooldownMs))) {
+      attempts.push({
+        provider: 'azure-speech',
+        model: process.env.AZURE_SPEECH_VOICE || 'hi-IN-MadhurNeural',
+        run: async () => {
+          try {
+            return await this.generateAzureTTS(text, outputPath);
+          } catch (err) {
+            this._ttsCooldowns.azure = Date.now();
+            throw err;
+          }
+        }
+      });
+    }
+
+    // 3. Google Gemini TTS: neural voice provider (Male Puck/Charon preferred)
+    const geminiCooldownMs = 30 * 1000; // 30s RPM cooldown instead of 15m
+    if (this.gemini && (!this._ttsCooldowns.gemini || (now - this._ttsCooldowns.gemini > geminiCooldownMs))) {
       attempts.push({
         provider: 'gemini',
         model: process.env.GEMINI_TTS_MODEL || 'gemini-3.8-flash-lite-tts',
@@ -158,6 +184,11 @@ class AIVideoGenerator {
           } catch (err) {
             const msg = String(err.message || '');
             if (msg.includes('429') || msg.includes('Quota') || msg.includes('RESOURCE_EXHAUSTED')) {
+              if (this.rotateGeminiKey()) {
+                try {
+                  return await this.generateGeminiTTS(text, outputPath);
+                } catch (_) {}
+              }
               this._ttsCooldowns.gemini = Date.now();
             }
             throw err;
@@ -166,7 +197,7 @@ class AIVideoGenerator {
       });
     }
 
-    // 3. Microsoft Edge TTS: 100% Free, Unlimited neural voices (Madhur Male Hindi / Prabhat)
+    // 4. Microsoft Edge TTS: 100% Free, Unlimited neural voices (Madhur Male Hindi / Prabhat)
     // Clean studio audio with ZERO audio watermarks
     attempts.push({
       provider: 'edge-tts',
@@ -174,7 +205,7 @@ class AIVideoGenerator {
       run: () => this.generateEdgeTTS(text, outputPath)
     });
 
-    // 4. Google Translate TTS: 100% Free, unlimited, unblockable fallback (Hindi / Indian English)
+    // 5. Google Translate TTS: 100% Free, unlimited, unblockable fallback (Hindi / Indian English)
     // Guaranteed to work reliably in GitHub Actions / cloud runners where Edge WebSocket returns 403
     attempts.push({
       provider: 'google-tts',
@@ -409,6 +440,55 @@ class AIVideoGenerator {
     }
 
     throw lastError || new Error('All Gemini TTS models failed');
+  }
+
+  rotateGeminiKey() {
+    if (this.geminiApiKeys && this.geminiApiKeys.length > 1) {
+      this.geminiApiKeyIndex = (this.geminiApiKeyIndex + 1) % this.geminiApiKeys.length;
+      const nextKey = this.geminiApiKeys[this.geminiApiKeyIndex];
+      const { GoogleGenAI } = require('@google/genai');
+      this.gemini = new GoogleGenAI({ apiKey: nextKey });
+      this.logger.info(`Rotated to Gemini API key #${this.geminiApiKeyIndex + 1}`);
+      return true;
+    }
+    return false;
+  }
+
+  async generateAzureTTS(text, outputPath, options = {}) {
+    if (!this.azureSpeechKey || !this.azureSpeechRegion) {
+      throw new Error('Azure Speech credentials not configured');
+    }
+    await fs.mkdir(path.dirname(outputPath), { recursive: true });
+    const isHindi = /[\u0900-\u097F]/.test(text);
+    const defaultVoice = isHindi ? 'hi-IN-MadhurNeural' : 'en-IN-PrabhatNeural';
+    const voice = options.voice || process.env.AZURE_SPEECH_VOICE || defaultVoice;
+    this.logger.info(`Generating Azure Speech TTS audio with voice ${voice}...`);
+
+    const sdk = require('microsoft-cognitiveservices-speech-sdk');
+    const speechConfig = sdk.SpeechConfig.fromSubscription(this.azureSpeechKey, this.azureSpeechRegion);
+    speechConfig.speechSynthesisVoiceName = voice;
+    speechConfig.speechSynthesisOutputFormat = sdk.SpeechSynthesisOutputFormat.Audio24Khz48KBitRateMonoMp3;
+    const audioConfig = sdk.AudioConfig.fromAudioFileOutput(outputPath);
+    const synthesizer = new sdk.SpeechSynthesizer(speechConfig, audioConfig);
+
+    return new Promise((resolve, reject) => {
+      synthesizer.speakTextAsync(
+        text,
+        result => {
+          synthesizer.close();
+          if (result.reason === sdk.ResultReason.SynthesizingAudioCompleted) {
+            this.logger.info(`Azure Speech TTS generation complete: ${outputPath}`);
+            resolve(outputPath);
+          } else {
+            reject(new Error(`Azure Speech synthesis failed: ${result.errorDetails || result.reason}`));
+          }
+        },
+        error => {
+          synthesizer.close();
+          reject(error);
+        }
+      );
+    });
   }
 
   async generateEdgeTTS(text, outputPath, options = {}) {
@@ -2709,6 +2789,10 @@ class AIVideoGenerator {
       const results = new Array(slides.length);
 
       for (let i = 0; i < slides.length; i += concurrency) {
+        if (i > 0) {
+          // 800ms pacing prevents hitting Gemini free-tier RPM limits
+          await new Promise(r => setTimeout(r, 800));
+        }
         const batch = [];
         for (let j = i; j < Math.min(i + concurrency, slides.length); j++) {
           batch.push((async (index) => {
