@@ -53,7 +53,7 @@ jobs:
         run: |
           sudo apt-get update -y
           sudo apt-get install -y ffmpeg fonts-noto-core fonts-deva fonts-indic fonts-freefont-ttf python3-pip
-          pip install --break-system-packages edge-tts || pip install edge-tts
+          pip install --break-system-packages edge-tts || sudo pip install edge-tts || python3 -m pip install edge-tts || pip install edge-tts
 
       - name: Install Node Dependencies
         run: npm ci

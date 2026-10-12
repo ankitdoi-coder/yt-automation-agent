@@ -413,22 +413,26 @@ class AIVideoGenerator {
     this.logger.info(`Generating Edge TTS audio with voice ${voiceName}...`);
 
     // 1. Try Python edge-tts CLI first (avoids 403 on cloud runners like GitHub Actions)
-    try {
-      const { execFile } = require('child_process');
-      const util = require('util');
-      const execFileAsync = util.promisify(execFile);
-      await execFileAsync('edge-tts', [
-        '--text', text,
-        '--write-media', outputPath,
-        '--voice', voiceName
-      ], { timeout: 30000 });
+    const pythonCommands = [
+      { cmd: 'python3', args: ['-m', 'edge_tts', '--text', text, '--write-media', outputPath, '--voice', voiceName] },
+      { cmd: 'edge-tts', args: ['--text', text, '--write-media', outputPath, '--voice', voiceName] },
+      { cmd: 'python', args: ['-m', 'edge_tts', '--text', text, '--write-media', outputPath, '--voice', voiceName] }
+    ];
 
-      if (await this.isUsableAudioFile(outputPath)) {
-        this.logger.info(`Edge TTS (CLI) audio generation complete: ${outputPath}`);
-        return outputPath;
+    for (const { cmd, args } of pythonCommands) {
+      try {
+        const { execFile } = require('child_process');
+        const util = require('util');
+        const execFileAsync = util.promisify(execFile);
+        await execFileAsync(cmd, args, { timeout: 30000 });
+
+        if (await this.isUsableAudioFile(outputPath)) {
+          this.logger.info(`Edge TTS (CLI via ${cmd}) audio generation complete: ${outputPath}`);
+          return outputPath;
+        }
+      } catch (_) {
+        // try next Python CLI candidate
       }
-    } catch (_) {
-      // If CLI is not installed or errors, fallback to msedge-tts Node library
     }
 
     // 2. Fallback to MsEdgeTTS Node.js library
