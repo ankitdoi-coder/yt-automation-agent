@@ -193,25 +193,6 @@ class AIVideoGenerator {
       });
     }
 
-    // 5. OpenRouter Fish Audio S2.1 Pro Free TTS (no-cost tier)
-    if (this.openRouterApiKey && (!this._ttsCooldowns.openrouter_fish || (now - this._ttsCooldowns.openrouter_fish > cooldownMs))) {
-      attempts.push({
-        provider: 'openrouter-fish-audio',
-        model: 'fish-audio/s2.1-pro-free:free',
-        run: async () => {
-          try {
-            return await this.generateOpenRouterFishTTS(text, outputPath);
-          } catch (err) {
-            const status = err.response?.status;
-            if (status === 402 || status === 429) {
-              this._ttsCooldowns.openrouter_fish = Date.now();
-            }
-            throw err;
-          }
-        }
-      });
-    }
-
     if (this.openai) {
       attempts.push({ provider: 'openai', model: 'gpt-4o-mini-tts', run: () => this.generateOpenAITTS(text, outputPath) });
     }
@@ -423,13 +404,35 @@ class AIVideoGenerator {
   }
 
   async generateEdgeTTS(text, outputPath, options = {}) {
-    const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
     const isHindi = /[\u0900-\u097F]/.test(text);
     // Strictly Male voices: hi-IN-MadhurNeural (Hindi Male), en-IN-PrabhatNeural (English Male)
     const defaultVoice = isHindi ? 'hi-IN-MadhurNeural' : 'en-IN-PrabhatNeural';
     const voiceName = options.voice || process.env.EDGE_TTS_VOICE || defaultVoice;
 
+    await fs.mkdir(path.dirname(outputPath), { recursive: true });
     this.logger.info(`Generating Edge TTS audio with voice ${voiceName}...`);
+
+    // 1. Try Python edge-tts CLI first (avoids 403 on cloud runners like GitHub Actions)
+    try {
+      const { execFile } = require('child_process');
+      const util = require('util');
+      const execFileAsync = util.promisify(execFile);
+      await execFileAsync('edge-tts', [
+        '--text', text,
+        '--write-media', outputPath,
+        '--voice', voiceName
+      ], { timeout: 30000 });
+
+      if (await this.isUsableAudioFile(outputPath)) {
+        this.logger.info(`Edge TTS (CLI) audio generation complete: ${outputPath}`);
+        return outputPath;
+      }
+    } catch (_) {
+      // If CLI is not installed or errors, fallback to msedge-tts Node library
+    }
+
+    // 2. Fallback to MsEdgeTTS Node.js library
+    const { MsEdgeTTS, OUTPUT_FORMAT } = require('msedge-tts');
     const tts = new MsEdgeTTS();
     try {
       await tts.setMetadata(voiceName, OUTPUT_FORMAT.AUDIO_24KHZ_48KBITRATE_MONO_MP3);
@@ -446,7 +449,7 @@ class AIVideoGenerator {
       this.logger.info(`Edge TTS audio generation complete: ${outputPath}`);
       return outputPath;
     } finally {
-      tts.close();
+      try { tts.close(); } catch (_) {}
     }
   }
 
@@ -2646,12 +2649,23 @@ class AIVideoGenerator {
               ]);
             } else {
               // Convert raw TTS output to normalized 24kHz mono PCM WAV
-              await runFFmpeg([
-                '-y', '-i', rawPath,
-                '-ar', '24000', '-ac', '1',
-                '-c:a', 'pcm_s16le',
-                rawWavPath
-              ]);
+              try {
+                await runFFmpeg([
+                  '-y', '-i', rawPath,
+                  '-ar', '24000', '-ac', '1',
+                  '-c:a', 'pcm_s16le',
+                  rawWavPath
+                ]);
+              } catch (convErr) {
+                this.logger.warn(`Slide ${index} audio conversion failed (${convErr.message}); using fallback silence`);
+                const fallbackDur = Math.max(2.0, Number(slide.estimatedSpeechDuration) || 4.0);
+                await runFFmpeg([
+                  '-y', '-f', 'lavfi', '-i', 'anullsrc=r=24000:cl=mono',
+                  '-t', fallbackDur.toFixed(2),
+                  '-c:a', 'pcm_s16le',
+                  rawWavPath
+                ]);
+              }
             }
 
             // Append exact pause padding to uncompressed PCM WAV segment
@@ -3218,7 +3232,19 @@ ${optionsHtml}
 
     try {
       const stats = await fs.stat(audioPath);
-      return stats.isFile() && stats.size > 0;
+      if (!stats.isFile() || stats.size < 300) {
+        return false;
+      }
+      // Check first 16 bytes: legitimate audio should not start with JSON '{' or HTML '<'
+      const fd = await fs.open(audioPath, 'r');
+      const buf = Buffer.alloc(16);
+      await fd.read(buf, 0, 16, 0);
+      await fd.close();
+      const head = buf.toString('utf8').trim();
+      if (head.startsWith('{') || head.startsWith('<')) {
+        return false;
+      }
+      return true;
     } catch (error) {
       return false;
     }
