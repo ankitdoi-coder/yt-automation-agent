@@ -1,15 +1,11 @@
 name: Daily YouTube Video Automation
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - '.github/workflows/daily-video.yml'
   schedule:
-    # Runs daily at 00:30 UTC = 06:00 AM IST (Indian Standard Time)
-    # Generates today's 4 videos (2 Long + 2 Shorts) and schedules them for their peak viewing hours
-    - cron: '30 0 * * *'
+    # Runs daily at 00:20 UTC = 05:50 AM IST (Indian Standard Time)
+    # Minute 20 avoids GitHub Actions :00 and :30 peak load queue delays
+    # Generates today's 4 videos (2 Long + 2 Shorts) and schedules them for peak viewing hours
+    - cron: '20 0 * * *'
   workflow_dispatch:
     inputs:
       target_slot:

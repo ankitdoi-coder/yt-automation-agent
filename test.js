@@ -67,7 +67,7 @@ class SystemTest {
       { name: 'Engagement Sync Schedule', test: () => this.testEngagementSyncSchedule() },
       { name: 'Growth Experiment Refresh Schedule', test: () => this.testGrowthExperimentRefreshSchedule() },
       { name: 'Strict Quiz Narration and Script Formatting', test: () => this.testStrictQuizNarration() },
-      { name: 'FreeTTS Integration and Fallback Chain', test: () => this.testFreeTTSIntegration() }
+      { name: 'Watermark-Free Edge TTS Integration and Fallback', test: () => this.testEdgeTTSIntegration() }
     ];
 
     let passed = 0;
@@ -3680,73 +3680,40 @@ class SystemTest {
     }
   }
 
-  async testFreeTTSIntegration() {
+  async testEdgeTTSIntegration() {
     const { AIVideoGenerator } = require('./utils/ai-video-generator');
     const path = require('path');
     const os = require('os');
     const fs = require('fs').promises;
 
-    // 1. Verify AIVideoGenerator initializes FreeTTS configuration
-    const generator = new AIVideoGenerator({
-      freeTts: { apiKey: 'ft_live_test_key_123' }
-    });
+    const generator = new AIVideoGenerator({});
 
-    // Disable higher-priority providers on test instance to isolate FreeTTS and Edge TTS
+    // Disable higher-priority providers on test instance to isolate Edge TTS
     generator.gemini = null;
     generator.elevenLabsApiKey = null;
     generator.elevenLabsApiKeys = [];
 
-    if (generator.freeTtsApiKey !== 'ft_live_test_key_123') {
-      throw new Error(`freeTtsApiKey was not set correctly: got ${generator.freeTtsApiKey}`);
-    }
-    if (generator.freeTtsVoice !== 'hi-IN-MadhurNeural') {
-      throw new Error(`freeTtsVoice did not default to hi-IN-MadhurNeural: got ${generator.freeTtsVoice}`);
-    }
-
-    // 2. Verify fallback behavior when FreeTTS encounters an error
-    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'freetts-test-'));
+    const tmpDir = await fs.mkdtemp(path.join(os.tmpdir(), 'edgetts-test-'));
     const testOut = path.join(tmpDir, 'test-audio.mp3');
 
     try {
-      // FreeTTS mock that fails with 403 (simulating Cloudflare challenge or quota limit)
-      generator.generateFreeTTS = async () => {
-        const err = new Error('Request failed with status code 403');
-        err.response = { status: 403 };
-        throw err;
-      };
-
-      // Mock Edge TTS so we don't actually invoke external network in test
       let edgeTtsInvoked = false;
       generator.generateEdgeTTS = async (text, outPath) => {
         edgeTtsInvoked = true;
-        await fs.writeFile(outPath, Buffer.from('mock edge audio data'));
+        await fs.writeFile(outPath, Buffer.from('mock clean edge audio data'));
         return outPath;
       };
       generator.isUsableAudioFile = async () => true;
 
       const result = await generator.generateTTSAudio('नमस्ते, यह एक टेस्ट है।', testOut);
       if (!edgeTtsInvoked) {
-        throw new Error('Edge TTS fallback was not invoked after FreeTTS failure');
+        throw new Error('Edge TTS was not invoked');
       }
       if (generator.lastNarrationResult?.provider !== 'edge-tts') {
         throw new Error(`Expected provider 'edge-tts', got ${generator.lastNarrationResult?.provider}`);
       }
-
-      // 3. Verify successful FreeTTS flow
-      let freeTtsCalled = false;
-      generator._ttsCooldowns = {}; // Reset cooldowns
-      generator.generateFreeTTS = async (text, outPath) => {
-        freeTtsCalled = true;
-        await fs.writeFile(outPath, Buffer.from('mock freetts audio data'));
-        return outPath;
-      };
-
-      const freeResult = await generator.generateTTSAudio('नमस्ते, यह एक टेस्ट है।', testOut);
-      if (!freeTtsCalled) {
-        throw new Error('FreeTTS was not invoked when available');
-      }
-      if (generator.lastNarrationResult?.provider !== 'freetts') {
-        throw new Error(`Expected provider 'freetts', got ${generator.lastNarrationResult?.provider}`);
+      if (!result || typeof result !== 'string') {
+        throw new Error('Expected valid audio result path from Edge TTS');
       }
     } finally {
       await fs.rm(tmpDir, { recursive: true, force: true }).catch(() => {});
