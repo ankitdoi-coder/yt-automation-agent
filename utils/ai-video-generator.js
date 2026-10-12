@@ -2433,15 +2433,14 @@ class AIVideoGenerator {
       String(script.metadata?.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
       String(script.metadata?.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
     );
-    const isNoImageShort = Boolean(
-      isShort && (
-        script.noImages ||
-        script.quizShortNoImage ||
-        script.quiz?.noImages ||
-        String(script.metadata?.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
-        String(script.metadata?.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
-      )
+    const isExplicitVisuals = Boolean(
+      script.quizVisuals ||
+      String(script.metadata?.strategy?.contentType || '').toLowerCase() === 'quiz_visuals' ||
+      String(script.metadata?.strategy?.requestedStyle || '').toLowerCase() === 'quiz_visuals'
     );
+    // User mandate: Shorts MUST STRICTLY use the clean structured ExamIQ typography layout (shortQuizCleanQuestion)
+    // without background AI images.
+    const isNoImageShort = Boolean(isShort && !isExplicitVisuals);
     const header = isShort
       ? '🔴 EXAMIQ BHARAT GK QUIZ'
       : (quiz.headerLabel || `Top ${actualCount} ${subject} Question and answer`);
