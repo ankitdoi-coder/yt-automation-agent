@@ -19,9 +19,9 @@ const SCHEDULE_SLOTS = [
     id: 'slot2',
     name: 'Lunch-Break Student Scroll (Shorts, 9:16 Vertical)',
     timeIST: '13:30',
-    style: 'quiz_short',
+    style: 'quiz_short_no_image',
     length: 'short',
-    contentType: 'quiz_short',
+    contentType: 'quiz_short_no_image',
     defaultTopic: 'रामायण एवं महाभारत के 5 रोचक व महत्वपूर्ण सवाल | Ramayan & Mahabharat GK Shorts'
   },
   {
@@ -37,9 +37,9 @@ const SCHEDULE_SLOTS = [
     id: 'slot4',
     name: 'Post-Dinner Prime Scroll (Shorts, 9:16 Vertical)',
     timeIST: '20:00',
-    style: 'quiz_short',
+    style: 'quiz_short_no_image',
     length: 'short',
-    contentType: 'quiz_short',
+    contentType: 'quiz_short_no_image',
     defaultTopic: 'भारत में प्रथम व रोचक सामान्य ज्ञान: Top 5 GK Questions | ExamIQ Bharat Shorts'
   }
 ];

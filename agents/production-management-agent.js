@@ -346,25 +346,23 @@ class ProductionManagementAgent {
       // - Standard 'quiz': pure typography slides (question + options + answer) on MCQ template
       // - 'quiz_visuals': generates answer-related AI images for ~50% of questions
       if (script.quiz?.questions?.length) {
-        const isQuizShortNoImage = Boolean(
-          script.noImages ||
-          script.quizShortNoImage ||
-          String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
-          String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
-        );
         const isQuizShort = Boolean(
-          isQuizShortNoImage ||
           script.isShort ||
           script.quizShort ||
           String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_short' ||
-          String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short'
+          String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short' ||
+          String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
+          String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
         );
-        const isQuizVisuals = !isQuizShortNoImage && Boolean(
-          isQuizShort ||
+        const isExplicitQuizVisuals = Boolean(
           script.quizVisuals ||
           String(productionData.strategy?.contentType || '').toLowerCase() === 'quiz_visuals' ||
           String(productionData.strategy?.requestedStyle || '').toLowerCase() === 'quiz_visuals'
         );
+        // User design mandate: Both Shorts and Long videos default to pure typography without AI images.
+        // AI image generation is strictly reserved for YouTube thumbnails.
+        const isQuizShortNoImage = isQuizShort && !isExplicitQuizVisuals;
+        const isQuizVisuals = !isQuizShortNoImage && isExplicitQuizVisuals;
 
         if (isQuizShortNoImage) {
           // Dedicated Short Quiz WITHOUT visuals: zero image generation, pure typography layout
