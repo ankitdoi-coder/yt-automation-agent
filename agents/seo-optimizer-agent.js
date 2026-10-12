@@ -1,5 +1,6 @@
 const { Logger } = require('../utils/logger');
 const { AITextService } = require('../utils/ai-text-service');
+const { buildLongVideoDescription } = require('../utils/long-video-seo-template');
 
 class SEOOptimizerAgent {
   constructor(db, credentials) {
@@ -98,12 +99,31 @@ class SEOOptimizerAgent {
         const aiSEO = await this.generateSEOWithAI(script, strategy, brand, chapters);
 
         if (aiSEO) {
-          ({ title, description, tags } = aiSEO);
+          ({ title, tags } = aiSEO);
         } else {
           this.logger.info('Using template SEO optimization');
           title = await this.optimizeTitle(script.title, strategy);
-          description = await this.generateDescription(script, strategy);
           tags = await this.generateTags(script, strategy);
+        }
+
+        // Channel owner strictly mandated permanent description for all long videos (proven high-views viral queries block)
+        description = buildLongVideoDescription({
+          title,
+          brand,
+          topic: strategy.topic || script.title || 'General Knowledge',
+          chapters
+        });
+
+        // Ensure tags include user's top viral search queries
+        const viralExamTags = [
+          'gk', 'general knowledge', 'important gk questions and answer', 'quiz test',
+          'br gk study', 'gk in hindi', 'general knowledge quiz', 'lucent gk', 'samanya gyan',
+          'geography gk', 'lucent gk in hindi', 'gk questions and answers', 'lucent 1000 question'
+        ];
+        for (const vt of viralExamTags) {
+          if (!tags.some(t => t.toLowerCase() === vt.toLowerCase())) {
+            tags.push(vt);
+          }
         }
       }
 
@@ -114,20 +134,22 @@ class SEOOptimizerAgent {
         }
       }
 
-      // Ensure description contains brand in the opening 200 words (for SEO & GEO salience)
-      const openingWords = description.split(/\s+/).slice(0, 50).join(' ');
-      if (brand && !openingWords.toLowerCase().includes(brand.toLowerCase())) {
-        description = `Welcome to ${brand}! ${description}`;
-      }
+      if (isQuizShort) {
+        // Ensure description contains brand in the opening 200 words (for SEO & GEO salience)
+        const openingWords = description.split(/\s+/).slice(0, 50).join(' ');
+        if (brand && !openingWords.toLowerCase().includes(brand.toLowerCase())) {
+          description = `Welcome to ${brand}! ${description}`;
+        }
 
-      // Ensure description contains timestamps if not already present
-      if (timestampsBlock && !description.includes('00:00') && !description.toLowerCase().includes('timestamps')) {
-        description += `\n\n⏱️ TIMESTAMPS:\n${timestampsBlock}`;
-      }
+        // Ensure description contains timestamps if not already present
+        if (timestampsBlock && !description.includes('00:00') && !description.toLowerCase().includes('timestamps')) {
+          description += `\n\n⏱️ TIMESTAMPS:\n${timestampsBlock}`;
+        }
 
-      // Ensure description contains verified educational reference links
-      if (!description.includes('ncert.nic.in') && !description.includes('wikipedia.org')) {
-        description += `\n\n📚 STUDY RESOURCES & VERIFIED REFERENCES:\n• NCERT Official: https://ncert.nic.in\n• Wikipedia Knowledge Base: https://en.wikipedia.org\n• Legislative & Polity Portal: https://legislative.gov.in`;
+        // Ensure description contains verified educational reference links
+        if (!description.includes('ncert.nic.in') && !description.includes('wikipedia.org')) {
+          description += `\n\n📚 STUDY RESOURCES & VERIFIED REFERENCES:\n• NCERT Official: https://ncert.nic.in\n• Wikipedia Knowledge Base: https://en.wikipedia.org\n• Legislative & Polity Portal: https://legislative.gov.in`;
+        }
       }
 
       // Ensure tags include brand and top competitive exam keywords
@@ -374,79 +396,16 @@ This video is created strictly for educational purposes. Copyright Disclaimer Un
   }
 
   async generateDescription(script, strategy) {
-    // YouTube description limit: 5000 characters, first 125-150 shown in search preview
-    let description = '';
-    const brand = process.env.CHANNEL_NAME || 'ExamIQ';
-    const year = new Date().getFullYear();
-    
-    // First 125 characters - high-salience hook for YouTube & Google search snippets
-    const hook = `Welcome to ${brand}! ${script.title} - In this comprehensive educational guide, you will master ${strategy.angle ? strategy.angle.toLowerCase() : strategy.topic}.`;
-    description += hook + '\n\n';
-    
-    // Video overview & learning outcomes
-    description += '📺 WHAT YOU\'LL LEARN:\n';
-    if (script.mainContent && script.mainContent.sections) {
-      script.mainContent.sections.slice(0, 5).forEach(section => {
-        if (section.title) {
-          description += `• ${section.title}\n`;
-        }
-      });
-    } else {
-      description += `• Complete breakdown of ${strategy.topic}\n`;
-      description += `• Top questions and important concepts for competitive exams\n`;
-      description += `• Practical problem-solving tips and study tricks\n`;
-    }
-    description += '\n';
-    
-    // Interactive Challenge (Comment ranking multiplier)
-    description += '🎯 AUDIENCE SCORE CHALLENGE:\n';
-    description += 'How many questions did you answer correctly? Drop your score in the comments below to get pinned! 🏆\n\n';
-
-    // Timestamps/Chapters for YouTube "Key Moments" and Google Search indexing
-    description += '⏱️ TIMESTAMPS:\n';
+    const brand = process.env.CHANNEL_NAME || 'ExamIQ Bharat';
     const chapters = await this.generateChapters(script);
-    chapters.forEach(ch => {
-      description += `${ch.time} ${ch.title}\n`;
+    return buildLongVideoDescription({
+      title: script.title,
+      brand,
+      topic: strategy.topic || script.title || 'General Knowledge',
+      chapters
     });
-    description += '\n';
-    
-    // Keywords paragraph (SEO & LSI optimized)
-    description += '📝 ABOUT THIS VIDEO & SYLLABUS COVERAGE:\n';
-    description += `This comprehensive educational video on ${strategy.topic} covers key syllabus areas for competitive exams. `;
-    description += `Whether preparing for SSC CGL, CHSL, UPSC Prelims, RRB NTPC, or State PCS, you will gain essential knowledge on ${(strategy.keywords || []).slice(0, 4).join(', ')}. `;
-    description += `Target Audience: ${strategy.targetAudience || 'Competitive exam aspirants and lifelong learners'}.\n\n`;
-    
-    // Verified Study Resources & References (E-E-A-T & GEO Trust Network)
-    description += '📚 STUDY RESOURCES & VERIFIED REFERENCES:\n';
-    description += '• NCERT Official Portal: https://ncert.nic.in\n';
-    description += '• Wikipedia Knowledge Base: https://en.wikipedia.org\n';
-    description += '• Legislative & Polity Portal: https://legislative.gov.in\n\n';
-
-    // Links section & Playlists
-    description += '🔗 USEFUL LINKS & PLAYLISTS:\n';
-    description += `• Subscribe to ${brand}: [Your Channel URL]\n`;
-    description += `• More Educational Quizzes & Guides: [Playlist URL]\n`;
-    description += `• Website: ${process.env.WEBSITE_URL || '[Your Website]'}\n`;
-    description += `• Social Media: ${process.env.SOCIAL_LINKS || '[Your Social Media]'}\n\n`;
-    
-    // Business inquiries
-    description += '📧 BUSINESS INQUIRIES:\n';
-    description += `${process.env.BUSINESS_EMAIL || '[Your Business Email]'}\n\n`;
-    
-    // Tags/Hashtags
-    description += '🏷️ HASHTAGS:\n';
-    const hashtags = await this.generateHashtags(strategy);
-    description += hashtags.join(' ') + '\n\n';
-    
-    // Educational Disclaimer
-    description += '⚠️ DISCLAIMER:\n';
-    description += 'This video is created strictly for educational purposes. Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for teaching, scholarship, education, and research.\n\n';
-    
-    // Copyright
-    description += `© ${year} ${brand}. All Rights Reserved\n`;
-    
-    return description;
   }
+
 
   async generateTags(script, strategy) {
     const tags = new Set();
