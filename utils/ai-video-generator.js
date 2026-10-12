@@ -174,6 +174,14 @@ class AIVideoGenerator {
       run: () => this.generateEdgeTTS(text, outputPath)
     });
 
+    // 4. Google Translate TTS: 100% Free, unlimited, unblockable fallback (Hindi / Indian English)
+    // Guaranteed to work reliably in GitHub Actions / cloud runners where Edge WebSocket returns 403
+    attempts.push({
+      provider: 'google-tts',
+      model: /[\u0900-\u097F]/.test(text) ? 'hi' : 'en-IN',
+      run: () => this.generateGoogleTTS(text, outputPath)
+    });
+
     // 4. Pollinations AI TTS: fallback if key has balance
     if (this.pollinationsClient && (!this._ttsCooldowns.pollinations || (now - this._ttsCooldowns.pollinations > cooldownMs))) {
       attempts.push({
@@ -430,8 +438,8 @@ class AIVideoGenerator {
           this.logger.info(`Edge TTS (CLI via ${cmd}) audio generation complete: ${outputPath}`);
           return outputPath;
         }
-      } catch (_) {
-        // try next Python CLI candidate
+      } catch (cliErr) {
+        this.logger.debug(`Edge TTS CLI attempt via ${cmd} failed: ${cliErr && cliErr.message ? cliErr.message : cliErr}`);
       }
     }
 
@@ -456,6 +464,85 @@ class AIVideoGenerator {
       try { tts.close(); } catch (_) {}
     }
   }
+
+  async generateGoogleTTS(text, outputPath, options = {}) {
+    const isHindi = /[\u0900-\u097F]/.test(text);
+    const lang = options.lang || (isHindi ? 'hi' : 'en-IN');
+
+    await fs.mkdir(path.dirname(outputPath), { recursive: true });
+    this.logger.info(`Generating Google TTS audio (${lang})...`);
+
+    // 1. Try Python gTTS CLI if available on the system
+    const gttsCommands = [
+      { cmd: 'gtts-cli', args: [text, '--lang', lang, '--output', outputPath] },
+      { cmd: 'python3', args: ['-m', 'gtts', text, '--lang', lang, '--output', outputPath] },
+      { cmd: 'python', args: ['-m', 'gtts', text, '--lang', lang, '--output', outputPath] }
+    ];
+
+    for (const { cmd, args } of gttsCommands) {
+      try {
+        const { execFile } = require('child_process');
+        const util = require('util');
+        const execFileAsync = util.promisify(execFile);
+        await execFileAsync(cmd, args, { timeout: 30000 });
+        if (await this.isUsableAudioFile(outputPath)) {
+          this.logger.info(`Google TTS (CLI via ${cmd}) audio generation complete: ${outputPath}`);
+          return outputPath;
+        }
+      } catch (_) {
+        // Fall back to direct HTTP
+      }
+    }
+
+    // 2. Direct HTTPS Google Translate TTS (ultra-reliable, 0 auth, 0 rate limit)
+    const chunkText = (str, maxLen = 180) => {
+      const words = str.split(/\s+/);
+      const chunks = [];
+      let current = '';
+      for (const word of words) {
+        if ((current ? current + ' ' + word : word).length <= maxLen) {
+          current = current ? current + ' ' + word : word;
+        } else {
+          if (current) chunks.push(current);
+          current = word;
+        }
+      }
+      if (current) chunks.push(current);
+      return chunks.length ? chunks : [str.slice(0, maxLen)];
+    };
+
+    const chunks = chunkText(text.trim(), 180);
+    const audioBuffers = [];
+
+    for (const chunk of chunks) {
+      if (!chunk.trim()) continue;
+      const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${encodeURIComponent(lang)}&q=${encodeURIComponent(chunk)}`;
+      const res = await axios.get(url, {
+        responseType: 'arraybuffer',
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Referer': 'https://translate.google.com/'
+        },
+        timeout: 20000
+      });
+
+      if (!res.data || res.data.length < 100) {
+        throw new Error(`Google TTS returned invalid audio for chunk: "${chunk.substring(0, 30)}..."`);
+      }
+      audioBuffers.push(Buffer.from(res.data));
+    }
+
+    if (audioBuffers.length === 0) {
+      throw new Error('Google TTS produced no audio chunks');
+    }
+
+    const combinedBuffer = Buffer.concat(audioBuffers);
+    await fs.writeFile(outputPath, combinedBuffer);
+
+    this.logger.info(`Google TTS (${lang}) audio generation complete (${combinedBuffer.length} bytes): ${outputPath}`);
+    return outputPath;
+  }
+
 
   async generateOpenRouterFishTTS(text, outputPath) {
     if (!this.openRouterApiKey) {

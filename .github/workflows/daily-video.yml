@@ -49,11 +49,13 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - name: Install System FFmpeg, Indian Devanagari Fonts & Edge TTS
+      - name: Install System FFmpeg, Indian Devanagari Fonts & Audio TTS Engines
         run: |
           sudo apt-get update -y
-          sudo apt-get install -y ffmpeg fonts-noto-core fonts-deva fonts-indic fonts-freefont-ttf python3-pip
-          pip install --break-system-packages edge-tts || sudo pip install edge-tts || python3 -m pip install edge-tts || pip install edge-tts
+          sudo apt-get install -y ffmpeg fonts-noto-core fonts-deva fonts-indic fonts-freefont-ttf python3-pip python3-setuptools
+          python3 -m pip install --break-system-packages edge-tts gTTS || pip3 install edge-tts gTTS || sudo pip install edge-tts gTTS || true
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
 
       - name: Install Node Dependencies
         run: npm ci
