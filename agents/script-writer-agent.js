@@ -375,7 +375,8 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
         const status = error?.status;
         const message = String(error?.message || '');
         const transient = status === 429 || status === 408 || (status >= 500 && status <= 599) ||
-          /timeout|timed out|empty response|ECONN|ENOTFOUND|fetch failed|network/i.test(message);
+          /timeout|timed out|empty response|ECONN|ENOTFOUND|fetch failed|network|JSON|SyntaxError|Unexpected token/i.test(message) ||
+          error instanceof SyntaxError;
         // Auth/validation errors will not get better by retrying.
         if (!transient || attempt === attempts) break;
         const delayMs = Math.min(15000, 1500 * Math.pow(2, attempt - 1));
@@ -541,7 +542,7 @@ ${existing}
 10. Vary the sub-topics. Do not start every question the same way.
 11. REQUIRED: Every question MUST have an informative 1-2 sentence "explanation" (10-25 words) in Hindi stating a famous historical/geographical/factual detail about the correct answer. This fact is spoken aloud after revealing the answer.
 12. REQUIRED visualPrompt: Write a specific descriptive English visual prompt for generating an image strictly relevant to the correct answer. For historical people/rulers/leaders, specify a historical portrait photograph or painting. For historical battles/events/movements, describe that event scene. For laws/articles/constitution, describe the Indian constitution parchment or Parliament. For geography, describe that specific place/map. Do NOT default to generic buildings or landmarks when the subject is a person, battle, document, or science topic.
-13. Strict JSON: every string in "options" and "question" must be enclosed in double quotes.
+13. Strict JSON: every string in "options" and "question" must be enclosed in double quotes. Do NOT use unescaped double quotes inside question, options, or explanation text; use single quotes ('...') for any terms or titles inside sentences (e.g. 'मास्टर ग्रंथि', 'विटामिन C').
 14. ZERO REPETITION & NO CLICHES: Never ask beginner cliches (e.g. counting bones in human body "मानव शरीर में हड्डियां", simple national symbols, simple capitals). Every question must be a fresh, competitive-exam level question (SSC CGL / UPSC / Railway NTPC standard) covering diverse specialized sub-domains.
 Return only the valid JSON, no markdown outside, no commentary.`;
   }
@@ -568,15 +569,22 @@ Return only the valid JSON, no markdown outside, no commentary.`;
         collectedKeys,
         withMeta: !meta
       });
-      const parsed = await this.withRetries(
-        async () => {
-          const response = await this.aiTextService.generateText(prompt, { maxTokens: 4096, temperature: 0.8, json: true });
-          return this.parseAIJsonResponse(response);
-        },
-        `AI quiz batch ${batch + 1}`
-      );
+      let parsed = null;
+      try {
+        parsed = await this.withRetries(
+          async () => {
+            const response = await this.aiTextService.generateText(prompt, { maxTokens: 4096, temperature: 0.8, json: true });
+            return this.parseAIJsonResponse(response);
+          },
+          `AI quiz batch ${batch + 1}`,
+          3
+        );
+      } catch (batchErr) {
+        this.logger.warn(`AI quiz batch ${batch + 1} failed (${batchErr.message}). Continuing to next batch...`);
+        continue;
+      }
 
-      if (!meta && parsed.title) {
+      if (!meta && parsed && parsed.title) {
         meta = {
           title: String(parsed.title || '').trim(),
           subject: String(parsed.subject || '').trim(),
@@ -590,7 +598,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
         };
       }
 
-      const rawQuestions = parsed.questions || parsed.mcqs || [];
+      const rawQuestions = parsed?.questions || parsed?.mcqs || [];
       let added = 0;
       for (const item of this.normalizeQuizQuestions(rawQuestions, questions.length + 1)) {
         const key = this.quizDuplicateKey(item.question);
@@ -600,7 +608,6 @@ Return only the valid JSON, no markdown outside, no commentary.`;
         added++;
       }
       this.logger.info(`Quiz batch ${batch + 1}: +${added} questions (${questions.length}/${requestedTotal})`);
-      if (added === 0 && batch >= 1) break;
     }
 
     const minimum = Math.min(requestedTotal, Math.max(3, Math.floor(requestedTotal * 0.8)));
@@ -1002,6 +1009,72 @@ ${flaggedItems}`;
     };
   }
 
+  repairJsonStringQuotes(jsonStr) {
+    let inString = false;
+    let isEscaped = false;
+    let result = '';
+
+    for (let i = 0; i < jsonStr.length; i++) {
+      const char = jsonStr[i];
+
+      if (char === '\\' && inString) {
+        isEscaped = !isEscaped;
+        result += char;
+        continue;
+      }
+
+      if (char === '"' && !isEscaped) {
+        if (!inString) {
+          inString = true;
+          result += char;
+        } else {
+          const rest = jsonStr.slice(i + 1).trimStart();
+          const nextChar = rest[0];
+          if (nextChar === ',' || nextChar === ':' || nextChar === '}' || nextChar === ']' || rest.length === 0) {
+            inString = false;
+            result += char;
+          } else {
+            result += "'";
+          }
+        }
+        isEscaped = false;
+        continue;
+      }
+
+      isEscaped = false;
+      result += char;
+    }
+
+    return result;
+  }
+
+  extractQuizQuestionsFromRawText(rawText) {
+    const questions = [];
+    const objRegex = /\{\s*"question"\s*:\s*"([\s\S]*?)"\s*,\s*"options"\s*:\s*\[([\s\S]*?)\]\s*,\s*"answerIndex"\s*:\s*(\d+)[\s\S]*?\}/g;
+    let match;
+    while ((match = objRegex.exec(rawText)) !== null) {
+      try {
+        const qText = match[1].replace(/\\"/g, '"').trim();
+        const rawOptions = match[2];
+        const optRegex = /"([^"\\]*(?:\\.[^"\\]*)*)"/g;
+        const options = [];
+        let optMatch;
+        while ((optMatch = optRegex.exec(rawOptions)) !== null) {
+          options.push(optMatch[1].trim());
+        }
+        const answerIndex = parseInt(match[3], 10);
+        if (qText && options.length === 4 && !isNaN(answerIndex)) {
+          questions.push({
+            question: qText,
+            options,
+            answerIndex
+          });
+        }
+      } catch (_) {}
+    }
+    return { questions };
+  }
+
   parseAIJsonResponse(response) {
     const text = String(response || '').trim();
     const withoutFences = text
@@ -1027,7 +1100,18 @@ ${flaggedItems}`;
         try {
           return JSON.parse(repaired);
         } catch (repairErr) {
-          throw parseErr;
+          // 3. Fallback: repair unescaped quotes inside string fields (e.g. Hindi words in quotes)
+          try {
+            const quoteRepaired = this.repairJsonStringQuotes(repaired);
+            return JSON.parse(quoteRepaired);
+          } catch (quoteErr) {
+            // 4. Fallback: resilient regex extraction of MCQ question objects
+            const fallbackExtracted = this.extractQuizQuestionsFromRawText(match[0]);
+            if (fallbackExtracted && fallbackExtracted.questions && fallbackExtracted.questions.length > 0) {
+              return fallbackExtracted;
+            }
+            throw parseErr;
+          }
         }
       }
     }
