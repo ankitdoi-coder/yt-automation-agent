@@ -1,6 +1,10 @@
 const { Logger } = require('../utils/logger');
 const { AITextService } = require('../utils/ai-text-service');
-const { buildLongVideoDescription } = require('../utils/long-video-seo-template');
+const {
+  buildLongVideoDescription,
+  buildShortVideoDescription,
+  buildUniversalViralDescription
+} = require('../utils/long-video-seo-template');
 
 class SEOOptimizerAgent {
   constructor(db, credentials) {
@@ -131,24 +135,6 @@ class SEOOptimizerAgent {
       if (brand && !title.toLowerCase().includes(brand.toLowerCase())) {
         if (title.length + brand.length + 3 <= 100) {
           title = `${title} | ${brand}`;
-        }
-      }
-
-      if (isQuizShort) {
-        // Ensure description contains brand in the opening 200 words (for SEO & GEO salience)
-        const openingWords = description.split(/\s+/).slice(0, 50).join(' ');
-        if (brand && !openingWords.toLowerCase().includes(brand.toLowerCase())) {
-          description = `Welcome to ${brand}! ${description}`;
-        }
-
-        // Ensure description contains timestamps if not already present
-        if (timestampsBlock && !description.includes('00:00') && !description.toLowerCase().includes('timestamps')) {
-          description += `\n\n⏱️ TIMESTAMPS:\n${timestampsBlock}`;
-        }
-
-        // Ensure description contains verified educational reference links
-        if (!description.includes('ncert.nic.in') && !description.includes('wikipedia.org')) {
-          description += `\n\n📚 STUDY RESOURCES & VERIFIED REFERENCES:\n• NCERT Official: https://ncert.nic.in\n• Wikipedia Knowledge Base: https://en.wikipedia.org\n• Legislative & Polity Portal: https://legislative.gov.in`;
         }
       }
 
@@ -311,37 +297,11 @@ ${timestampsText}
   }
 
   generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge') {
-    const year = new Date().getFullYear();
-    return `${title}
-
-🎯 DAILY QUIZ CHALLENGE:
-How many questions can you answer correctly? Test your general knowledge and drop your score (e.g. 8/10) in the comments below! 👇
-
-📚 TOPICS COVERED & SYLLABUS:
-• ${cleanTopic} Questions and Answers in Hindi & English
-• Lucent GK & Samanya Gyan Important MCQs (${year})
-• Most Repeated Questions for Competitive Exams
-• Target Exams: SSC CGL, CHSL, MTS, UPSC Prelims, RRB NTPC, State PCS, Police Exams
-
-⏱️ TIMESTAMPS:
-00:00 Question 1
-00:15 Question 2
-00:30 Final Question & Score Reveal
-
-🔍 RELATED SEARCH QUERIES:
-${cleanTopic} questions, ${cleanTopic} quiz, gk questions and answers, gk in hindi, lucent gk in hindi, gk quiz hindi, general knowledge quiz, samanya gyan, ssc cgl gk, railway gk, upsc prelims gk, static gk mcq test.
-
-📖 VERIFIED STUDY RESOURCES & REFERENCES:
-• NCERT Official Portal: https://ncert.nic.in
-• Wikipedia Knowledge Base: https://en.wikipedia.org
-• Government Legislative Portal: https://legislative.gov.in
-
-🔔 Subscribe to ${brand} for daily exam-prep quiz challenges & high-scoring educational study material!
-
-#Shorts #GKQuiz #GKInHindi #GeneralKnowledge #LucentGK #Education #ExamPrep #SSCCGL #UPSC #${brand.replace(/\s+/g, '')}
-
-⚠️ DISCLAIMER:
-This video is created strictly for educational purposes. Copyright Disclaimer Under Section 107 of the Copyright Act 1976, allowance is made for "fair use" for purposes such as criticism, comment, news reporting, teaching, scholarship, education, and research.`;
+    return buildShortVideoDescription({
+      title,
+      brand,
+      topic: cleanTopic
+    });
   }
 
   async optimizeTitle(originalTitle, strategy) {
@@ -398,12 +358,23 @@ This video is created strictly for educational purposes. Copyright Disclaimer Un
   async generateDescription(script, strategy) {
     const brand = process.env.CHANNEL_NAME || 'ExamIQ Bharat';
     const chapters = await this.generateChapters(script);
-    return buildLongVideoDescription({
-      title: script.title,
-      brand,
-      topic: strategy.topic || script.title || 'General Knowledge',
-      chapters
-    });
+    const isQuizShort = Boolean(
+      strategy?.isShort ||
+      String(strategy?.contentType || '').toLowerCase().includes('short') ||
+      String(strategy?.requestedStyle || '').toLowerCase().includes('short')
+    );
+    return isQuizShort
+      ? buildShortVideoDescription({
+          title: script.title,
+          brand,
+          topic: strategy?.topic || script.title
+        })
+      : buildLongVideoDescription({
+          title: script.title,
+          brand,
+          topic: strategy?.topic || script.title || 'General Knowledge',
+          chapters
+        });
   }
 
 
