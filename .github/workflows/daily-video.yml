@@ -2,10 +2,10 @@ name: Daily YouTube Video Automation
 
 on:
   schedule:
-    # Runs daily at 00:20 UTC = 05:50 AM IST (Indian Standard Time)
-    # Minute 20 avoids GitHub Actions :00 and :30 peak load queue delays
-    # Generates today's 4 videos (2 Long + 2 Shorts) and schedules them for peak viewing hours
-    - cron: '20 0 * * *'
+    # Primary trigger: 05:45 AM IST (00:15 UTC)
+    - cron: '15 0 * * *'
+    # Backup trigger: 06:15 AM IST (00:45 UTC) - protects against GitHub Actions midnight queue drops
+    - cron: '45 0 * * *'
   workflow_dispatch:
     inputs:
       target_slot:
