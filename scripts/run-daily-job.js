@@ -44,6 +44,76 @@ const SCHEDULE_SLOTS = [
   }
 ];
 
+// Differentiates each daily slot so parallel/sequential videos NEVER generate the same questions
+function resolveSlotTopic(slot, baseTopic) {
+  if (!baseTopic || !baseTopic.trim()) {
+    return slot.defaultTopic;
+  }
+  const cleanBase = baseTopic.trim();
+
+  // If topic is broad science / general science
+  if (/science|विज्ञान/i.test(cleanBase)) {
+    switch (slot.id) {
+      case 'slot1':
+        return `${cleanBase} - जीव विज्ञान (Biology) एवं मानव शरीर: 50 महत्वपूर्ण प्रश्न | SSC & Railway GK`;
+      case 'slot2':
+        return `${cleanBase} - भौतिक विज्ञान (Physics) के 5 रोचक व महत्वपूर्ण सवाल | GK Shorts`;
+      case 'slot3':
+        return `${cleanBase} - रसायन विज्ञान (Chemistry) एवं पर्यावरण विज्ञान: 50 महत्वपूर्ण प्रश्न | Exam Special`;
+      case 'slot4':
+        return `${cleanBase} - प्रमुख वैज्ञानिक खोजें, अंतरिक्ष व आविष्कार (Space & Inventions): Top 5 GK Shorts`;
+      default:
+        return `${cleanBase} (${slot.name})`;
+    }
+  }
+
+  // If topic is history / इतिहास
+  if (/history|इतिहास|संविधान|polity/i.test(cleanBase)) {
+    switch (slot.id) {
+      case 'slot1':
+        return `${cleanBase} - प्राचीन एवं मध्यकालीन भारत: 50 महत्वपूर्ण प्रश्न | Indian History GK`;
+      case 'slot2':
+        return `${cleanBase} - 1857 की क्रांति व स्वतंत्रता सेनानी: Top 5 GK Shorts`;
+      case 'slot3':
+        return `${cleanBase} - आधुनिक भारत का इतिहास एवं राष्ट्रीय आंदोलन: 50 महत्वपूर्ण प्रश्न`;
+      case 'slot4':
+        return `${cleanBase} - ऐतिहासिक धरोहर, युद्ध व प्रमुख संधियां: Top 5 GK Shorts`;
+      default:
+        return `${cleanBase} (${slot.name})`;
+    }
+  }
+
+  // If topic is geography / भूगोल
+  if (/geography|भूगोल/i.test(cleanBase)) {
+    switch (slot.id) {
+      case 'slot1':
+        return `${cleanBase} - भारत की नदियां, पर्वत व राष्ट्रीय उद्यान: 50 महत्वपूर्ण प्रश्न`;
+      case 'slot2':
+        return `${cleanBase} - भारत के प्रमुख बांध व झीलें: Top 5 GK Shorts`;
+      case 'slot3':
+        return `${cleanBase} - विश्व भूगोल, सौरमंडल व महाद्वीप: 50 महत्वपूर्ण प्रश्न`;
+      case 'slot4':
+        return `${cleanBase} - भारत के राज्य, सीमाएं व दर्रे: Top 5 GK Shorts`;
+      default:
+        return `${cleanBase} (${slot.name})`;
+    }
+  }
+
+  // General custom topic - give distinct sub-angles per slot
+  switch (slot.id) {
+    case 'slot1':
+      return `${cleanBase}: भाग 1 (मूल अवधारणाएं एवं बेसिक से एडवांस): 50 अति महत्वपूर्ण प्रश्न`;
+    case 'slot2':
+      return `${cleanBase}: Top 5 रोचक व परीक्षा उपयोगी सवाल | Rapid Fire GK Shorts`;
+    case 'slot3':
+      return `${cleanBase}: भाग 2 (प्रतियोगी परीक्षाओं में बार-बार पूछे गए प्रश्न): 50 अति महत्वपूर्ण प्रश्न`;
+    case 'slot4':
+      return `${cleanBase}: Top 5 मोस्ट रिपीटेड कठिन सवाल | ExamIQ Bharat Shorts`;
+    default:
+      return `${cleanBase} - ${slot.name}`;
+  }
+}
+
 function calculateSlotPublishDate(timeIST) {
   const [hours, minutes] = timeIST.split(':').map(Number);
   const now = new Date();
@@ -67,6 +137,7 @@ function calculateSlotPublishDate(timeIST) {
     timeIST
   };
 }
+
 
 async function run() {
   logger.info('🚀 Starting Daily Educational YouTube Pipeline (2 Long + 2 Shorts)...');
@@ -116,9 +187,9 @@ async function run() {
     logger.info(`⏰ Target Publish Window: ${slot.timeIST} IST (UTC: ${slotTiming.isoString}) | Status: ${slotTiming.isPast ? 'Direct Public Upload' : 'Scheduled Auto-Public'}`);
     logger.info(`────────────────────────────────────────────────────────────`);
 
-    try {
+      const slotTopic = resolveSlotTopic(slot, process.env.VIDEO_TOPIC);
       const job = await agent.startGenerationJob({
-        topic: process.env.VIDEO_TOPIC || slot.defaultTopic || null,
+        topic: slotTopic,
         style: slot.style,
         length: slot.length,
         source: 'scheduler'

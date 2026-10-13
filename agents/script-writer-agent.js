@@ -1,5 +1,11 @@
 const { Logger } = require('../utils/logger');
 const { AITextService } = require('../utils/ai-text-service');
+const {
+  getRecentUsedQuestionTexts,
+  getUsedQuestionKeysSet,
+  isDuplicateQuestion,
+  recordGeneratedQuestions
+} = require('../utils/quiz-question-deduplicator');
 
 class ScriptWriterAgent {
   constructor(db, credentials) {
@@ -484,9 +490,13 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
 
   buildQuizBatchPrompt({ strategy, language, size, totalQuestions = 50, collectedKeys, withMeta }) {
     const languageLine = language === 'hi'
-      ? 'Write every question, option, explanation and header text in Hindi using proper Devanagari script. IMPORTANT: On-screen questions and options must write all numbers and dates as numeric digits (e.g. 17, 28 फरवरी, 1947, 206, 360) and NOT spelled out as Hindi words. Write continuous, natural Hindi words with correct matras; never separate consonants with spaces.'
+      ? 'Write every question, option, explanation and header text in Hindi using proper Devanagari script. IMPORTANT: On-screen questions and options must write all numbers and dates as numeric digits (e.g. 17, 28 फरवरी 1928, 1947, 360, अनुच्छेद 324) and NOT spelled out as Hindi words. Write continuous, natural Hindi words with correct matras; never separate consonants with spaces.'
       : 'Write every question, option, explanation and header text in English.';
-    const existing = [...collectedKeys].slice(0, 60).map(key => `- ${key}`).join('\n') || '- (none yet)';
+
+    // Combine current batch keys with persistent historical questions from previous videos
+    const persistentTexts = getRecentUsedQuestionTexts(60);
+    const combinedExclusions = [...new Set([...collectedKeys, ...persistentTexts])].slice(0, 80);
+    const existing = combinedExclusions.map(key => `- ${key}`).join('\n') || '- (none yet)';
     const metaShape = withMeta
       ? `"title": "SEO video title under 100 characters, style like: Top ${totalQuestions} ${strategy.topic || 'Science'} Question and answer | General Science GK Quiz | SSC CGL, Railway",
   "subject": "short English subject, e.g. Science",
@@ -522,7 +532,7 @@ RULES:
 2. Check the answer yourself before writing it. "answerIndex" is the 0-based index of the correct option (0=A, 1=B, 2=C, 3=D).
 3. Do NOT put numbers in front of question text (do NOT write "1.", "प्रश्न 1", "Q1.", etc.). The narration script will automatically add ("आपका पहला सवाल है—", "आपका अगला सवाल है—", "आपका आखिरी सवाल है—").
 4. Do NOT include thinking words, countdown or timer fillers ("सोचिए", "समय शुरू होता है", "समय समाप्त").
-5. NUMBERS ON SCREEN: Write all mathematical numbers, years, articles, and quantities as NUMERIC DIGITS (e.g., "अनुच्छेद 17", "28 फरवरी", "1947", "206 हड्डियां", "360 डिग्री"). Do NOT spell out numbers as Hindi words in question or options. Voice-over will automatically speak them in Hindi.
+5. NUMBERS ON SCREEN: Write all mathematical numbers, years, articles, and quantities as NUMERIC DIGITS (e.g., "अनुच्छेद 324", "28 फरवरी 1928", "1947", "360 डिग्री", "73वां संशोधन"). Do NOT spell out numbers as Hindi words in question or options. Voice-over will automatically speak them in Hindi.
 6. HINDI SPELLING: Write pure, natural Hindi words in Devanagari with intact matras (e.g., "राष्ट्रीय", "विज्ञान", "दिवस"). NEVER separate consonants with spaces (do NOT write "भ रत" or "व ज ञ न").
 7. Facts must be verifiably correct and stable (history, polity, science, geography, static GK). If in doubt, use confirmed facts instead of guessing.
 8. Options must be short (1-8 words), distinct, and grammatically parallel. Options are displayed on screen only and will NOT be spoken in the voice-over.
@@ -532,15 +542,17 @@ ${existing}
 11. REQUIRED: Every question MUST have an informative 1-2 sentence "explanation" (10-25 words) in Hindi stating a famous historical/geographical/factual detail about the correct answer. This fact is spoken aloud after revealing the answer.
 12. REQUIRED visualPrompt: Write a specific descriptive English visual prompt for generating an image strictly relevant to the correct answer. For historical people/rulers/leaders, specify a historical portrait photograph or painting. For historical battles/events/movements, describe that event scene. For laws/articles/constitution, describe the Indian constitution parchment or Parliament. For geography, describe that specific place/map. Do NOT default to generic buildings or landmarks when the subject is a person, battle, document, or science topic.
 13. Strict JSON: every string in "options" and "question" must be enclosed in double quotes.
+14. ZERO REPETITION & NO CLICHES: Never ask beginner cliches (e.g. counting bones in human body "मानव शरीर में हड्डियां", simple national symbols, simple capitals). Every question must be a fresh, competitive-exam level question (SSC CGL / UPSC / Railway NTPC standard) covering diverse specialized sub-domains.
 Return only the valid JSON, no markdown outside, no commentary.`;
   }
+
 
   async generateQuizScriptWithAI(strategy, template) {
     const language = this.quizLanguageFor(strategy);
     const requestedTotal = this.parseRequestedQuestionCount(strategy);
     const batchSize = 10;
     const questions = [];
-    const collectedKeys = new Set();
+    const collectedKeys = getUsedQuestionKeysSet();
     let meta = null;
     const maxBatches = Math.ceil(requestedTotal / batchSize) + 4;
 
@@ -558,7 +570,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
       });
       const parsed = await this.withRetries(
         async () => {
-          const response = await this.aiTextService.generateText(prompt, { maxTokens: 4096, temperature: 0.65, json: true });
+          const response = await this.aiTextService.generateText(prompt, { maxTokens: 4096, temperature: 0.8, json: true });
           return this.parseAIJsonResponse(response);
         },
         `AI quiz batch ${batch + 1}`
@@ -582,7 +594,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
       let added = 0;
       for (const item of this.normalizeQuizQuestions(rawQuestions, questions.length + 1)) {
         const key = this.quizDuplicateKey(item.question);
-        if (!key || collectedKeys.has(key)) continue;
+        if (!key || collectedKeys.has(key) || isDuplicateQuestion(item.question, collectedKeys)) continue;
         collectedKeys.add(key);
         questions.push({ ...item, number: questions.length + 1 });
         added++;
@@ -610,6 +622,13 @@ Return only the valid JSON, no markdown outside, no commentary.`;
       }
     } catch (error) {
       this.logger.warn(`Quiz answer verification skipped: ${error.message}`);
+    }
+
+    // Record questions to persistent storage so they are never repeated across videos
+    try {
+      recordGeneratedQuestions(questions, strategy?.topic || meta?.subject || 'general');
+    } catch (recErr) {
+      this.logger.warn(`Failed to record generated questions for deduplication: ${recErr.message}`);
     }
 
     const { formatStrictQuizScript, formatShortQuizScript, introNarration } = require('../utils/quiz-narration');
