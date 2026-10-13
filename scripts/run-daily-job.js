@@ -187,6 +187,7 @@ async function run() {
     logger.info(`⏰ Target Publish Window: ${slot.timeIST} IST (UTC: ${slotTiming.isoString}) | Status: ${slotTiming.isPast ? 'Direct Public Upload' : 'Scheduled Auto-Public'}`);
     logger.info(`────────────────────────────────────────────────────────────`);
 
+    try {
       const slotTopic = resolveSlotTopic(slot, process.env.VIDEO_TOPIC);
       const job = await agent.startGenerationJob({
         topic: slotTopic,
