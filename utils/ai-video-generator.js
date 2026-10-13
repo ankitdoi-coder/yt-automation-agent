@@ -2222,16 +2222,15 @@ class AIVideoGenerator {
             transform: skewX(4deg);
         }
 
-        /* 3. CATEGORY & PART STRIP */
+        /* 3. CATEGORY STRIP (NO PART PILL) */
         .cat-part-row {
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
             margin-top: 20px;
-            gap: 18px;
         }
         .subject-pill {
-            flex: 1;
+            width: 100%;
             background: linear-gradient(90deg, #ffd700 0%, #facc15 100%);
             border: 4px solid #ffffff;
             border-radius: 50px;
@@ -2239,6 +2238,7 @@ class AIVideoGenerator {
             padding: 12px 30px;
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 14px;
         }
         .subject-bulb {
@@ -2253,31 +2253,7 @@ class AIVideoGenerator {
             overflow: hidden;
             text-overflow: ellipsis;
         }
-        .part-pill {
-            background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
-            border: 4px solid #ffffff;
-            border-radius: 50px;
-            box-shadow: 0 8px 22px rgba(220, 38, 38, 0.6);
-            padding: 12px 36px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            flex-shrink: 0;
-            transform: rotate(-2deg);
-        }
-        .part-text {
-            font-size: 40px;
-            font-weight: 900;
-            font-style: italic;
-            color: #ffffff;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.6);
-        }
-        .part-num {
-            color: #ffd700;
-            font-size: 46px;
-            font-weight: 900;
-        }
+
 
         /* 4. QUESTION CARD */
         .hero-question-card {
@@ -3193,7 +3169,6 @@ ${optionsHtml}
     const active = slide.index === 1 ? ' active' : '';
     const answerIndex = Number.isInteger(question.answerIndex) ? question.answerIndex : -1;
     const subjectHindi = slide.subjectHindi || 'सामान्य ज्ञान (GK)';
-    const partNumber = slide.partNumber || '1';
 
     const optionsHtml = (question.options || []).map((option, index) => {
       const optLetter = LETTERS[index] || 'A';
@@ -3290,15 +3265,11 @@ ${optionsHtml}
                 <span class="banner-text">IMPORTANT QUIZ</span>
             </div>
 
-            <!-- 3. Category & Part Strip -->
+            <!-- 3. Category Strip -->
             <div class="cat-part-row">
                 <div class="subject-pill">
                     <span class="subject-bulb">💡</span>
                     <span class="subject-text">${this.escapeHtml(subjectHindi)}</span>
-                </div>
-                <div class="part-pill">
-                    <span class="part-text">PART</span>
-                    <span class="part-num">${this.escapeHtml(String(partNumber))}</span>
                 </div>
             </div>
 
