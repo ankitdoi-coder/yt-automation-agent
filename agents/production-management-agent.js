@@ -301,18 +301,53 @@ class ProductionManagementAgent {
   }
 
   calculatePublishTime(strategy) {
-    // Use strategy's recommended time or calculate optimal time
     if (strategy.bestPublishTime) {
       return strategy.bestPublishTime;
     }
     
-    // Default: next optimal publishing window
+    const isShort = Boolean(
+      strategy.isShort ||
+      String(strategy.contentType || '').toLowerCase().includes('short') ||
+      String(strategy.requestedStyle || '').toLowerCase().includes('short')
+    );
+
     const now = new Date();
-    const tomorrow = new Date(now);
-    tomorrow.setDate(now.getDate() + 1);
-    tomorrow.setHours(14, 0, 0, 0); // 2 PM default
-    
-    return tomorrow.toISOString();
+    // Indian Standard Time is UTC + 5:30.
+    // Optimal study hours:
+    // Long-form: 7:00 PM IST = 13:30 UTC
+    // Shorts: 8:00 AM IST = 02:30 UTC, 1:00 PM IST = 07:30 UTC, 8:30 PM IST = 15:00 UTC
+    const targetDate = new Date(now);
+
+    if (isShort) {
+      const shortSlotsUTC = [
+        { hour: 2, minute: 30 },   // 8:00 AM IST
+        { hour: 7, minute: 30 },   // 1:00 PM IST
+        { hour: 15, minute: 0 }    // 8:30 PM IST
+      ];
+      // Pick next available slot that is at least 45 minutes in the future
+      let found = null;
+      for (let dayOffset = 0; dayOffset <= 2 && !found; dayOffset++) {
+        for (const slot of shortSlotsUTC) {
+          const candidate = new Date(now);
+          candidate.setUTCDate(now.getUTCDate() + dayOffset);
+          candidate.setUTCHours(slot.hour, slot.minute, 0, 0);
+          if (candidate.getTime() - now.getTime() > 45 * 60 * 1000) {
+            found = candidate;
+            break;
+          }
+        }
+      }
+      return (found || new Date(now.getTime() + 2 * 60 * 60 * 1000)).toISOString();
+    }
+
+    // Long-form video: 7:00 PM IST = 13:30 UTC
+    const candidateLong = new Date(now);
+    candidateLong.setUTCHours(13, 30, 0, 0);
+    if (candidateLong.getTime() - now.getTime() < 45 * 60 * 1000) {
+      // If 7:00 PM IST today has already passed, schedule for 7:00 PM IST tomorrow
+      candidateLong.setUTCDate(candidateLong.getUTCDate() + 1);
+    }
+    return candidateLong.toISOString();
   }
 
   calculatePriority(strategy) {

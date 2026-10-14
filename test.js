@@ -2150,6 +2150,11 @@ class SystemTest {
       throw new Error('Whitespace-only topic was not normalised to null');
     }
 
+    const overlongTopic = agent.validateGenerateRequestBody({ topic: 'Important GK Questions '.repeat(20) });
+    if (!overlongTopic.valid || !overlongTopic.value.topic || overlongTopic.value.topic.length > 200) {
+      throw new Error('Overlong topic was not safely clamped to 200 characters');
+    }
+
     const invalidStyle = agent.validateGenerateRequestBody({ style: 'x'.repeat(51) });
     if (invalidStyle.valid || invalidStyle.status !== 400) {
       throw new Error('Overlong style was not rejected');

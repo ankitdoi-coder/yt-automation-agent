@@ -466,9 +466,9 @@ class YouTubeAutomationAgent {
         return { valid: false, status: 400, error: 'topic must be a string' };
       }
 
-      const topic = body.topic.trim();
+      let topic = body.topic.trim();
       if (topic.length > 200) {
-        return { valid: false, status: 400, error: 'topic must be 200 characters or less' };
+        topic = topic.slice(0, 200).trim();
       }
       value.topic = topic || null;
     }

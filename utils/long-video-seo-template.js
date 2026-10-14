@@ -79,15 +79,18 @@ const VIRAL_KEYWORD_PARAGRAPH = `GK, General Knowledge, Important GK Questions a
 const VIRAL_HASHTAGS = `#gk
 #lucentgk
 #generalknowledge
-#gk2022
+#gk2026
+#ssccgl
+#sscgd
+#rrbntpc
+#railwaygk
 #ias
-#futuretakgk 
 #gkquiz
 #gkquestion
 #gkhindi
 #sarkarinaukarigk
 #सामान्यज्ञान
-#जीके2022
+#जीके2026
 #brgkstudy
 #khansir
 #gkfacts
@@ -96,7 +99,7 @@ const VIRAL_HASHTAGS = `#gk
 #gkinhindi 
 #gkquestion`;
 
-const SHORTS_VIRAL_HASHTAGS = `#Shorts #GKQuiz #GKInHindi #GeneralKnowledge #LucentGK #Education #ExamPrep #SSCCGL #UPSC #gk`;
+const SHORTS_VIRAL_HASHTAGS = `#Shorts #GKQuiz #GKInHindi #GeneralKnowledge #LucentGK #SSCGD #RailwayNTPC #Education #ExamPrep #gk`;
 
 /**
  * Builds the complete permanent Viral Description for any video (Long or Shorts).
@@ -113,10 +116,19 @@ function buildUniversalViralDescription({
 }) {
   const fallbackTitle = isShort
     ? `Top 5 GK Questions and answers | General Knowledge | gk in hindi | #Shorts #GK`
-    : `Top 60 Gk Questions and answers | General Knowledge | gk question | gk in hindi | Ssc cgl mts chsl gk`;
+    : `Top 50 Gk Questions and answers | General Knowledge | gk question | gk in hindi | SSC, Railway GK`;
   const cleanTitle = (title || fallbackTitle).trim();
 
   const titleHeader = cleanTitle;
+
+  const ctaBlock = isShort
+    ? `\n\n🎯 Target Exams: SSC CGL, CHSL, GD ${year}, Railway NTPC, Group D, State Police
+👇 पूरे टेस्ट और व्याख्या के लिए नीचे दिए गए "Related Video" लिंक पर क्लिक करें!
+🔔 रोज़ाना नए GK GS टेस्ट के लिए ${brand} को अभी Subscribe करें!
+💬 आज के टेस्ट में आपका स्कोर कितना रहा? कमेंट में बताएं!`
+    : `\n\n🎯 Target Exams: SSC CGL, CHSL, GD ${year}, Railway NTPC, Group D, State Police & All Competitive Exams
+📘 Complete High-Yield Exam Preparation Series by ${brand}
+🔔 सब्सक्राइब करें और बेल आइकन दबाएं ताकि कोई भी क्लास मिस न हो!`;
 
   const hashtagsBlock = isShort ? SHORTS_VIRAL_HASHTAGS : VIRAL_HASHTAGS;
 
@@ -124,7 +136,7 @@ function buildUniversalViralDescription({
     ? `\n\n⏱️ TIMESTAMPS:\n${chapters.map(ch => `${ch.time} ${ch.title}`).join('\n')}`
     : '';
 
-  const prefix = `${titleHeader}${timestampsBlock}\n\n${VIRAL_BULLET_QUERIES}\n\n`;
+  const prefix = `${titleHeader}${ctaBlock}${timestampsBlock}\n\n${VIRAL_BULLET_QUERIES}\n\n`;
   const suffix = `\n\n${hashtagsBlock}`;
 
   // YouTube allows max 5000 characters. Keep safety buffer at 4950 chars.

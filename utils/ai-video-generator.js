@@ -1276,13 +1276,16 @@ class AIVideoGenerator {
       // Create HTML for slideshow (only real image files can be embedded)
       const imageAssets = await this.filterImageAssets(visualAssets);
       const slides = this.buildSlideData(script, imageAssets);
-      await page.setContent(this.createSlideshowHTML(script, imageAssets, slides));
-      // Ensure Hindi/Devanagari web fonts are fully loaded before rendering
-      await page.evaluate(() => document.fonts.ready).catch(() => {});
-
-      // Freeze CSS transitions/animations so each still is captured fully rendered
-      await page.addStyleTag({ content: '* { transition: none !important; animation: none !important; }' });
-      await page.waitForTimeout(1000); // Wait for assets to load
+      await page.setContent(this.createSlideshowHTML(script, imageAssets, slides), { waitUntil: 'domcontentloaded' });
+      // Ensure Hindi/Devanagari web fonts and system fonts are fully loaded before capturing stills
+      await page.evaluate(async () => {
+        try {
+          if (document.fonts) {
+            await document.fonts.ready;
+          }
+        } catch (_) {}
+      }).catch(() => {});
+      await page.waitForTimeout(1500); // Buffer for remote font rendering and layout stabilization
 
       // Capture ONE still per slide instead of screenshotting at 30fps —
       // FFmpeg turns the stills into a crossfaded video in seconds.
@@ -1536,7 +1539,7 @@ class AIVideoGenerator {
             width: ${bodyWidth}px;
             height: ${bodyHeight}px;
             background: #0b1220;
-            font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Mangal', 'Segoe UI', Arial, sans-serif;
+            font-family: 'Nirmala UI', 'Noto Sans Devanagari', 'Mangal', 'Segoe UI', Arial, sans-serif;
             overflow: hidden;
             color: #f4f6fb;
         }

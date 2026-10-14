@@ -58,7 +58,7 @@ class SEOOptimizerAgent {
 
       if (isQuizShort) {
         this.logger.info('Generating viral Short Quiz SEO metadata with high-CTR packaging and educational tags');
-        const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 10;
+        const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 5;
         const topicRaw = strategy.topic || script.title || 'General Knowledge';
         const cleanTopic = topicRaw
           .replace(/^top\s+\d+\s+/i, '')
@@ -66,17 +66,8 @@ class SEOOptimizerAgent {
           .replace(/\|.*$/g, '')
           .trim();
         
-        // High-CTR, mobile-optimized Short title with numbers, exam hooks, year, and viral tags
-        const year = new Date().getFullYear();
-        let shortTitle = `Top ${qCount} ${cleanTopic} Questions (${year}) | GK Quiz in Hindi | Lucent GK #Shorts #GK`;
-        if (shortTitle.length > 95) {
-          shortTitle = `Top ${qCount} ${cleanTopic} Questions (${year}) | GK Quiz #Shorts #GK`;
-        }
-        if (shortTitle.length > 95) {
-          shortTitle = `Top ${qCount} GK Questions (${year}) | GK Quiz in Hindi #Shorts #GK`;
-        }
-        title = shortTitle;
-
+        // High-CTR, search-optimized Short title with exam targets, micro-topics, and set deduplication
+        title = this.buildExamOptimizedShortTitle(script, strategy, brand);
         description = this.generateShortQuizDescription(title, brand, cleanTopic);
         tags = [
           'Shorts',
@@ -168,8 +159,8 @@ class SEOOptimizerAgent {
         seoScore,
         categoryId,
         metadata: {
-          primaryKeyword: strategy.keywords[0],
-          secondaryKeywords: strategy.keywords.slice(1, 5),
+          primaryKeyword: strategy.keywords?.[0] || strategy.topic || 'General Knowledge',
+          secondaryKeywords: (strategy.keywords || []).slice(1, 5),
           targetLength: this.calculateOptimalLength(strategy.contentType),
           language: strategy.language || (strategy.contentType === 'Quiz' ? 'hi' : 'en'),
           category: parseInt(categoryId, 10)
@@ -296,6 +287,55 @@ ${timestampsText}
     return uniqueTags;
   }
 
+  buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ Bharat') {
+    const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 5;
+    const year = new Date().getFullYear();
+    const partNumber = script.partNumber || script.quiz?.part || 1;
+    
+    // Extract micro-topic from subjectHindi, subject, questions, or topic
+    const subjectHindi = script.quiz?.subjectHindi || '';
+    const subjectEng = script.quiz?.subject || '';
+    const firstQuestion = (script.quiz?.questions?.[0]?.question || '').slice(0, 35);
+    const combined = `${strategy?.topic || ''} ${script.title || ''} ${subjectHindi} ${subjectEng} ${firstQuestion}`.toLowerCase();
+
+    let examTag = 'SSC GD';
+    let topicName = 'सामान्य ज्ञान';
+
+    if (/संविधान|polity|article|अनुच्छेद|राष्ट्रपति|संसद/i.test(combined)) {
+      examTag = 'SSC CGL';
+      topicName = 'संविधान';
+    } else if (/भूगोल|geog|नदी|पर्वत|झील|river|mountain/i.test(combined)) {
+      examTag = 'SSC GD';
+      topicName = 'भूगोल';
+    } else if (/इतिहास|history|युद्ध|मुगल|मौर्य|गांधी/i.test(combined)) {
+      examTag = 'Railway NTPC';
+      topicName = 'इतिहास';
+    } else if (/bio|विज्ञान|science|मानव शरीर|विटामिन|cell/i.test(combined)) {
+      examTag = 'Railway';
+      topicName = 'विज्ञान GK';
+    } else if (/first|प्रथम|राष्ट्रीय|static/i.test(combined)) {
+      examTag = 'Police Exam';
+      topicName = 'Static GK';
+    } else if (subjectHindi && subjectHindi.length <= 15) {
+      topicName = subjectHindi;
+    }
+
+    const templates = [
+      `${examTag} ${year} | ${topicName} Top ${qCount} MCQs (Set ${partNumber}) #Shorts #GK`,
+      `Lucent GK निचोड़: ${topicName} Top ${qCount} प्रश्न for ${examTag} #Shorts #GK`,
+      `${examTag} & Railway: ${topicName} Top ${qCount} महत्वपूर्ण MCQs #Shorts #GK`,
+      `Top ${qCount} ${topicName} GK Quiz (${year}) | ${examTag} & Police #Shorts #GK`
+    ];
+
+    const templateIdx = (partNumber - 1) % templates.length;
+    let title = templates[templateIdx];
+
+    if (title.length > 95) {
+      title = `${examTag} ${year} | ${topicName} Top ${qCount} MCQs #Shorts #GK`;
+    }
+    return title.slice(0, 98);
+  }
+
   generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge') {
     return buildShortVideoDescription({
       title,
@@ -305,7 +345,35 @@ ${timestampsText}
   }
 
   async optimizeTitle(originalTitle, strategy) {
-    // YouTube title limit: 100 characters, optimal: 60-75 for high mobile CTR
+    const year = new Date().getFullYear();
+    const isQuiz = ['quiz', 'quiz_visuals'].includes(String(strategy?.contentType || '').toLowerCase()) || /gk|quiz|questions/i.test(originalTitle);
+
+    if (isQuiz) {
+      const qCountMatch = originalTitle.match(/top\s*(\d+)/i);
+      const qCount = qCountMatch ? qCountMatch[1] : '50';
+      
+      let subject = originalTitle
+        .replace(/top\s*\d+/gi, '')
+        .replace(/\|.*$/g, '')
+        .replace(/questions?.*$/gi, '')
+        .replace(/quiz.*$/gi, '')
+        .trim();
+      if (!subject || subject.length < 3) subject = 'सामान्य ज्ञान (General Knowledge)';
+
+      let examTarget = 'SSC GD 2026';
+      if (/संविधान|polity|इतिहास|history/i.test(originalTitle)) {
+        examTarget = 'SSC CGL & Railway';
+      } else if (/विज्ञान|science|bio/i.test(originalTitle)) {
+        examTarget = 'Railway NTPC & Group D';
+      } else if (/भूगोल|geography/i.test(originalTitle)) {
+        examTarget = 'SSC GD & Police';
+      }
+
+      const formatted = `${examTarget} | ${subject} Top ${qCount} अति महत्वपूर्ण प्रश्न | Previous Year Questions | ExamIQ`;
+      return formatted.length <= 100 ? formatted : formatted.slice(0, 98);
+    }
+
+    // Default title optimization for non-quiz videos
     let optimizedTitle = originalTitle;
     
     // Add educational power words if not present
@@ -382,10 +450,10 @@ ${timestampsText}
     const tags = new Set();
     
     // Add primary keywords
-    strategy.keywords.forEach(keyword => tags.add(keyword));
+    (strategy.keywords || []).forEach(keyword => tags.add(keyword));
     
     // Add topic variations
-    const topic = strategy.topic.toLowerCase();
+    const topic = String(strategy.topic || script.title || 'General Knowledge').toLowerCase();
     tags.add(topic);
     tags.add(topic.replace(/\s+/g, ''));
     tags.add(topic.replace(/\s+/g, '_'));
@@ -514,14 +582,17 @@ ${timestampsText}
     const scoredTags = tags.map(tag => {
       let score = 0;
       
+      const keywords = strategy.keywords || [];
+      const topicLower = (strategy.topic || '').toLowerCase();
+
       // Primary keyword gets highest score
-      if (tag === strategy.keywords[0]) score += 10;
+      if (keywords[0] && tag === keywords[0]) score += 10;
       
       // Other strategy keywords
-      if (strategy.keywords.includes(tag)) score += 5;
+      if (keywords.includes(tag)) score += 5;
       
       // Contains topic
-      if (tag.includes(strategy.topic.toLowerCase())) score += 3;
+      if (topicLower && tag.includes(topicLower)) score += 3;
       
       // Long-tail keywords
       if (tag.split(' ').length > 2) score += 2;

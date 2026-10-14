@@ -73,12 +73,12 @@ class ThumbnailDesignerAgent {
     }
   }
 
-  // High-CTR Dynamic Quiz Thumbnail Generator matching channel reference designs
+  // High-CTR 16:9 Full-Screen Text Quiz Thumbnail Generator (Clean educational layout)
   async generateQuizThumbnail(script) {
     const quiz = script.quiz || {};
     const questions = quiz.questions || [];
     
-    // Extract dynamic question count (e.g. 5, 10, 15, 20, 30, 50)
+    // Extract dynamic question count (e.g. 5, 10, 15, 20, 30, 50, 100)
     let count = questions.length || quiz.totalQuestions || 20;
     const matchCount = String(script.title || '').match(/top\s*(\d+)/i);
     if (matchCount && Number(matchCount[1])) {
@@ -86,66 +86,29 @@ class ThumbnailDesignerAgent {
     }
 
     // Dynamic subjects
-    const subjectHindi = quiz.subjectHindi || quiz.subject || this.extractSubjectFromTitle(script.title) || 'सामान्य ज्ञान';
+    const subjectHindi = quiz.subjectHindi || quiz.subject || this.extractSubjectFromTitle(script.title) || 'सामान्य ज्ञान (GK)';
     const subjectEng = quiz.subject || this.extractEnglishSubject(script.title) || 'General Knowledge';
-    // Language selection: Always use high-CTR Hindi Exam thumbnail for ExamIQ Bharat unless explicitly English only
     const isHindi = quiz.language !== 'en' || /[\u0900-\u097F]/.test(script.title || '') || /[\u0900-\u097F]/.test(quiz.subject || '') || !quiz.language;
 
     const width = 1280;
     const height = 720;
     const outputPath = path.join(__dirname, '..', 'uploads', 'thumbnails', `quiz_thumb_${Date.now()}.png`);
-    const bgPath = path.join(__dirname, '..', 'temp', `thumb_bg_${Date.now()}.png`);
 
-    // 1. Generate topic-specific 3D background visual using AI
-    const visualPrompt = this.buildThematicPrompt(script.metadata?.strategy?.topic || script.title, subjectHindi, subjectEng);
-    let hasBg = false;
-    try {
-      this.logger.info(`Generating AI 3D background for thumbnail: "${visualPrompt.slice(0, 75)}..."`);
-      await this.aiVideoGenerator.generateImage(visualPrompt, bgPath);
-      hasBg = true;
-    } catch (err) {
-      this.logger.warn(`AI thumbnail background generation skipped/failed (${err.message}), using high-contrast thematic gradient`);
-    }
-
-    // 2. Extract dynamic checklist items from questions
+    // Extract dynamic checklist / question highlights
     const checklistItems = this.extractChecklistItems(script, isHindi);
 
-    // 3. Build SVG overlay matching reference designs
+    // Build 100% clean full-screen 16:9 SVG (No AI background images taking up half the frame)
     const svgOverlay = isHindi
       ? this.buildHindiExamThumbnailSVG({ width, height, count, subjectHindi, subjectEng, checklistItems, scriptTitle: script.title })
       : this.buildEnglishQuizThumbnailSVG({ width, height, count, subjectEng, checklistItems });
 
-    // 4. Composite: Background (AI or gradient) + SVG Typography & Cards + ExamIQ Logo
-    const logoBuffer = await this.getChannelLogoBuffer(115);
-    const composites = [{ input: Buffer.from(svgOverlay), top: 0, left: 0 }];
-
-    if (logoBuffer) {
-      // Place logo at top right for Hindi layout, or top left for English layout
-      if (isHindi) {
-        composites.push({ input: logoBuffer, top: 18, left: 1140 });
-      } else {
-        composites.push({ input: logoBuffer, top: 18, left: 24 });
-      }
-    }
-
-    if (hasBg) {
-      await sharp(bgPath)
-        .resize(width, height)
-        .composite(composites)
-        .png()
-        .toFile(outputPath);
-      await fs.unlink(bgPath).catch(() => {});
-    } else {
-      const baseGradientSvg = `<svg width="${width}" height="${height}"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0a192f"/><stop offset="100%" stop-color="#020c1b"/></linearGradient></defs><rect width="${width}" height="${height}" fill="url(#g)"/></svg>`;
-      await sharp(Buffer.from(baseGradientSvg))
-        .resize(width, height)
-        .composite(composites)
-        .png()
-        .toFile(outputPath);
-    }
+    await sharp(Buffer.from(svgOverlay))
+      .resize(width, height)
+      .png()
+      .toFile(outputPath);
 
     const concept = {
-      style: isHindi ? 'hindi_exam_hero' : '3d_neon_hero',
+      style: isHindi ? 'hindi_exam_fullscreen' : 'english_quiz_fullscreen',
       count,
       subjectHindi,
       subjectEng,
@@ -155,14 +118,14 @@ class ThumbnailDesignerAgent {
     const thumbnailData = {
       path: outputPath,
       concept,
-      prompt: visualPrompt,
+      prompt: 'Clean 16:9 full-screen high-contrast typography educational thumbnail',
       dimensions: { width, height },
       fileSize: await this.getFileSize(outputPath),
       createdAt: new Date().toISOString()
     };
 
     await this.db.saveThumbnail(thumbnailData);
-    this.logger.info(`Quiz thumbnail generated successfully: ${outputPath}`);
+    this.logger.info(`Clean 16:9 Fullscreen Quiz thumbnail generated successfully: ${outputPath}`);
     return thumbnailData;
   }
 
@@ -212,10 +175,10 @@ class ThumbnailDesignerAgent {
     for (const q of questions) {
       let text = String(q.question || '').replace(/^Q?\d+[\.\:\-]?\s*/i, '').trim();
       text = text.replace(/^(आपका\s+(?:पहला|अगला|आखिरी)\s+सवाल\s+है[—\-]?\s*)/i, '').trim();
-      if (text.length > 28) text = text.slice(0, 26).trimEnd() + '…';
+      if (text.length > 46) text = text.slice(0, 44).trimEnd() + '…';
       if (text && !items.includes(text)) {
         items.push(text);
-        if (items.length >= 8) break;
+        if (items.length >= 6) break;
       }
     }
 
@@ -241,153 +204,214 @@ class ThumbnailDesignerAgent {
   }
 
   buildHindiExamThumbnailSVG({ width, height, count, subjectHindi, subjectEng, checklistItems, scriptTitle = '' }) {
-    const col1 = checklistItems.slice(0, 4);
-    const col2 = checklistItems.slice(4, 8);
+    const items = checklistItems && checklistItems.length ? checklistItems.slice(0, 3) : [
+      'बार-बार परीक्षाओं में पूछे जाने वाले प्रश्न',
+      'Previous Year Questions (PYQs) का संपूर्ण निचोड़',
+      'सभी प्रतियोगी परीक्षाओं के लिए अति महत्वपूर्ण'
+    ];
 
-    // Determine topTag dynamically
-    let topTag = 'भारत की';
-    const fullText = (scriptTitle || '') + ' ' + (subjectHindi || '') + ' ' + (subjectEng || '');
-    if (/भारत\s+की/i.test(fullText)) {
-      topTag = 'भारत की';
-    } else if (/भारत\s+के/i.test(fullText)) {
-      topTag = 'भारत के';
-    } else if (/भारतीय|india/i.test(fullText)) {
-      topTag = 'भारत की';
-    } else if (/विश्व|world/i.test(fullText)) {
-      topTag = 'विश्व के';
-    } else if (/इतिहास|history/i.test(fullText)) {
-      topTag = 'इतिहास के';
-    } else if (/संविधान|polity/i.test(fullText)) {
-      topTag = 'संविधान के';
-    } else {
-      topTag = 'महत्वपूर्ण';
-    }
-
-    // Clean redundant prefix from subjectHindi if it starts with भारत की / भारत के / भारतीय
-    let displaySubjectHindi = subjectHindi;
-    if (topTag.startsWith('भारत')) {
-      displaySubjectHindi = displaySubjectHindi.replace(/^(भारत\s+की|भारत\s+के|भारतीय)\s+/i, '').trim() || subjectHindi;
-    }
-
-    const countStr = `Top ${count}`;
-    const bannerWidth = Math.min(670, Math.max(480, 240 + (countStr.length * 28) + (topTag.length * 38)));
-
-    const renderColumn = (items, startX) => items.map((item, index) => {
-      const y = index * 56;
-      return `
-        <rect x="${startX}" y="${y - 18}" width="22" height="22" rx="4" fill="#D32F2F"/>
-        <text x="${startX + 4}" y="${y - 1}" fill="#FFFFFF" font-size="16" font-family="Arial">✓</text>
-        <text x="${startX + 32}" y="${y}" fill="#212121">${this.escapeHtml(item)}</text>`;
-    }).join('\n');
+    const safeSubject = this.escapeHtml(subjectHindi || 'सामान्य ज्ञान (General Knowledge)');
 
     return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
+        <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0B132B"/>
+          <stop offset="50%" stop-color="#1C2541"/>
+          <stop offset="100%" stop-color="#0A0E1A"/>
+        </linearGradient>
+
         <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-          <feDropShadow dx="2" dy="4" stdDeviation="4" flood-color="#000000" flood-opacity="0.65"/>
+          <feDropShadow dx="3" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.8"/>
         </filter>
       </defs>
 
-      <!-- Left Side White/Light Backdrop -->
-      <rect x="0" y="0" width="700" height="${height}" fill="#FFFFFF"/>
-      <polygon points="700,0 770,0 670,720 600,720" fill="#FFFFFF" opacity="0.9"/>
+      <!-- 1. Background: Full 16:9 Screen (No AI Background Image) -->
+      <rect width="${width}" height="${height}" fill="url(#bgGrad)"/>
+      <rect x="8" y="8" width="1264" height="704" rx="12" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.6"/>
 
-      <!-- Top Red/Yellow Brush Banner: Top X -->
+      <!-- 2. Top Target Exam Banner (Full Screen Width) -->
+      <rect x="14" y="14" width="1252" height="54" rx="8" fill="#D32F2F"/>
+      <text x="640" y="50" text-anchor="middle" font-family="'Nirmala UI', Mangal, 'Segoe UI', Arial, sans-serif" font-size="24" font-weight="900" fill="#FFFFFF" letter-spacing="1">
+        🎯 ALL COMPETITIVE EXAMS : SSC CGL • CHSL • GD • MTS • RAILWAY NTPC • POLICE • STATE EXAMS
+      </text>
+
+      <!-- 3. Top Badges: TOP Count + Status + Channel Branding -->
       <g filter="url(#shadow)">
-        <rect x="25" y="24" width="${bannerWidth}" height="92" rx="16" fill="#D32F2F"/>
-        <text x="45" y="94" font-family="Arial Black, Impact, sans-serif" font-size="76" font-weight="900" fill="#FFFFFF">${countStr} <tspan dx="16" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="52" font-weight="900" fill="#FFF200">${topTag}</tspan></text>
+        <!-- Count Badge -->
+        <rect x="50" y="90" width="340" height="96" rx="16" fill="#FFEA00"/>
+        <text x="220" y="162" text-anchor="middle" font-family="Arial Black, Impact, 'Nirmala UI', sans-serif" font-size="68" font-weight="900" fill="#D32F2F">
+          TOP ${count}
+        </text>
+
+        <!-- Status Badge -->
+        <rect x="410" y="96" width="530" height="84" rx="14" fill="#00E676"/>
+        <text x="675" y="154" text-anchor="middle" font-family="'Nirmala UI', Mangal, 'Segoe UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#0A192F">
+          ⚡ अति महत्वपूर्ण प्रश्न ⚡
+        </text>
+
+        <!-- Channel Branding Badge -->
+        <rect x="960" y="96" width="270" height="84" rx="14" fill="#FFFFFF"/>
+        <text x="1095" y="138" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="28" font-weight="900" fill="#0D47A1">
+          Exam<tspan fill="#D32F2F">IQ</tspan>
+        </text>
+        <text x="1095" y="166" text-anchor="middle" font-family="'Nirmala UI', Arial, sans-serif" font-size="18" font-weight="900" fill="#2E7D32" letter-spacing="2">
+          BHARAT
+        </text>
       </g>
 
-      <!-- Main Hero Title -->
+      <!-- 4. Massive Full-Width Hero Subject Title (Full Screen Width) -->
       <g filter="url(#shadow)">
-        <rect x="25" y="130" width="670" height="84" rx="12" fill="#FFEA00"/>
-        <text x="40" y="190" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="46" font-weight="900" fill="#0D47A1">${this.escapeHtml(displaySubjectHindi)}</text>
+        <rect x="50" y="210" width="1180" height="116" rx="18" fill="#FFD700" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="640" y="292" text-anchor="middle" font-family="'Nirmala UI', Mangal, 'Segoe UI', Arial, sans-serif" font-size="${safeSubject.length > 25 ? 52 : 62}" font-weight="900" fill="#0D1B2A">
+          ${safeSubject}
+        </text>
       </g>
 
-      <!-- Category Banners: GK Quiz + English Pill -->
+      <!-- 5. Full-Width Feature & Question Highlights Box -->
       <g filter="url(#shadow)">
-        <rect x="25" y="228" width="310" height="60" rx="12" fill="#111111"/>
-        <text x="45" y="272" font-family="Arial Black, Impact, sans-serif" font-size="40" font-weight="900" fill="#FFF200">⚡ GK Quiz ⚡</text>
+        <rect x="50" y="350" width="1180" height="240" rx="18" fill="#111B30" stroke="#3A506B" stroke-width="2.5"/>
 
-        <rect x="355" y="228" width="340" height="60" rx="30" fill="#D32F2F"/>
-        <text x="525" y="266" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#FFFFFF">${this.escapeHtml(subjectEng)}</text>
-      </g>
+        <g font-family="'Nirmala UI', Mangal, 'Segoe UI', Arial, sans-serif" font-size="30" font-weight="800">
+          <!-- Item 1 -->
+          <circle cx="95" cy="410" r="14" fill="#00E676"/>
+          <text x="95" y="418" text-anchor="middle" font-size="18" font-weight="900" fill="#000000">✓</text>
+          <text x="130" y="420" fill="#FFFFFF">${this.escapeHtml(items[0] || 'बार-बार परीक्षाओं में पूछे जाने वाले प्रश्न')}</text>
 
-      <!-- Checklist Box -->
-      <g filter="url(#shadow)">
-        <rect x="25" y="306" width="670" height="284" rx="16" fill="#FAFAFA" stroke="#DDDDDD" stroke-width="2"/>
-        <g transform="translate(0, 348)" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="21" font-weight="700">
-          ${renderColumn(col1, 45)}
-          ${renderColumn(col2, 365)}
+          <!-- Item 2 -->
+          <circle cx="95" cy="475" r="14" fill="#00E676"/>
+          <text x="95" y="483" text-anchor="middle" font-size="18" font-weight="900" fill="#000000">✓</text>
+          <text x="130" y="485" fill="#FFFFFF">${this.escapeHtml(items[1] || 'Previous Year Questions (PYQs) का संपूर्ण निचोड़')}</text>
+
+          <!-- Item 3 -->
+          <circle cx="95" cy="540" r="14" fill="#00E676"/>
+          <text x="95" y="548" text-anchor="middle" font-size="18" font-weight="900" fill="#000000">✓</text>
+          <text x="130" y="550" fill="#FFFFFF">${this.escapeHtml(items[2] || 'सभी प्रतियोगी परीक्षाओं के लिए 100% महत्वपूर्ण')}</text>
+        </g>
+
+        <!-- Right Guarantee Stamp -->
+        <g transform="translate(940, 380)">
+          <rect x="0" y="0" width="250" height="180" rx="14" fill="#D32F2F" stroke="#FFEA00" stroke-width="3"/>
+          <text x="125" y="55" text-anchor="middle" font-family="'Nirmala UI', Arial Black, sans-serif" font-size="32" font-weight="900" fill="#FFEA00">
+            100%
+          </text>
+          <text x="125" y="98" text-anchor="middle" font-family="'Nirmala UI', Mangal, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">
+            परीक्षा में
+          </text>
+          <text x="125" y="138" text-anchor="middle" font-family="'Nirmala UI', Mangal, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">
+            आने वाले!
+          </text>
         </g>
       </g>
 
-      <!-- Bottom Target Ribbon -->
+      <!-- 6. Bottom Banner: Full Width CTA Strip -->
       <g filter="url(#shadow)">
-        <rect x="25" y="608" width="670" height="66" rx="33" fill="#D32F2F"/>
-        <text x="55" y="650" font-size="28">🎯</text>
-        <text x="100" y="650" font-family="Noto Sans Devanagari, Nirmala UI, Mangal, DejaVu Sans, Arial" font-size="28" font-weight="900" fill="#FFFFFF">सभी प्रतियोगी परीक्षाओं के लिए महत्वपूर्ण !</text>
+        <rect x="50" y="612" width="1180" height="82" rx="41" fill="#D32F2F" stroke="#FFD700" stroke-width="2"/>
+        <text x="640" y="666" text-anchor="middle" font-family="'Nirmala UI', Mangal, 'Segoe UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#FFFFFF">
+          🔥 एक ही वीडियो में पूरा रिवीजन | रट लो परीक्षा से पहले! 🔥
+        </text>
       </g>
     </svg>`;
   }
 
   buildEnglishQuizThumbnailSVG({ width, height, count, subjectEng, checklistItems }) {
-    const listHtml = checklistItems.slice(0, 5).map((item, index) => {
-      const y = index * 40;
-      return `
-        <text x="0" y="${y}" fill="#2E7D32" font-weight="900">✓</text>
-        <text x="24" y="${y}" fill="#222222">${this.escapeHtml(item)}</text>`;
-    }).join('\n');
+    const items = checklistItems && checklistItems.length ? checklistItems.slice(0, 3) : [
+      'High-Yield Exam Questions',
+      'Previous Year Questions (PYQs) Solved',
+      'Complete Revision for All Competitive Exams'
+    ];
+
+    const safeSubject = this.escapeHtml((subjectEng || 'GENERAL KNOWLEDGE').toUpperCase());
 
     return `<svg width="${width}" height="${height}" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
-          <feDropShadow dx="3" dy="5" stdDeviation="5" flood-color="#000000" flood-opacity="0.75"/>
+        <linearGradient id="bgGradEn" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#0B132B"/>
+          <stop offset="50%" stop-color="#1C2541"/>
+          <stop offset="100%" stop-color="#0A0E1A"/>
+        </linearGradient>
+
+        <filter id="shadowEn" x="-10%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="3" dy="5" stdDeviation="4" flood-color="#000000" flood-opacity="0.8"/>
         </filter>
       </defs>
 
-      <!-- Left Side Dark Vignette overlay so text pops over background -->
-      <rect x="0" y="0" width="620" height="${height}" fill="#0A0F1D" opacity="0.94"/>
-      <polygon points="620,0 710,0 590,720 500,720" fill="#0A0F1D" opacity="0.94"/>
+      <!-- 1. Background: Full 16:9 Screen -->
+      <rect width="${width}" height="${height}" fill="url(#bgGradEn)"/>
+      <rect x="8" y="8" width="1264" height="704" rx="12" fill="none" stroke="#FFD700" stroke-width="4" opacity="0.6"/>
 
-      <!-- TOP X Badge: Yellow Brush with Red/Black Text -->
-      <g filter="url(#shadow)">
-        <rect x="150" y="30" width="370" height="90" rx="14" fill="#FFEA00"/>
-        <text x="180" y="98" font-family="Arial Black, Impact, sans-serif" font-size="78" font-weight="900" fill="#111111">TOP <tspan fill="#D32F2F">${count}</tspan></text>
-        <text x="450" y="92" font-size="46">💡</text>
+      <!-- 2. Top Target Exam Banner -->
+      <rect x="14" y="14" width="1252" height="54" rx="8" fill="#D32F2F"/>
+      <text x="640" y="50" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="24" font-weight="900" fill="#FFFFFF" letter-spacing="1">
+        🎯 ALL COMPETITIVE EXAMS : SSC CGL • CHSL • GD • RAILWAYS • POLICE • DEFENCE
+      </text>
+
+      <!-- 3. Top Badges -->
+      <g filter="url(#shadowEn)">
+        <rect x="50" y="90" width="340" height="96" rx="16" fill="#FFEA00"/>
+        <text x="220" y="162" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="68" font-weight="900" fill="#D32F2F">
+          TOP ${count}
+        </text>
+
+        <rect x="410" y="96" width="530" height="84" rx="14" fill="#00E676"/>
+        <text x="675" y="154" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="38" font-weight="900" fill="#0A192F">
+          ⚡ MOST IMPORTANT MCQS ⚡
+        </text>
+
+        <rect x="960" y="96" width="270" height="84" rx="14" fill="#FFFFFF"/>
+        <text x="1095" y="138" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="28" font-weight="900" fill="#0D47A1">
+          Exam<tspan fill="#D32F2F">IQ</tspan>
+        </text>
+        <text x="1095" y="166" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" font-weight="800" fill="#2E7D32">
+          BHARAT 🇮🇳
+        </text>
       </g>
 
-      <!-- MOST IMPORTANT Ribbon -->
-      <g filter="url(#shadow)">
-        <rect x="50" y="136" width="540" height="66" rx="8" fill="#FFFFFF"/>
-        <text x="320" y="184" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="44" font-weight="900" fill="#D32F2F" letter-spacing="2">MOST IMPORTANT</text>
+      <!-- 4. Hero Subject Title -->
+      <g filter="url(#shadowEn)">
+        <rect x="50" y="210" width="1180" height="116" rx="18" fill="#FFD700" stroke="#FFFFFF" stroke-width="2"/>
+        <text x="640" y="292" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="${safeSubject.length > 25 ? 54 : 64}" font-weight="900" fill="#0D1B2A">
+          ${safeSubject}
+        </text>
       </g>
 
-      <!-- Hero 3D Title in Vibrant Green -->
-      <g filter="url(#shadow)">
-        <text x="320" y="300" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="104" font-weight="900" fill="#00E676" stroke="#003311" stroke-width="6" paint-order="stroke fill" letter-spacing="3">${this.escapeHtml(subjectEng.toUpperCase())}</text>
-      </g>
+      <!-- 5. Feature Box -->
+      <g filter="url(#shadowEn)">
+        <rect x="50" y="350" width="1180" height="240" rx="18" fill="#111B30" stroke="#3A506B" stroke-width="2.5"/>
 
-      <!-- Category Banner: GK QUESTIONS -->
-      <g filter="url(#shadow)">
-        <rect x="40" y="330" width="570" height="74" rx="12" fill="#FFD600"/>
-        <text x="325" y="382" text-anchor="middle" font-family="Arial Black, Impact, sans-serif" font-size="52" font-weight="900" fill="#111111" letter-spacing="2">GK QUESTIONS</text>
-      </g>
+        <g font-family="'Segoe UI', Arial, sans-serif" font-size="30" font-weight="800">
+          <circle cx="95" cy="410" r="14" fill="#00E676"/>
+          <text x="95" y="418" text-anchor="middle" font-size="18" font-weight="900" fill="#000000">✓</text>
+          <text x="130" y="420" fill="#FFFFFF">${this.escapeHtml(items[0] || 'High-Yield Exam Questions')}</text>
 
-      <!-- Checklist Notepad (Bottom Left) -->
-      <g filter="url(#shadow)">
-        <rect x="40" y="430" width="310" height="260" rx="12" fill="#FBFBFB" stroke="#CCCCCC" stroke-width="2"/>
-        <rect x="40" y="430" width="310" height="18" rx="4" fill="#E0E0E0"/>
-        
-        <g transform="translate(60, 480)" font-family="Arial, sans-serif" font-size="20" font-weight="800">
-          ${listHtml}
+          <circle cx="95" cy="475" r="14" fill="#00E676"/>
+          <text x="95" y="483" text-anchor="middle" font-size="18" font-weight="900" fill="#000000">✓</text>
+          <text x="130" y="485" fill="#FFFFFF">${this.escapeHtml(items[1] || 'Previous Year Questions (PYQs) Solved')}</text>
+
+          <circle cx="95" cy="540" r="14" fill="#00E676"/>
+          <text x="95" y="548" text-anchor="middle" font-size="18" font-weight="900" fill="#000000">✓</text>
+          <text x="130" y="550" fill="#FFFFFF">${this.escapeHtml(items[2] || 'Complete Revision for All Competitive Exams')}</text>
+        </g>
+
+        <g transform="translate(940, 380)">
+          <rect x="0" y="0" width="250" height="180" rx="14" fill="#D32F2F" stroke="#FFEA00" stroke-width="3"/>
+          <text x="125" y="55" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="32" font-weight="900" fill="#FFEA00">
+            100%
+          </text>
+          <text x="125" y="98" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">
+            EXAM
+          </text>
+          <text x="125" y="138" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF">
+            READY!
+          </text>
         </g>
       </g>
 
-      <!-- Must Watch Red Badge with Arrow -->
-      <g filter="url(#shadow)">
-        <rect x="375" y="520" width="220" height="60" rx="30" fill="#D32F2F"/>
-        <text x="485" y="558" text-anchor="middle" font-family="Arial Black, sans-serif" font-size="26" font-weight="900" fill="#FFFFFF">Must Watch!</text>
-        <path d="M 375,550 L 350,560 L 375,570 Z" fill="#D32F2F"/>
+      <!-- 6. Bottom Banner Strip -->
+      <g filter="url(#shadowEn)">
+        <rect x="50" y="612" width="1180" height="82" rx="41" fill="#D32F2F" stroke="#FFD700" stroke-width="2"/>
+        <text x="640" y="666" text-anchor="middle" font-family="'Segoe UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#FFFFFF">
+          🔥 Complete Subject Masterclass | Watch Before Exam! 🔥
+        </text>
       </g>
     </svg>`;
   }

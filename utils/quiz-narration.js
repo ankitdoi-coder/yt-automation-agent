@@ -471,8 +471,19 @@ function shortAnswerNarration(question = {}, language = 'hi') {
   return `${text}.`;
 }
 
-function formatShortQuizScript(questions = [], language = 'hi') {
+function formatShortQuizScript(questions = [], language = 'hi', options = {}) {
   const lines = [];
+  const count = questions.length || 5;
+  const countWords = language === 'hi' ? numberToHindiWords(count) : count;
+
+  // 1. High-retention opening hook (First 2-3 seconds)
+  const hook = options.hook || (language === 'hi'
+    ? `क्या आप इन ${countWords} महत्वपूर्ण प्रश्नों के सही उत्तर जानते हैं? चलिए देखते हैं!`
+    : `Can you score ${count} out of ${count} in this rapid fire exam quiz? Let's test your knowledge!`);
+  lines.push(hook);
+  lines.push('');
+
+  // 2. Question & Answer cycles
   for (const q of questions) {
     const qText = shortQuestionNarration(q, language);
     const aText = shortAnswerNarration(q, language);
@@ -480,6 +491,13 @@ function formatShortQuizScript(questions = [], language = 'hi') {
     if (aText) lines.push(aText);
     lines.push('');
   }
+
+  // 3. High-converting closing verbal CTA for Related Video + Subscribe
+  const cta = options.cta || (language === 'hi'
+    ? 'पूरे टेस्ट और फ्री पीडीएफ के लिए नीचे दिए गए रिलेटेड वीडियो पर क्लिक करें और सब्सक्राइब करें!'
+    : 'Tap the related video below for the complete test and subscribe to ExamIQ Bharat!');
+  lines.push(cta);
+
   return lines.join('\n').trim();
 }
 

@@ -648,7 +648,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
     );
     const secondsPerQuestion = isShort ? 5 : (language === 'hi' ? 8 : 7);
     const durationSeconds = isShort
-      ? Math.round(questions.length * secondsPerQuestion)
+      ? Math.round(questions.length * secondsPerQuestion) + 6
       : Math.round(questions.length * secondsPerQuestion) + 4;
     const subject = meta?.subject || this.deriveQuizSubject(strategy.topic);
     const subjectHindi = meta?.subjectHindi || this.deriveQuizSubjectHindi(strategy.topic, subject);
