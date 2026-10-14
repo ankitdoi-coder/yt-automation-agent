@@ -2255,17 +2255,17 @@ class AIVideoGenerator {
         }
 
 
-        /* 4. QUESTION CARD */
+        /* 4. QUESTION CARD - PROMINENT, LARGE, HIGH CTR HOOK */
         .hero-question-card {
-            margin-top: 22px;
+            margin-top: 24px;
             background: #ffffff;
-            border: 6px solid #facc15;
-            border-radius: 38px;
-            box-shadow: 0 22px 55px rgba(0,0,0,0.7), 0 0 35px rgba(250, 204, 21, 0.45);
-            padding: 30px 40px 36px;
+            border: 7px solid #facc15;
+            border-radius: 40px;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 40px rgba(250, 204, 21, 0.45);
+            padding: 34px 44px 38px;
             display: flex;
             flex-direction: column;
-            gap: 18px;
+            gap: 20px;
         }
         .card-meta-top {
             display: flex;
@@ -2273,103 +2273,104 @@ class AIVideoGenerator {
             align-items: center;
         }
         .question-badge-pill {
-            background: #dc2626;
+            background: linear-gradient(135deg, #ef4444, #dc2626);
             color: #ffffff;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 900;
-            padding: 8px 26px;
-            border-radius: 14px;
-            letter-spacing: 1px;
-            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+            padding: 10px 30px;
+            border-radius: 16px;
+            letter-spacing: 1.2px;
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.45);
         }
         .target-gk-pill {
             display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 26px;
+            gap: 10px;
+            font-size: 30px;
             font-weight: 900;
             color: #0f172a;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.8px;
         }
         .question-main-text {
-            font-size: 50px;
+            font-size: 64px;
             font-weight: 900;
-            line-height: 1.38;
-            color: #091226;
+            line-height: 1.36;
+            color: #000000;
             text-align: left;
+            letter-spacing: -0.3px;
         }
         .question-main-text.small {
-            font-size: 44px;
+            font-size: 54px;
             line-height: 1.32;
         }
         .question-main-text.tiny {
-            font-size: 38px;
+            font-size: 46px;
             line-height: 1.28;
         }
 
         /* 5. FOUR STACKED COLORED OPTION BUTTONS */
         .options-container {
-            margin-top: 24px;
+            margin-top: 26px;
             display: flex;
             flex-direction: column;
             gap: 22px;
         }
         .option-btn {
             background: #ffffff;
-            border-radius: 60px;
-            padding: 18px 30px;
+            border-radius: 65px;
+            padding: 16px 32px;
             display: flex;
             align-items: center;
-            gap: 26px;
-            min-height: 118px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.35);
+            gap: 28px;
+            min-height: 124px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.35);
             transition: all 0.25s ease;
         }
         .opt-letter {
-            width: 78px;
-            height: 78px;
+            width: 86px;
+            height: 86px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #ffffff;
-            font-size: 42px;
+            font-size: 48px;
             font-weight: 900;
             flex-shrink: 0;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 14px rgba(0,0,0,0.3);
         }
         .opt-text {
-            font-size: 46px;
+            font-size: 52px;
             font-weight: 800;
             line-height: 1.25;
-            color: #0f172a;
+            color: #000000;
             flex: 1;
         }
 
         /* Color schemes matching reference */
         .option-btn.opt-a {
-            border: 4px solid #0284c7;
+            border: 5px solid #0284c7;
         }
         .option-btn.opt-a .opt-letter {
             background: linear-gradient(135deg, #0284c7, #0369a1);
         }
 
         .option-btn.opt-b {
-            border: 4px solid #dc2626;
+            border: 5px solid #dc2626;
         }
         .option-btn.opt-b .opt-letter {
             background: linear-gradient(135deg, #dc2626, #b91c1c);
         }
 
         .option-btn.opt-c {
-            border: 4px solid #16a34a;
+            border: 5px solid #16a34a;
         }
         .option-btn.opt-c .opt-letter {
             background: linear-gradient(135deg, #16a34a, #15803d);
         }
 
         .option-btn.opt-d {
-            border: 4px solid #ea580c;
+            border: 5px solid #ea580c;
         }
         .option-btn.opt-d .opt-letter {
             background: linear-gradient(135deg, #ea580c, #c2410c);
@@ -3189,8 +3190,8 @@ ${optionsHtml}
 
     const questionText = question.question || '';
     let qTextClass = '';
-    if (questionText.length > 110) qTextClass = 'tiny';
-    else if (questionText.length > 70) qTextClass = 'small';
+    if (questionText.length > 135) qTextClass = 'tiny';
+    else if (questionText.length > 95) qTextClass = 'small';
 
     return `
     <div class="slide quiz-short clean${active}">
