@@ -172,7 +172,7 @@ class AIVideoGenerator {
       });
     }
 
-    // 3. Google Gemini TTS: neural voice provider (Male Puck/Charon preferred)
+    // 3. Google Gemini TTS: neural voice provider (Male Charon/Fenrir preferred)
     const geminiCooldownMs = 30 * 1000; // 30s RPM cooldown instead of 15m
     if (this.gemini && (!this._ttsCooldowns.gemini || (now - this._ttsCooldowns.gemini > geminiCooldownMs))) {
       attempts.push({
@@ -365,8 +365,8 @@ class AIVideoGenerator {
 
   async generateGeminiTTS(text, outputPath) {
     const preferredModel = process.env.GEMINI_TTS_MODEL || 'gemini-3.8-flash-lite-tts';
-    // User requested male voice ("agar man ka free model hai voice ka toh vo use kar lo nhi toh femal bhi chalega")
-    const preferredVoice = process.env.GEMINI_TTS_VOICE || 'Puck'; // Puck is Gemini's natural male neural voice
+    // User requested male voice - Charon set as primary (deep, confident & authoritative for GK/Quiz)
+    const preferredVoice = process.env.GEMINI_TTS_VOICE || 'Charon';
 
     // Working free-tier Gemini models supporting AUDIO modalities
     const candidateModels = [
@@ -377,11 +377,11 @@ class AIVideoGenerator {
     ];
     const candidateVoices = [
       preferredVoice,
-      'Puck',     // Male
-      'Charon',   // Male
-      'Fenrir',   // Male
-      'Kore',     // Female fallback
-      'Aoede'     // Female fallback
+      'Charon',   // Male (Primary: deep, authoritative)
+      'Fenrir',   // Male (Authoritative radio/host)
+      'Puck',     // Male (Fallback)
+      'Aoede',    // Female fallback (Articulate & smooth)
+      'Kore'      // Female fallback
     ];
     const uniqueModels = [...new Set(candidateModels)];
     const voicesToTry = [...new Set(candidateVoices)];
