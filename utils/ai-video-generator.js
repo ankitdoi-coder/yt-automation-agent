@@ -1296,7 +1296,11 @@ class AIVideoGenerator {
       for (let i = 0; i < slideCount; i++) {
         await page.evaluate((index) => {
           document.querySelectorAll('.slide').forEach((slide, s) => {
-            slide.classList.toggle('active', s === index);
+            const isActive = s === index;
+            slide.classList.toggle('active', isActive);
+            slide.style.opacity = isActive ? '1' : '0';
+            slide.style.visibility = isActive ? 'visible' : 'hidden';
+            slide.style.display = isActive ? '' : 'none';
           });
         }, i);
 
@@ -1532,7 +1536,11 @@ class AIVideoGenerator {
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap');
-        * { box-sizing: border-box; }
+        *, *::before, *::after {
+            box-sizing: border-box;
+            transition: none !important;
+            animation: none !important;
+        }
         body {
             margin: 0;
             padding: 0;
@@ -1549,13 +1557,16 @@ class AIVideoGenerator {
             width: 100%;
             height: 100%;
             opacity: 0;
-            transition: opacity 2s ease-in-out;
+            visibility: hidden;
             background:
                 radial-gradient(1200px 800px at 78% -10%, var(--accent-glow), transparent 60%),
                 linear-gradient(135deg, #0b1220 0%, #131a2e 55%, #1a2340 100%);
         }
 
-        .slide.active { opacity: 1; }
+        .slide.active {
+            opacity: 1;
+            visibility: visible;
+        }
 
         .bg-image {
             position: absolute;
@@ -1862,9 +1873,12 @@ class AIVideoGenerator {
             inset: 0;
             overflow: hidden;
             opacity: 0;
-            transition: opacity 0.3s ease-in-out;
+            visibility: hidden;
         }
-        .slide.quiz-short.active { opacity: 1; }
+        .slide.quiz-short.active {
+            opacity: 1;
+            visibility: visible;
+        }
 
         .short-header {
             height: 130px;
