@@ -10,7 +10,7 @@ function normalizeQuestionKey(text = '') {
   return String(text || '')
     .toLowerCase()
     .replace(/[\u0900-\u0903\u093C\u094D]/g, '') // remove nuktas, viramas for phonetic stability
-    .replace(/[^\p{L}\p{N}]+/gu, ' ')
+    .replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ')
     .trim()
     .replace(/\s+/g, ' ')
     .slice(0, 80);

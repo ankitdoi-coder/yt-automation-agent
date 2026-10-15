@@ -425,9 +425,9 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
   quizDuplicateKey(question) {
     return String(question || '')
       .toLowerCase()
-      .replace(/[^\p{L}\p{N}]+/gu, ' ')
+      .replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ')
       .trim()
-      .slice(0, 60);
+      .slice(0, 80);
   }
 
   normalizeQuizQuestions(rawQuestions, startNumber = 1) {
@@ -489,14 +489,14 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
     return normalized;
   }
 
-  buildQuizBatchPrompt({ strategy, language, size, totalQuestions = 50, collectedKeys, withMeta }) {
+  buildQuizBatchPrompt({ strategy, language, size, totalQuestions = 50, collectedQuestions = [], withMeta }) {
     const languageLine = language === 'hi'
-      ? 'Write every question, option, explanation and header text in Hindi using proper Devanagari script. IMPORTANT: On-screen questions and options must write all numbers and dates as numeric digits (e.g. 17, 28 फरवरी 1928, 1947, 360, अनुच्छेद 324) and NOT spelled out as Hindi words. Write continuous, natural Hindi words with correct matras; never separate consonants with spaces.'
+      ? 'Write every question, option, explanation and header text in Hindi using proper Devanagari script. IMPORTANT: On-screen questions and options must write all numbers and dates as numeric digits (e.g. 17, 28 फरवरी 1928, 1947, 360, अनुच्छेद 324) and NOT spelled out as Hindi words. Write continuous, natural Hindi words with correct matras.'
       : 'Write every question, option, explanation and header text in English.';
 
-    // Combine current batch keys with persistent historical questions from previous videos
+    // Combine current batch questions with persistent historical questions from previous videos
     const persistentTexts = getRecentUsedQuestionTexts(60);
-    const combinedExclusions = [...new Set([...collectedKeys, ...persistentTexts])].slice(0, 80);
+    const combinedExclusions = [...new Set([...collectedQuestions, ...persistentTexts])].slice(0, 80);
     const existing = combinedExclusions.map(key => `- ${key}`).join('\n') || '- (none yet)';
     const metaShape = withMeta
       ? `"title": "SEO video title under 100 characters, style like: Top ${totalQuestions} ${strategy.topic || 'Science'} Question and answer | General Science GK Quiz | SSC CGL, Railway",
@@ -534,7 +534,7 @@ RULES:
 3. Do NOT put numbers in front of question text (do NOT write "1.", "प्रश्न 1", "Q1.", etc.). The narration script will automatically add ("आपका पहला सवाल है—", "आपका अगला सवाल है—", "आपका आखिरी सवाल है—").
 4. Do NOT include thinking words, countdown or timer fillers ("सोचिए", "समय शुरू होता है", "समय समाप्त").
 5. NUMBERS ON SCREEN: Write all mathematical numbers, years, articles, and quantities as NUMERIC DIGITS (e.g., "अनुच्छेद 324", "28 फरवरी 1928", "1947", "360 डिग्री", "73वां संशोधन"). Do NOT spell out numbers as Hindi words in question or options. Voice-over will automatically speak them in Hindi.
-6. HINDI SPELLING: Write pure, natural Hindi words in Devanagari with intact matras (e.g., "राष्ट्रीय", "विज्ञान", "दिवस"). NEVER separate consonants with spaces (do NOT write "भ रत" or "व ज ञ न").
+6. HINDI SPELLING: Write pure, natural Hindi words in Devanagari with intact matras (e.g., "भारत", "राष्ट्रीय", "विज्ञान", "संविधान", "इतिहास"). Every word must be written continuously without spaces between its letters.
 7. Facts must be verifiably correct and stable (history, polity, science, geography, static GK). If in doubt, use confirmed facts instead of guessing.
 8. Options must be short (1-8 words), distinct, and grammatically parallel. Options are displayed on screen only and will NOT be spoken in the voice-over.
 9. Do not repeat or rephrase any question from this already-used list:
@@ -554,6 +554,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
     const batchSize = 10;
     const questions = [];
     const collectedKeys = getUsedQuestionKeysSet();
+    const collectedQuestions = [];
     let meta = null;
     const maxBatches = Math.ceil(requestedTotal / batchSize) + 4;
 
@@ -566,7 +567,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
         language,
         size,
         totalQuestions: requestedTotal,
-        collectedKeys,
+        collectedQuestions,
         withMeta: !meta
       });
       let parsed = null;
@@ -604,13 +605,14 @@ Return only the valid JSON, no markdown outside, no commentary.`;
         const key = this.quizDuplicateKey(item.question);
         if (!key || collectedKeys.has(key) || isDuplicateQuestion(item.question, collectedKeys)) continue;
         collectedKeys.add(key);
+        collectedQuestions.push(item.question);
         questions.push({ ...item, number: questions.length + 1 });
         added++;
       }
       this.logger.info(`Quiz batch ${batch + 1}: +${added} questions (${questions.length}/${requestedTotal})`);
     }
 
-    const minimum = Math.min(requestedTotal, Math.max(3, Math.floor(requestedTotal * 0.8)));
+    const minimum = Math.min(requestedTotal, Math.max(3, Math.floor(requestedTotal * 0.7)));
     if (questions.length < minimum) {
       const error = new Error(`Quiz generation produced only ${questions.length}/${requestedTotal} valid questions (minimum ${minimum})`);
       error.code = 'SCRIPT_QUALITY_REJECTED';
