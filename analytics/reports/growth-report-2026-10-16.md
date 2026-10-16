@@ -11,7 +11,7 @@
 
 | Format | Uploaded Count | Mature (>=72h) | Median Views | p75 Views | Median AVD | Median APV | Total Views |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Shorts (<=60s)** | 14 | 6 | **13.5** | 43.75 | 33s | **63.4%** | 405 |
+| **Shorts (<=60s)** | 14 | 6 | **13.5** | 44.5 | 33s | **63.4%** | 406 |
 | **Long Form (>60s)** | 34 | 18 | **8.5** | 15 | 35s | **20.4%** | 1,927 |
 
 ---
@@ -22,7 +22,7 @@ All hypotheses require a minimum sample size of **n >= 5** and non-overlapping *
 
 1. **Shorts Title Style (Curiosity / Lucent vs Exam-Targeted):**
    - **Variant A (`curiosity_lucent`):** n = 6, Median = 11.5 (90% CI: [5.5, 80])
-   - **Variant B (`exam_targeted`):** n = 4, Median = 2 (90% CI: [0, 6.5])
+   - **Variant B (`exam_targeted`):** n = 4, Median = 2 (90% CI: [0, 11])
    - **Status:** `Inconclusive: insufficient sample size (n=6 vs n=4, minimum required is 5)`
 
 2. **Shorts Duration (<45s vs 45–60s):**
@@ -52,19 +52,19 @@ All hypotheses require a minimum sample size of **n >= 5** and non-overlapping *
 
 ### Bottom 5 Performers
 1. **[SHORT]** [Police Exam 2026 | Static GK Top 5 MCQs (Set 1) #Shorts #GK | ExamIQ](https://youtu.be/bD9Nl7DOKh0)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 52s | **Age:** 1.5h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 52s | **Age:** 1.8h
 
 2. **[LONG]** [Top 50 भारत का भूगोल एवं सामान्य विज्ञान GK | SSC, UPSC, Railway | ExamIQ](https://youtu.be/vWTF-0HMetk)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1293s | **Age:** 5h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1293s | **Age:** 5.3h
 
 3. **[LONG]** [SSC CGL & Railway | भारत का इतिहास एवं संविधान: प्रतियोगी परीक्षाओं में बार-बार पूछे जाने वाले प्र](https://youtu.be/usNci4KFdUc)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1244s | **Age:** 10h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1244s | **Age:** 10.3h
 
 4. **[LONG]** [Top 50 भारत का भूगोल एवं सामान्य विज्ञान GK Quiz | ExamIQ](https://youtu.be/Wwpi5BT_bYI)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1296s | **Age:** 29h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1296s | **Age:** 29.3h
 
 5. **[LONG]** [Railway NTPC & Group D | भारत का भूगोल एवं सामान्य विज्ञान: 50 अति महत्वपूर्ण प्रश्नोत्तरी (पिछले](https://youtu.be/vB9dvtd8sQo)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1165s | **Age:** 29h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1165s | **Age:** 29.3h
 
 ---
 
