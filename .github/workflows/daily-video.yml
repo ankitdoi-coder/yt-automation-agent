@@ -1,11 +1,15 @@
 name: Daily YouTube Video Automation
 
+concurrency:
+  group: daily-video-automation
+  cancel-in-progress: false
+
 on:
   schedule:
-    # Primary trigger: 05:45 AM IST (00:15 UTC)
-    - cron: '15 0 * * *'
-    # Backup trigger: 06:15 AM IST (00:45 UTC) - protects against GitHub Actions midnight queue drops
-    - cron: '45 0 * * *'
+    # Runs daily at 00:20 UTC = 05:50 AM IST (Indian Standard Time)
+    # Single schedule guarantees all 4 daily slots are generated and uploaded exactly ONCE per day
+    # Minute 20 avoids peak GitHub Actions queue bottlenecks at :00 and :30
+    - cron: '20 0 * * *'
   workflow_dispatch:
     inputs:
       target_slot:

@@ -190,11 +190,51 @@ async function run() {
   logger.info(`📋 Preparing ${slotsToRun.length} video(s) for today's publishing calendar:`);
   slotsToRun.forEach(s => logger.info(`  • [${s.timeIST} IST] ${s.name} (${s.style})`));
 
+  // Check recent YouTube uploads to prevent accidental duplicate videos for the same slot today
+  let recentUploads = [];
+  try {
+    const youtube = agent.agents?.publishing?.youtube;
+    if (youtube) {
+      const channelRes = await youtube.channels.list({ part: 'contentDetails', mine: true });
+      const uploadsPlaylistId = channelRes?.data?.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
+      if (uploadsPlaylistId) {
+        const playlistRes = await youtube.playlistItems.list({
+          part: 'snippet',
+          playlistId: uploadsPlaylistId,
+          maxResults: 15
+        });
+        recentUploads = playlistRes?.data?.items || [];
+      }
+    }
+  } catch (err) {
+    logger.warn(`Could not check recent YouTube uploads for deduplication: ${err.message}`);
+  }
+
   const results = [];
 
   for (let i = 0; i < slotsToRun.length; i++) {
     const slot = slotsToRun[i];
     const slotTiming = calculateSlotPublishDate(slot.timeIST);
+
+    // If running full daily batch, skip slots already uploaded to YouTube in the last 18 hours
+    if (recentUploads.length > 0 && !process.env.FORCE_RUN && targetSlotInput.startsWith('all')) {
+      const alreadyUploaded = recentUploads.find(item => {
+        const publishedAt = new Date(item.snippet?.publishedAt || 0).getTime();
+        const ageHours = (Date.now() - publishedAt) / (1000 * 60 * 60);
+        if (ageHours > 18) return false;
+        const title = (item.snippet?.title || '').toLowerCase();
+        if (slot.id === 'slot1' && (title.includes('इतिहास') || title.includes('history') || title.includes('संविधान'))) return true;
+        if (slot.id === 'slot2' && (title.includes('रामायण') || title.includes('महाभारत') || title.includes('ramayan'))) return true;
+        if (slot.id === 'slot3' && (title.includes('भूगोल') || title.includes('geography') || title.includes('सामान्य विज्ञान'))) return true;
+        if (slot.id === 'slot4' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk'))) return true;
+        return false;
+      });
+
+      if (alreadyUploaded) {
+        logger.info(`⏭️ Skipping ${slot.name} (${slot.id}): Already uploaded to channel today: "${alreadyUploaded.snippet?.title}". (Set FORCE_RUN=true to override).`);
+        continue;
+      }
+    }
 
     logger.info(`\n────────────────────────────────────────────────────────────`);
     logger.info(`🎬 Generating Video ${i + 1}/${slotsToRun.length}: ${slot.name}`);
