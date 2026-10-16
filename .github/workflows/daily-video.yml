@@ -19,9 +19,9 @@ on:
         type: choice
         options:
           - all (1 Long + 2 Shorts)
-          - slot1 (08:00 AM IST Shorts)
-          - slot2 (01:00 PM IST Shorts)
-          - slot3 (07:00 PM IST Long Quiz)
+          - slot1 (01:00 PM IST Shorts - Lunch Break)
+          - slot2 (07:00 PM IST Long Quiz - Evening Class)
+          - slot3 (09:00 PM IST Shorts - Bedtime Scroll)
       privacy_status:
         description: 'Target privacy status (public = auto-publishes to everyone)'
         required: true

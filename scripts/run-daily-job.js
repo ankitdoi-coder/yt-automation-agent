@@ -6,12 +6,15 @@ const logger = new Logger('DailyRunner');
 
 // Optimal Educational Upload Schedule for Indian Audience (IST)
 // Optimal Educational Upload Schedule for Indian Audience (IST)
-// 1 Long Video (Prime Time 7:00 PM IST) + 2 Shorts (8:00 AM & 1:00 PM IST)
+// Tuned for workflow finishing at ~11:00 AM IST:
+// 1. Slot 1 (01:00 PM IST) - Lunch Break Shorts
+// 2. Slot 2 (07:00 PM IST) - Evening Prime Class (Long Video, 50 PYQs)
+// 3. Slot 3 (09:00 PM IST) - Post-Dinner Bedtime Shorts
 const SCHEDULE_SLOTS = [
   {
     id: 'slot1',
-    name: 'Morning Rapid-Fire GK Quiz (Shorts, 9:16 Vertical)',
-    timeIST: '08:00',
+    name: 'Lunch-Break Student Scroll (Shorts, 9:16 Vertical)',
+    timeIST: '13:00',
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
@@ -19,21 +22,21 @@ const SCHEDULE_SLOTS = [
   },
   {
     id: 'slot2',
-    name: 'Lunch-Break Student Scroll (Shorts, 9:16 Vertical)',
-    timeIST: '13:00',
-    style: 'quiz_short_no_image',
-    length: 'short',
-    contentType: 'quiz_short_no_image',
-    defaultTopic: 'भारत में प्रथम व रोचक सामान्य ज्ञान: Top 5 GK Questions | ExamIQ Bharat Shorts'
-  },
-  {
-    id: 'slot3',
     name: 'Evening Prime Study Class (Long-Form, 50 Questions)',
     timeIST: '19:00',
     style: 'quiz',
     length: 'medium',
     contentType: 'quiz',
     defaultTopic: 'भारत का इतिहास एवं संविधान: 50 सबसे महत्वपूर्ण प्रश्न | Indian History & Polity GK'
+  },
+  {
+    id: 'slot3',
+    name: 'Post-Dinner Bedtime Scroll (Shorts, 9:16 Vertical)',
+    timeIST: '21:00',
+    style: 'quiz_short_no_image',
+    length: 'short',
+    contentType: 'quiz_short_no_image',
+    defaultTopic: 'भारत में प्रथम व रोचक सामान्य ज्ञान: Top 5 GK Questions | ExamIQ Bharat Shorts'
   }
 ];
 
@@ -64,9 +67,9 @@ function resolveSlotTopic(slot, baseTopic) {
       case 'slot1':
         return formatSlotTopic(cleanBase, ' - भौतिक विज्ञान (Physics) के 5 रोचक व महत्वपूर्ण सवाल | GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - प्रमुख वैज्ञानिक खोजें, अंतरिक्ष व आविष्कार: Top 5 GK Shorts');
-      case 'slot3':
         return formatSlotTopic(cleanBase, ' - जीव विज्ञान एवं रसायन विज्ञान: 50 महत्वपूर्ण प्रश्न | SSC & Railway GK');
+      case 'slot3':
+        return formatSlotTopic(cleanBase, ' - प्रमुख वैज्ञानिक खोजें, अंतरिक्ष व आविष्कार: Top 5 GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -78,9 +81,9 @@ function resolveSlotTopic(slot, baseTopic) {
       case 'slot1':
         return formatSlotTopic(cleanBase, ' - 1857 की क्रांति व स्वतंत्रता सेनानी: Top 5 GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: Top 5 GK Shorts');
-      case 'slot3':
         return formatSlotTopic(cleanBase, ' - प्राचीन एवं आधुनिक भारत का इतिहास: 50 महत्वपूर्ण प्रश्न | Exam Special');
+      case 'slot3':
+        return formatSlotTopic(cleanBase, ' - भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: Top 5 GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -92,9 +95,9 @@ function resolveSlotTopic(slot, baseTopic) {
       case 'slot1':
         return formatSlotTopic(cleanBase, ' - भारत के प्रमुख बांध व झीलें: Top 5 GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - भारत के राज्य, सीमाएं व दर्रे: Top 5 GK Shorts');
-      case 'slot3':
         return formatSlotTopic(cleanBase, ' - भारत की नदियां, पर्वत व राष्ट्रीय उद्यान: 50 महत्वपूर्ण प्रश्न');
+      case 'slot3':
+        return formatSlotTopic(cleanBase, ' - भारत के राज्य, सीमाएं व दर्रे: Top 5 GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -105,9 +108,9 @@ function resolveSlotTopic(slot, baseTopic) {
     case 'slot1':
       return formatSlotTopic(cleanBase, ': Top 5 रोचक व परीक्षा उपयोगी सवाल | Rapid Fire GK Shorts');
     case 'slot2':
-      return formatSlotTopic(cleanBase, ': Top 5 मोस्ट रिपीटेड कठिन सवाल | ExamIQ Bharat Shorts');
-    case 'slot3':
       return formatSlotTopic(cleanBase, ': 50 अति महत्वपूर्ण प्रश्न (संपूर्ण रिवीजन क्लास)');
+    case 'slot3':
+      return formatSlotTopic(cleanBase, ': Top 5 मोस्ट रिपीटेड कठिन सवाल | ExamIQ Bharat Shorts');
     default:
       return formatSlotTopic(cleanBase, ` - ${slot.name}`);
   }
@@ -124,15 +127,19 @@ function calculateSlotPublishDate(timeIST) {
   const targetIST = new Date(nowIST);
   targetIST.setUTCHours(hours, minutes, 0, 0);
 
-  const targetUTC = new Date(targetIST.getTime() - istOffsetMs);
+  let targetUTC = new Date(targetIST.getTime() - istOffsetMs);
 
-  // If slot time is in the past or within 15 minutes, upload as immediate PUBLIC
-  const isPast = targetUTC.getTime() <= (now.getTime() + 15 * 60 * 1000);
+  // If slot time has already passed or is within 45 minutes, schedule for TOMORROW at that time!
+  // This guarantees videos are ALWAYS scheduled in advance and never dumped into the past.
+  if (targetUTC.getTime() <= (now.getTime() + 45 * 60 * 1000)) {
+    targetIST.setUTCDate(targetIST.getUTCDate() + 1);
+    targetUTC = new Date(targetIST.getTime() - istOffsetMs);
+  }
 
   return {
     targetUTC,
     isoString: targetUTC.toISOString(),
-    isPast,
+    isPast: false,
     timeIST
   };
 }
@@ -210,8 +217,8 @@ async function run() {
         if (ageHours > 18) return false;
         const title = (item.snippet?.title || '').toLowerCase();
         if (slot.id === 'slot1' && (title.includes('रामायण') || title.includes('महाभारत') || title.includes('ramayan'))) return true;
-        if (slot.id === 'slot2' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk'))) return true;
-        if (slot.id === 'slot3' && (title.includes('इतिहास') || title.includes('history') || title.includes('संविधान') || title.includes('भूगोल'))) return true;
+        if (slot.id === 'slot2' && (title.includes('इतिहास') || title.includes('history') || title.includes('संविधान') || title.includes('भूगोल'))) return true;
+        if (slot.id === 'slot3' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk'))) return true;
         return false;
       });
 
