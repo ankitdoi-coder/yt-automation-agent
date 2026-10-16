@@ -49,7 +49,7 @@ function normalizeQuestionKey(text = '') {
 function extractContentTokens(text = '') {
   const normalized = String(text || '')
     .toLowerCase()
-    .replace(/[\u0900-\u0903\u093C]/g, '')
+    .replace(/[\u093C\u094D]/g, '')
     .replace(/[^\p{L}\p{M}\p{N}]+/gu, ' ')
     .trim();
 

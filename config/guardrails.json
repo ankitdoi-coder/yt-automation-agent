@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "version": "1.0.0",
+  "description": "Hard guardrails for the Growth Autopilot. Autopilot decisions MUST stay strictly within these boundaries.",
+  "rules": {
+    "maxConfigChangesPerRun": 2,
+    "maxVariablesPerFormat": 1,
+    "minSampleSizeToDeclareWinner": 5,
+    "bootstrapConfidenceLevel": 0.90,
+    "regressionThresholdDropPercent": 40,
+    "dataLagHours": 72,
+    "experimentEvaluationDays": 7,
+    "exploreExploitSplit": {
+      "exploit": 0.70,
+      "explore": 0.30
+    }
+  },
+  "allowedRanges": {
+    "shorts.targetQuestionCount": { "min": 5, "max": 10, "type": "integer" },
+    "shorts.targetDurationSeconds": { "min": 35, "max": 60, "type": "integer" },
+    "shorts.pacingSecondsPerQuestion": { "min": 4.0, "max": 7.0, "type": "number" },
+    "shorts.titleStyle": { "allowed": ["curiosity_lucent", "exam_targeted", "hybrid"], "type": "enum" },
+    "longVideos.targetQuestionCount": { "min": 15, "max": 30, "type": "integer" },
+    "longVideos.dedupSimilarityThreshold": { "min": 0.35, "max": 0.60, "type": "number" },
+    "longVideos.targetDurationMinutes": { "min": 6, "max": 15, "type": "number" },
+    "longVideos.pacingSecondsPerQuestion": { "min": 15, "max": 30, "type": "number" },
+    "cadence.maxShortsPerDay": { "min": 1, "max": 2, "type": "integer" },
+    "cadence.maxLongVideosPerDay": { "min": 1, "max": 1, "type": "integer" },
+    "cadence.minHoursBetweenUploads": { "min": 3, "max": 8, "type": "number" }
+  },
+  "immutableKeys": [
+    "categoryId",
+    "privacyStatus",
+    "scopes",
+    "deleteVideos",
+    "unlistedVideos",
+    "defaultCategory"
+  ]
+}

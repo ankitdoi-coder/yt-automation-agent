@@ -10,6 +10,8 @@
     "growth:snapshot": "node scripts/growth/snapshot-github.js",
     "scheduler": "node schedules/daily-automation.js",
     "daily:job": "node scripts/run-daily-job.js",
+    "autopilot:run": "node scripts/autopilot/run.js",
+    "test:autopilot": "node tests/autopilot.test.js",
     "test": "node test.js",
     "agent:strategy": "node agents/content-strategy-agent.js",
     "agent:script": "node agents/script-writer-agent.js",
