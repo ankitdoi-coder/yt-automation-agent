@@ -4,6 +4,7 @@ const fsSync = require('fs');
 const path = require('path');
 const { Logger } = require('../utils/logger');
 const { assertValidYouTubeMetadata } = require('../utils/youtube-metadata-validator');
+const { logExperimentVideo } = require('../utils/growth-experiment-tracker');
 
 class PublishingSchedulingAgent {
   constructor(db, credentials) {
@@ -243,6 +244,15 @@ class PublishingSchedulingAgent {
     scheduleEntry.youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
     scheduleEntry.error = null;
     await this.db.updateScheduleEntry(scheduleEntry);
+
+    try {
+      logExperimentVideo({
+        videoId,
+        title: safeMetadata.title,
+        contentType: metadata.contentType || (metadata.isShort ? 'short' : 'long_form'),
+        status: 'uploaded'
+      });
+    } catch (_) {}
     
     // Upload thumbnail
     if (metadata.thumbnail && (metadata.thumbnail.path || metadata.thumbnail.originalPath)) {

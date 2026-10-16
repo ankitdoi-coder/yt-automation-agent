@@ -1,3 +1,5 @@
+const fs = require('fs');
+const path = require('path');
 const { Logger } = require('../utils/logger');
 const { AITextService } = require('../utils/ai-text-service');
 const {
@@ -289,7 +291,7 @@ ${timestampsText}
     return uniqueTags;
   }
 
-  buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ Bharat') {
+  buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
     const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 5;
     const year = new Date().getFullYear();
     const partNumber = script.partNumber || script.quiz?.part || 1;
@@ -320,6 +322,29 @@ ${timestampsText}
       topicName = 'Static GK';
     } else if (subjectHindi && subjectHindi.length <= 15) {
       topicName = subjectHindi;
+    }
+
+    // Read growth configuration
+    let growth = {};
+    try {
+      const configPath = path.resolve(__dirname, '..', 'config', 'growth.json');
+      if (fs.existsSync(configPath)) {
+        growth = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+      }
+    } catch (_) {}
+
+    const titleStyle = growth.shorts?.titleStyle || 'curiosity_lucent';
+
+    if (titleStyle === 'curiosity_lucent') {
+      // High-velocity curiosity and Lucent GK titles proven to drive 700+ views in Shorts Feed
+      const curiosityTemplates = [
+        `Top ${qCount} GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK #Shorts #GK | ${brand}`,
+        `Top ${qCount} GK MCQ | ${topicName} महत्वपूर्ण प्रश्न | Lucent GK #Shorts #GK | ${brand}`,
+        `Top ${qCount} GK MCQ | Lucent GK निचोड़ | Samanya Gyan GK Quiz #Shorts #GK | ${brand}`,
+        `Top ${qCount} GK Questions | GK Quiz in Hindi | Lucent GK MCQ #Shorts #GK | ${brand}`
+      ];
+      const curIdx = (partNumber - 1) % curiosityTemplates.length;
+      return curiosityTemplates[curIdx].slice(0, 98);
     }
 
     const templates = [
