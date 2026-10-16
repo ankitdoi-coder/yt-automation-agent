@@ -1,5 +1,5 @@
 # Weekly Growth & Performance Report: ExamIQ Bharat
-**Date:** 2026-10-16  
+**Generated:** 2026-10-16T15:40:37.473Z  
 **Channel:** ExamIQ (`@examiqbharat`)  
 **Channel ID:** `UCjh63suNzws9XB2sF1xKzyw`  
 
@@ -17,53 +17,57 @@
 
 ---
 
-## 2. Top Performing Videos (Past 7 Days)
+## 2. Live Audience Demographics & Traffic Breakdown (YouTube Analytics API v2)
+
+### Traffic Distribution
+- **SHORTS:** 1,829 views (740.0 watch minutes)
+- **YT_SEARCH:** 170 views (30.0 watch minutes)
+- **RELATED_VIDEO:** 63 views (49.0 watch minutes)
+- **SUBSCRIBER:** 33 views (5.0 watch minutes)
+- **YT_CHANNEL:** 30 views (13.0 watch minutes)
+- **EXT_URL:** 14 views (6.0 watch minutes)
+- **NO_LINK_OTHER:** 10 views (9.0 watch minutes)
+- **YT_OTHER_PAGE:** 4 views (10.0 watch minutes)
+
+### Age Demographics
+- **age65-:** 25.8% of audience
+- **age25-34:** 23% of audience
+- **age35-44:** 19% of audience
+- **age18-24:** 13.6% of audience
+- **age45-54:** 10% of audience
+- **age55-64:** 8.6% of audience
+
+---
+
+## 3. Top Performing Videos (Past 7 Days)
 
 1. **[Long Video]** [Top 10 GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK #Shorts #GK | ExamIQ](https://youtu.be/ACWpOntSxcA)  
-   - **Views:** 737 | **Likes:** 12 | **Comments:** 0  
+   - **Views:** 737 | **APV:** 59.3% | **AVD:** 58.0s | **Likes:** 12  
    - **Published:** 2026-10-11 06:01 UTC
 
 2. **[Long Video]** [Top 10 GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK #Shorts #GK | ExamIQ](https://youtu.be/Q7cK7Aip6dY)  
-   - **Views:** 704 | **Likes:** 10 | **Comments:** 0  
+   - **Views:** 704 | **APV:** 47.4% | **AVD:** 40.0s | **Likes:** 10  
    - **Published:** 2026-10-11 03:36 UTC
 
 3. **[Long Video]** [Top 10 GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK #Shorts #GK | ExamIQ](https://youtu.be/zGy-v1bkGPw)  
-   - **Views:** 184 | **Likes:** 3 | **Comments:** 0  
+   - **Views:** 184 | **APV:** 50.9% | **AVD:** 47.0s | **Likes:** 3  
    - **Published:** 2026-10-11 05:30 UTC
 
 ---
 
-## 3. Underperforming Videos (Past 7 Days)
+## 4. Underperforming Videos (Past 7 Days)
 
 1. **[Long Video]** [Railway NTPC & Group D | भारत का भूगोल एवं सामान्य विज्ञान: 50 अति महत्वपूर्ण प्रश्नोत्तरी (पिछले](https://youtu.be/vB9dvtd8sQo)  
-   - **Views:** 0 | **Likes:** 0 | **Duration:** 1165s
+   - **Views:** 0 | **APV:** N/A | **AVD:** N/As | **Duration:** 1165s
 
 2. **[Long Video]** [Top 50 भारत का भूगोल एवं सामान्य विज्ञान GK Quiz | ExamIQ](https://youtu.be/Wwpi5BT_bYI)  
-   - **Views:** 0 | **Likes:** 0 | **Duration:** 1296s
+   - **Views:** 0 | **APV:** N/A | **AVD:** N/As | **Duration:** 1296s
 
 3. **[Long Video]** [SSC CGL & Railway | भारत का इतिहास एवं संविधान: प्रतियोगी परीक्षाओं में बार-बार पूछे जाने वाले प्र](https://youtu.be/usNci4KFdUc)  
-   - **Views:** 0 | **Likes:** 0 | **Duration:** 1244s
-
----
-
-## 4. Growth Hypothesis & Diagnostic Insights
-
-1. **Shorts Title Formatting (Proven Driver):**
-   - The all-time peak days (Oct 11: 1,758 views) were driven by curiosity-first Lucent titles:
-     - `Top 10 GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK` (737 views)
-     - `Top 10 GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK` (704 views)
-   - When titles were switched on Oct 15-16 to hyper-specific exam tags (`Police Exam 2026 | Static GK Top 5 MCQs (Set 1)`), views plummeted to 0-11 views.
-   - **Action Taken:** Reset default `shorts.titleStyle` to `curiosity_lucent` in `config/growth.json`.
-
-2. **Deduplication in Long-Form Content:**
-   - 20-30 minute long videos previously experienced ~9s Average View Duration because questions repeated up to 36% across batches within the same video.
-   - **Action Taken:** Activated strict semantic tokenization (Jaccard similarity > 0.45) and answer-entity collision detection.
-
-3. **Upload Cadence & Algorithmic Saturation:**
-   - Uploading 5-8 videos/day caused self-cannibalization. Recommended cadence is 1-2 Shorts/day + 1 Long video every 2-3 days.
+   - **Views:** 0 | **APV:** N/A | **AVD:** N/As | **Duration:** 1244s
 
 ---
 
 ## 5. Active Experiments
-Total tracked experiment variants: **0**  
+Total tracked experiment variants: **6**  
 Reference: `analytics/experiments.csv`

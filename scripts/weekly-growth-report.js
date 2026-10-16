@@ -48,6 +48,7 @@ async function generateWeeklyGrowthReport() {
   await cm.initialize();
   const auth = cm.getYouTubeAuth();
   const yt = google.youtube({ version: 'v3', auth });
+  const ytAnalytics = google.youtubeAnalytics({ version: 'v2', auth });
 
   // 1. Fetch channel overview
   const channelRes = await yt.channels.list({ part: 'snippet,statistics,contentDetails', mine: true });
@@ -70,19 +71,73 @@ async function generateWeeklyGrowthReport() {
     return;
   }
 
-  // 3. Batch fetch video statistics
+  // 3. Batch fetch video details
   const videoDetailsRes = await yt.videos.list({
     part: 'snippet,statistics,contentDetails',
     id: videoIds.join(',')
   });
 
+  // 4. Query YouTube Analytics API v2 for accurate per-video retention and traffic
   const now = new Date();
+  const endDate = now.toISOString().slice(0, 10);
   const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
   const fourteenDaysAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+  const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  const videoAnalyticsMap = new Map();
+  let trafficSources = [];
+  let ageDemographics = [];
+
+  try {
+    const videoStatsRes = await ytAnalytics.reports.query({
+      ids: 'channel==MINE',
+      startDate: thirtyDaysAgo,
+      endDate,
+      metrics: 'views,estimatedMinutesWatched,averageViewDuration,averageViewPercentage,subscribersGained',
+      dimensions: 'video',
+      maxResults: 100,
+      sort: '-views'
+    });
+
+    if (videoStatsRes.data.rows) {
+      for (const row of videoStatsRes.data.rows) {
+        videoAnalyticsMap.set(row[0], {
+          views: row[1],
+          watchMinutes: Number(row[2]).toFixed(1),
+          avgViewDurationSec: Number(row[3]).toFixed(1),
+          avgPercentageViewed: Number(row[4]).toFixed(1),
+          subsGained: row[5]
+        });
+      }
+    }
+
+    const trafficRes = await ytAnalytics.reports.query({
+      ids: 'channel==MINE',
+      startDate: thirtyDaysAgo,
+      endDate,
+      metrics: 'views,estimatedMinutesWatched',
+      dimensions: 'insightTrafficSourceType',
+      sort: '-views'
+    });
+    trafficSources = trafficRes.data.rows || [];
+
+    const ageRes = await ytAnalytics.reports.query({
+      ids: 'channel==MINE',
+      startDate: thirtyDaysAgo,
+      endDate,
+      metrics: 'viewerPercentage',
+      dimensions: 'ageGroup',
+      sort: '-viewerPercentage'
+    });
+    ageDemographics = ageRes.data.rows || [];
+  } catch (err) {
+    console.warn(`YouTube Analytics API query note: ${err.message}`);
+  }
 
   const videos = videoDetailsRes.data.items.map(v => {
     const durationSec = parseIsoDuration(v.contentDetails.duration);
     const pubDate = new Date(v.snippet.publishedAt);
+    const analyticsData = videoAnalyticsMap.get(v.id) || {};
     return {
       id: v.id,
       title: v.snippet.title,
@@ -91,7 +146,9 @@ async function generateWeeklyGrowthReport() {
       isShort: durationSec <= 60,
       views: parseInt(v.statistics.viewCount || '0', 10),
       likes: parseInt(v.statistics.likeCount || '0', 10),
-      comments: parseInt(v.statistics.commentCount || '0', 10)
+      comments: parseInt(v.statistics.commentCount || '0', 10),
+      avdSec: analyticsData.avgViewDurationSec || 'N/A',
+      apvPct: analyticsData.avgPercentageViewed ? `${analyticsData.avgPercentageViewed}%` : 'N/A'
     };
   });
 
@@ -107,12 +164,9 @@ async function generateWeeklyGrowthReport() {
   const shortsViews = shortsPast7.reduce((sum, v) => sum + v.views, 0);
   const longViews = longPast7.reduce((sum, v) => sum + v.views, 0);
 
-  // Sorted past 7 days by views
   const sortedPast7 = [...past7DaysVideos].sort((a, b) => b.views - a.views);
   const top3 = sortedPast7.slice(0, 3);
   const bottom3 = sortedPast7.slice(-3).reverse();
-
-  // All time top 5 for benchmarking
   const allTimeTop5 = [...videos].sort((a, b) => b.views - a.views).slice(0, 5);
 
   const experiments = loadExperiments();
@@ -127,27 +181,36 @@ async function generateWeeklyGrowthReport() {
   console.log(`Views Prior 7 Days:        ${formatNumber(prior7Views)}`);
   console.log(`7-Day Velocity Delta:      ${viewsDelta >= 0 ? '+' : ''}${viewsDelta}%\n`);
 
-  console.log('--- TOP 3 RECENT PERFORMERS (Past 7d) ---');
+  console.log('--- TOP 3 PERFORMERS (Past 7d with Analytics APV) ---');
   top3.forEach((v, idx) => {
-    console.log(` ${idx + 1}. [${v.isShort ? 'SHORT' : 'LONG'}] ${v.views} views | ${v.likes} likes | "${v.title}"`);
+    console.log(` ${idx + 1}. [${v.isShort ? 'SHORT' : 'LONG'}] ${v.views} views | APV: ${v.apvPct} | AVD: ${v.avdSec}s | "${v.title}"`);
   });
 
-  console.log('\n--- BOTTOM 3 RECENT PERFORMERS (Past 7d) ---');
+  console.log('\n--- BOTTOM 3 PERFORMERS (Past 7d) ---');
   bottom3.forEach((v, idx) => {
-    console.log(` ${idx + 1}. [${v.isShort ? 'SHORT' : 'LONG'}] ${v.views} views | ${v.likes} likes | "${v.title}"`);
+    console.log(` ${idx + 1}. [${v.isShort ? 'SHORT' : 'LONG'}] ${v.views} views | APV: ${v.apvPct} | AVD: ${v.avdSec}s | "${v.title}"`);
   });
 
-  console.log('\n--- ALL-TIME BENCHMARK LEADERS ---');
-  allTimeTop5.forEach((v, idx) => {
-    console.log(` ${idx + 1}. [${v.isShort ? 'SHORT' : 'LONG'}] ${v.views} views | Pub: ${v.publishedAt.toISOString().slice(0, 10)} | "${v.title}"`);
-  });
+  if (trafficSources.length > 0) {
+    console.log('\n--- TOP TRAFFIC SOURCES (Live Analytics API) ---');
+    trafficSources.slice(0, 4).forEach(row => {
+      console.log(` • ${row[0].padEnd(20)}: ${String(row[1]).padStart(5)} views (${Number(row[2]).toFixed(1)} watch min)`);
+    });
+  }
 
-  // Generate Markdown report
+  if (ageDemographics.length > 0) {
+    console.log('\n--- AUDIENCE DEMOGRAPHICS (Live Analytics API) ---');
+    ageDemographics.forEach(row => {
+      console.log(` • Age ${row[0]}: ${row[1]}%`);
+    });
+  }
+
+  // Save detailed Markdown report
   const dateStr = now.toISOString().slice(0, 10);
   const reportPath = path.resolve(__dirname, '..', 'analytics', `weekly-growth-report-${dateStr}.md`);
 
   const mdReport = `# Weekly Growth & Performance Report: ExamIQ Bharat
-**Date:** ${dateStr}  
+**Generated:** ${new Date().toISOString()}  
 **Channel:** ${channel.snippet.title} (\`@examiqbharat\`)  
 **Channel ID:** \`${channel.id}\`  
 
@@ -165,36 +228,28 @@ async function generateWeeklyGrowthReport() {
 
 ---
 
-## 2. Top Performing Videos (Past 7 Days)
+## 2. Live Audience Demographics & Traffic Breakdown (YouTube Analytics API v2)
+
+### Traffic Distribution
+${trafficSources.map(r => `- **${r[0]}:** ${formatNumber(r[1])} views (${Number(r[2]).toFixed(1)} watch minutes)`).join('\n')}
+
+### Age Demographics
+${ageDemographics.map(r => `- **${r[0]}:** ${r[1]}% of audience`).join('\n')}
+
+---
+
+## 3. Top Performing Videos (Past 7 Days)
 
 ${top3.map((v, i) => `${i + 1}. **[${v.isShort ? 'Short' : 'Long Video'}]** [${v.title}](https://youtu.be/${v.id})  
-   - **Views:** ${v.views} | **Likes:** ${v.likes} | **Comments:** ${v.comments}  
+   - **Views:** ${v.views} | **APV:** ${v.apvPct} | **AVD:** ${v.avdSec}s | **Likes:** ${v.likes}  
    - **Published:** ${v.publishedAt.toISOString().slice(0, 16).replace('T', ' ')} UTC`).join('\n\n')}
 
 ---
 
-## 3. Underperforming Videos (Past 7 Days)
+## 4. Underperforming Videos (Past 7 Days)
 
 ${bottom3.map((v, i) => `${i + 1}. **[${v.isShort ? 'Short' : 'Long Video'}]** [${v.title}](https://youtu.be/${v.id})  
-   - **Views:** ${v.views} | **Likes:** ${v.likes} | **Duration:** ${v.durationSec}s`).join('\n\n')}
-
----
-
-## 4. Growth Hypothesis & Diagnostic Insights
-
-1. **Shorts Title Formatting (Proven Driver):**
-   - The all-time peak days (Oct 11: 1,758 views) were driven by curiosity-first Lucent titles:
-     - \`Top 10 GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK\` (737 views)
-     - \`Top 10 GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK\` (704 views)
-   - When titles were switched on Oct 15-16 to hyper-specific exam tags (\`Police Exam 2026 | Static GK Top 5 MCQs (Set 1)\`), views plummeted to 0-11 views.
-   - **Action Taken:** Reset default \`shorts.titleStyle\` to \`curiosity_lucent\` in \`config/growth.json\`.
-
-2. **Deduplication in Long-Form Content:**
-   - 20-30 minute long videos previously experienced ~9s Average View Duration because questions repeated up to 36% across batches within the same video.
-   - **Action Taken:** Activated strict semantic tokenization (Jaccard similarity > 0.45) and answer-entity collision detection.
-
-3. **Upload Cadence & Algorithmic Saturation:**
-   - Uploading 5-8 videos/day caused self-cannibalization. Recommended cadence is 1-2 Shorts/day + 1 Long video every 2-3 days.
+   - **Views:** ${v.views} | **APV:** ${v.apvPct} | **AVD:** ${v.avdSec}s | **Duration:** ${v.durationSec}s`).join('\n\n')}
 
 ---
 
