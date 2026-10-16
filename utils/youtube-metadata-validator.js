@@ -40,8 +40,8 @@ function normalizeYouTubeMetadata(metadata = {}) {
     description: removeControlCharacters(snippet.description).slice(0, MAX_DESCRIPTION_LENGTH).trim(),
     tags: normalizeTags(snippet.tags),
     categoryId: String(snippet.categoryId ?? snippet.metadata?.category ?? process.env.YOUTUBE_CATEGORY_ID ?? '27').trim(),
-    defaultLanguage: String(snippet.defaultLanguage ?? snippet.metadata?.language ?? 'en').trim(),
-    defaultAudioLanguage: String(snippet.defaultAudioLanguage ?? snippet.metadata?.language ?? 'en').trim()
+    defaultLanguage: String(snippet.defaultLanguage ?? snippet.metadata?.language ?? process.env.YOUTUBE_DEFAULT_LANGUAGE ?? 'hi').trim(),
+    defaultAudioLanguage: String(snippet.defaultAudioLanguage ?? snippet.metadata?.language ?? process.env.YOUTUBE_DEFAULT_AUDIO_LANGUAGE ?? 'hi').trim()
   };
 }
 

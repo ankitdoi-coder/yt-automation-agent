@@ -213,9 +213,9 @@ class PublishingSchedulingAgent {
         title: safeMetadata.title,
         description: safeMetadata.description,
         tags: safeMetadata.tags,
-        categoryId: safeMetadata.categoryId,
-        defaultLanguage: safeMetadata.defaultLanguage,
-        defaultAudioLanguage: safeMetadata.defaultAudioLanguage
+        categoryId: safeMetadata.categoryId || '27',
+        defaultLanguage: safeMetadata.defaultLanguage || 'hi',
+        defaultAudioLanguage: safeMetadata.defaultAudioLanguage || 'hi'
       },
       status: {
         privacyStatus: futureSchedule ? 'private' : requestedPrivacy,

@@ -397,22 +397,30 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
     const isShort = Boolean(
       strategy.isShort ||
       String(strategy.contentType || '').toLowerCase() === 'quiz_short' ||
-      String(strategy.requestedStyle || '').toLowerCase() === 'quiz_short'
+      String(strategy.requestedStyle || '').toLowerCase() === 'quiz_short' ||
+      String(strategy.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
+      String(strategy.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
     );
-    const minVal = isShort ? 1 : 5;
+    if (isShort) {
+      // YouTube Shorts MUST NOT exceed 60s. 5 rapid-fire questions (~28-38s) is the optimal retention target.
+      const text = `${strategy.topic || ''} ${strategy.angle || ''}`;
+      const match = text.match(/\btop\s*(\d{1,2})\b/i);
+      if (match) {
+        const val = Number(match[1]);
+        if (val >= 3 && val <= 5) return val;
+      }
+      return 5;
+    }
     const text = `${strategy.topic || ''} ${strategy.angle || ''}`;
     const topMatch = text.match(/\btop\s*(\d{1,3})\b/i);
     if (topMatch) {
       const value = Number(topMatch[1]);
-      if (value >= minVal && value <= 100) return value;
+      if (value >= 5 && value <= 100) return value;
     }
     const standalone = text.match(/\b(\d{1,3})\b/);
     if (standalone) {
       const value = Number(standalone[1]);
-      if (value >= minVal && value <= 100) return value;
-    }
-    if (isShort) {
-      return 5;
+      if (value >= 5 && value <= 100) return value;
     }
     const fallbackByLength = { short: 20, medium: 50, long: 100 };
     return fallbackByLength[strategy.requestedLengthKey] || 50;
@@ -650,7 +658,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
     );
     const secondsPerQuestion = isShort ? 5 : (language === 'hi' ? 8 : 7);
     const durationSeconds = isShort
-      ? Math.round(questions.length * secondsPerQuestion) + 6
+      ? Math.min(42, Math.max(20, Math.round(questions.length * secondsPerQuestion) + 4))
       : Math.round(questions.length * secondsPerQuestion) + 4;
     const subject = meta?.subject || this.deriveQuizSubject(strategy.topic);
     const subjectHindi = meta?.subjectHindi || this.deriveQuizSubjectHindi(strategy.topic, subject);

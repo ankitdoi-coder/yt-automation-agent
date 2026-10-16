@@ -106,14 +106,16 @@ class SEOOptimizerAgent {
           title,
           brand,
           topic: strategy.topic || script.title || 'General Knowledge',
+          subject: script.quiz?.subject || strategy.subject || '',
+          subjectHindi: script.quiz?.subjectHindi || strategy.subjectHindi || '',
           chapters
         });
 
-        // Ensure tags include user's top viral search queries
+        // Ensure tags include high-intent educational and exam search queries
         const viralExamTags = [
           'gk', 'general knowledge', 'important gk questions and answer', 'quiz test',
-          'br gk study', 'gk in hindi', 'general knowledge quiz', 'lucent gk', 'samanya gyan',
-          'geography gk', 'lucent gk in hindi', 'gk questions and answers', 'lucent 1000 question'
+          'ssc gd 2026', 'railway ntpc gk', 'gk in hindi', 'general knowledge quiz', 'lucent gk', 'samanya gyan',
+          'geography gk', 'lucent gk in hindi', 'gk questions and answers', 'lucent 1000 question', 'static gk'
         ];
         for (const vt of viralExamTags) {
           if (!tags.some(t => t.toLowerCase() === vt.toLowerCase())) {

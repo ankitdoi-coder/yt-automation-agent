@@ -2559,7 +2559,6 @@ class AIVideoGenerator {
     const questions = quiz.questions || [];
     const channel = script.metadata?.strategy?.channelName || script.metadata?.strategy?.channel || '';
     const language = quiz.language === 'en' ? 'en' : 'hi';
-    const actualCount = questions.length;
     const subject = quiz.subject || 'General Knowledge';
     let subjectHindi = quiz.subjectHindi || quiz.subject || '';
     if (!subjectHindi || subjectHindi.toLowerCase() === 'general knowledge' || subjectHindi === 'gk') {
@@ -2594,6 +2593,8 @@ class AIVideoGenerator {
       String(script.metadata?.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
       String(script.metadata?.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
     );
+    const activeQuestions = isShort ? questions.slice(0, 5) : questions;
+    const actualCount = activeQuestions.length;
     const isExplicitVisuals = Boolean(
       script.quizVisuals ||
       String(script.metadata?.strategy?.contentType || '').toLowerCase() === 'quiz_visuals' ||
@@ -2643,7 +2644,7 @@ class AIVideoGenerator {
       });
     }
 
-    questions.forEach((question, index) => {
+    activeQuestions.forEach((question, index) => {
       let imageUri = null;
       if (!isNoImageShort && question.visualImage && typeof question.visualImage === 'string') {
         const isInfoOrSim = question.visualImage.endsWith('.info') || question.visualImage.includes('_sim_');
@@ -2688,7 +2689,7 @@ class AIVideoGenerator {
           noImages: useCleanTemplate,
           image: imageUri,
           narrationText: qText,
-          pauseAfter: 0.6,
+          pauseAfter: 0.3,
           estimatedSpeechDuration: Math.max(1.8, estimateSpeechDuration(qText, language)),
           narrationWords: Math.max(3, wordCount(qText))
         });
@@ -2709,7 +2710,7 @@ class AIVideoGenerator {
           noImages: useCleanTemplate,
           image: imageUri,
           narrationText: aText,
-          pauseAfter: 0.6,
+          pauseAfter: 0.3,
           estimatedSpeechDuration: Math.max(1.2, estimateSpeechDuration(aText, language)),
           narrationWords: Math.max(2, wordCount(aText))
         });
@@ -2891,8 +2892,25 @@ class AIVideoGenerator {
         audioPath
       ]);
 
-      const exactDurations = durations.map(d => Number(d.toFixed(3)));
-      const totalDur = exactDurations.reduce((sum, d) => sum + d, 0);
+      let exactDurations = durations.map(d => Number(d.toFixed(3)));
+      let totalDur = exactDurations.reduce((sum, d) => sum + d, 0);
+
+      // Algorithmic hard cap: YouTube Shorts MUST NOT exceed 42s for peak audience retention
+      const isShortQuiz = slides.some(s => s.kind && s.kind.startsWith('shortQuiz'));
+      if (isShortQuiz && totalDur > 42.0) {
+        const speedFactor = Math.min(1.5, Number((totalDur / 40.0).toFixed(3)));
+        this.logger.info(`Shorts audio duration (${totalDur.toFixed(2)}s) exceeds 42s; scaling tempo by ${speedFactor}x for retention`);
+        const spedUpPath = path.join(tempDir, 'master_sped.mp3');
+        await runFFmpeg([
+          '-y', '-i', audioPath,
+          '-filter:a', `atempo=${speedFactor}`,
+          '-c:a', 'libmp3lame', '-b:a', '192k',
+          spedUpPath
+        ]);
+        await fs.copyFile(spedUpPath, audioPath);
+        exactDurations = exactDurations.map(d => Number((d / speedFactor).toFixed(3)));
+        totalDur = exactDurations.reduce((sum, d) => sum + d, 0);
+      }
 
       // Save durations sidecar file
       const durationsPath = audioPath.replace(/\.mp3$/i, '_durations.json');

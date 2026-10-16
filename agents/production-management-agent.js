@@ -324,27 +324,55 @@ class ProductionManagementAgent {
         { hour: 7, minute: 30 },   // 1:00 PM IST
         { hour: 15, minute: 0 }    // 8:30 PM IST
       ];
-      // Pick next available slot that is at least 45 minutes in the future
+      // Collect already scheduled Short publish times to prevent slot collisions
+      const scheduledShortTimes = new Set(
+        (this.pipeline || [])
+          .filter(p => p.scheduledPublishTime && (p.strategy?.isShort || String(p.strategy?.contentType || '').includes('short')))
+          .map(p => new Date(p.scheduledPublishTime).getTime())
+      );
+
+      // Pick next available slot that is at least 45 minutes in the future and not already taken
       let found = null;
-      for (let dayOffset = 0; dayOffset <= 2 && !found; dayOffset++) {
+      for (let dayOffset = 0; dayOffset <= 7 && !found; dayOffset++) {
         for (const slot of shortSlotsUTC) {
           const candidate = new Date(now);
           candidate.setUTCDate(now.getUTCDate() + dayOffset);
           candidate.setUTCHours(slot.hour, slot.minute, 0, 0);
-          if (candidate.getTime() - now.getTime() > 45 * 60 * 1000) {
-            found = candidate;
-            break;
+          const timeMs = candidate.getTime();
+          if (timeMs - now.getTime() > 45 * 60 * 1000) {
+            const isColliding = Array.from(scheduledShortTimes).some(st => Math.abs(st - timeMs) < 90 * 60 * 1000);
+            if (!isColliding) {
+              found = candidate;
+              break;
+            }
           }
         }
       }
       return (found || new Date(now.getTime() + 2 * 60 * 60 * 1000)).toISOString();
     }
 
-    // Long-form video: 7:00 PM IST = 13:30 UTC
+    // Long-form video: strictly 1 video per day at 7:00 PM IST = 13:30 UTC to prevent feed flooding
+    const scheduledLongDates = new Set(
+      (this.pipeline || [])
+        .filter(p => p.scheduledPublishTime && !p.strategy?.isShort && !String(p.strategy?.contentType || '').includes('short'))
+        .map(p => {
+          const d = new Date(p.scheduledPublishTime);
+          return `${d.getUTCFullYear()}-${d.getUTCMonth()}-${d.getUTCDate()}`;
+        })
+    );
+
     const candidateLong = new Date(now);
     candidateLong.setUTCHours(13, 30, 0, 0);
     if (candidateLong.getTime() - now.getTime() < 45 * 60 * 1000) {
-      // If 7:00 PM IST today has already passed, schedule for 7:00 PM IST tomorrow
+      // If 7:00 PM IST today has already passed, schedule for tomorrow
+      candidateLong.setUTCDate(candidateLong.getUTCDate() + 1);
+    }
+    // Prevent flooding: If candidate date is already occupied by a long-form video, push to next day
+    for (let dayOffset = 0; dayOffset <= 14; dayOffset++) {
+      const dateKey = `${candidateLong.getUTCFullYear()}-${candidateLong.getUTCMonth()}-${candidateLong.getUTCDate()}`;
+      if (!scheduledLongDates.has(dateKey)) {
+        break;
+      }
       candidateLong.setUTCDate(candidateLong.getUTCDate() + 1);
     }
     return candidateLong.toISOString();
