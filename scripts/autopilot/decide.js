@@ -248,7 +248,7 @@ async function decideImprovements(analysisInput = null, options = {}) {
     proposalRecord.applied = true;
     logger.info(`Successfully updated ${GROWTH_CONFIG_FILE}`);
   } else if (approvedProposals.length === 0) {
-    logger.info('No configuration mutations required. Current config remains optimal or tests remain inconclusive.');
+    logger.info('No configuration mutations required. No proven winner yet or tests remain inconclusive.');
   } else {
     logger.info(`Dry-run mode: ${approvedProposals.length} proposal(s) available for inspection (not applied). Use --apply to execute.`);
   }

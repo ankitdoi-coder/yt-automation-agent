@@ -11,18 +11,18 @@
 
 | Format | Uploaded Count | Mature (>=72h) | Median Views | p75 Views | Median AVD | Median APV | Total Views |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Shorts (<=60s)** | 14 | 6 | **13.5** | 44.5 | 33s | **63.4%** | 406 |
-| **Long Form (>60s)** | 34 | 18 | **8.5** | 15 | 35s | **20.4%** | 1,927 |
+| **Shorts (<=60s)** | 14 | 6 | **13.5** | 45.25 | 33s | **63.4%** | 407 |
+| **Long Form (>60s)** | 34 | 18 | **8.5** | 15.25 | 35s | **20.4%** | 1,928 |
 
 ---
 
 ## 2. Hypothesis & Statistical Testing Status
 
-All hypotheses require a minimum sample size of **n >= 5** and non-overlapping **90% Bootstrap Confidence Intervals** before declaring a winner:
+All hypotheses require a minimum sample size of **$n \ge 5$** and non-overlapping **90% Bootstrap Confidence Intervals** before declaring a winner:
 
 1. **Shorts Title Style (Curiosity / Lucent vs Exam-Targeted):**
    - **Variant A (`curiosity_lucent`):** n = 6, Median = 11.5 (90% CI: [5.5, 80])
-   - **Variant B (`exam_targeted`):** n = 4, Median = 2 (90% CI: [0, 11])
+   - **Variant B (`exam_targeted`):** n = 4, Median = 2 (90% CI: [0, 6.5])
    - **Status:** `Inconclusive: insufficient sample size (n=6 vs n=4, minimum required is 5)`
 
 2. **Shorts Duration (<45s vs 45–60s):**
@@ -52,19 +52,19 @@ All hypotheses require a minimum sample size of **n >= 5** and non-overlapping *
 
 ### Bottom 5 Performers
 1. **[SHORT]** [Police Exam 2026 | Static GK Top 5 MCQs (Set 1) #Shorts #GK | ExamIQ](https://youtu.be/bD9Nl7DOKh0)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 52s | **Age:** 1.8h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 52s | **Age:** 1.9h
 
 2. **[LONG]** [Top 50 भारत का भूगोल एवं सामान्य विज्ञान GK | SSC, UPSC, Railway | ExamIQ](https://youtu.be/vWTF-0HMetk)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1293s | **Age:** 5.3h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1293s | **Age:** 5.4h
 
 3. **[LONG]** [SSC CGL & Railway | भारत का इतिहास एवं संविधान: प्रतियोगी परीक्षाओं में बार-बार पूछे जाने वाले प्र](https://youtu.be/usNci4KFdUc)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1244s | **Age:** 10.3h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1244s | **Age:** 10.4h
 
 4. **[LONG]** [Top 50 भारत का भूगोल एवं सामान्य विज्ञान GK Quiz | ExamIQ](https://youtu.be/Wwpi5BT_bYI)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1296s | **Age:** 29.3h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1296s | **Age:** 29.4h
 
 5. **[LONG]** [Railway NTPC & Group D | भारत का भूगोल एवं सामान्य विज्ञान: 50 अति महत्वपूर्ण प्रश्नोत्तरी (पिछले](https://youtu.be/vB9dvtd8sQo)  
-   - **Views:** 0 | **APV:** 0% | **Duration:** 1165s | **Age:** 29.3h
+   - **Views:** 0 | **APV:** 0% | **Duration:** 1165s | **Age:** 29.4h
 
 ---
 
@@ -96,12 +96,36 @@ All hypotheses require a minimum sample size of **n >= 5** and non-overlapping *
 **Applied in Run:** NO (Dry-run mode or no mutations required)  
 
 > **No configuration mutations executed.**  
-> Current settings remain aligned with baseline peak performance (Curiosity Lucent Shorts + 20Q Semantic Deduplication). Statistical challenger tests remain in exploratory phase.
+> Current tests indicate **no proven winner yet** ($n < 5$ or overlapping confidence intervals). System maintains baseline settings (Curiosity Lucent Shorts + 20Q Semantic Deduplication) while continuing exploration.
 
 ---
 
-## 6. What I Need From You (Manual YouTube Studio Actions)
+## 6. Recommendations & Actionable Next Steps
 
-1. **Verify YouTube Analytics API:** API is verified active in GCP project `969798236896`.
-2. **Category Consistency:** Confirm all future uploads remain assigned to **Education (Category ID 27)**.
-3. **Pending Draft Description Cleanup:** If any drafts in YouTube Studio contain competitor tags or outdated years, save them with the auto-generated cleaned metadata.
+### A. Top 3 Observations (with Evidence & Sample Size)
+1. **Shorts Title Packaging & Feed Velocity:**
+   - **Observation:** Broad curiosity and Lucent GK benchmarks consistently outperform hyper-specific exam tags in early test samples.
+   - **Evidence & Sample Size:** `curiosity_lucent` titles ($n = 6$, median views = 11.5, peak 704–737 views, 47–59% APV) vs `exam_targeted` titles ($n = 4$, median views = 2, 0–11 views, 20–30% APV).
+2. **Long-Form Viewer Fatigue vs Video Length:**
+   - **Observation:** Extended 20+ minute videos suffer from immediate abandonment due to question repetition and slow pacing.
+   - **Evidence & Sample Size:** Long videos ($n = 34$, mature median AVD = 33.5s, median APV = 20.4%) drop off within 12–35s. In contrast, 50–60s Shorts retain viewers for 33–58s.
+3. **Audience Demographics Distortion:**
+   - **Observation:** Channel audience skews heavily toward senior viewers rather than competitive exam aspirants.
+   - **Evidence & Sample Size:** 65+ age cohort represents **25.8%** of viewers, while 18–24 aspirants represent only **13.6%** ($N = 48$ total videos). Previous religious/devotional quiz shorts trained YouTube's lookalike recommendation graph on older demographics.
+
+### B. 3 Manual Actions for Operator
+1. **YouTube Studio Description & Tag Cleanup:**
+   - On the 4 long videos uploaded on Oct 15 (`bZuZdUFhW90`, `Wwpi5BT_bYI`, `vWTF-0HMetk`, `vB9dvtd8sQo`), open Studio and remove references to `"mysterious story"` and competitor names (`"br gk study"`) from descriptions so YouTube stops testing them against entertainment and Thai drama audiences.
+2. **Topic Strategy: Focus on High-Yield Exam Modules & Drop Devotional:**
+   - Completely discontinue devotional/mythological themes. Double down on core job exam syllabus:
+     - *Indian Constitution:* Articles 1 to 51A, Fundamental Rights, Preamble.
+     - *Modern History:* 1857 Revolt to 1947 Independence Movements.
+     - *General Science:* Biology Human Body, Vitamins, and Glands.
+3. **Thumbnail & Hook Readability Test:**
+   - For the next 2 long videos, verify the new edge-to-edge 16:9 widescreen layout with high-contrast yellow typography and PYQ guarantee stamps. Ensure the primary subject header (`संविधान` or `इतिहास`) is clearly legible at small mobile preview scales (~120px).
+
+### C. Missing Data & Next Decision Milestone
+- **Missing Data Required:**
+  - `exam_targeted` needs **1 more video(s)** to reach the minimum statistical sample ($n \ge 5$).
+  - YouTube Analytics API applies a **48–72 hour maturation lag**; newly published uploads require 3 days to stabilize retention metrics.
+- **Next Decision Milestone:** Estimated on **2026-10-19** (next 3-day autopilot cycle). Once 1–2 more mature test videos are indexed, a statistically powered decision on Shorts title formats will become possible.

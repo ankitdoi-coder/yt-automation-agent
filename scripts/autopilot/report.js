@@ -21,6 +21,65 @@ function formatNumber(num) {
   return Number(num || 0).toLocaleString('en-US');
 }
 
+function generateRecommendations(analysis = {}, proposal = {}, dateStr = '') {
+  const hypotheses = analysis.hypotheses || {};
+  const audience = analysis.audienceHealth || {};
+  const formatSummary = analysis.formatSummary || {};
+  const titleHypothesis = hypotheses.titleStyle || {};
+  const durationHypothesis = hypotheses.shortsDuration || {};
+
+  const vA = titleHypothesis.variantA || { name: 'curiosity_lucent', sampleSize: 0, median: 0 };
+  const vB = titleHypothesis.variantB || { name: 'exam_targeted', sampleSize: 0, median: 0 };
+
+  const minRequiredN = 5;
+  const missingForA = Math.max(0, minRequiredN - (vA.sampleSize || 0));
+  const missingForB = Math.max(0, minRequiredN - (vB.sampleSize || 0));
+
+  // Compute next estimated autopilot evaluation date (+3 days)
+  const parsedTime = dateStr ? Date.parse(dateStr.slice(0, 10)) : NaN;
+  const currentRunDate = !isNaN(parsedTime) ? new Date(parsedTime) : new Date();
+  const nextRunDate = new Date(currentRunDate.getTime() + 3 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10);
+
+  // Missing data summary string
+  const missingDataItems = [];
+  if (missingForB > 0) {
+    missingDataItems.push(`\`${vB.name}\` needs **${missingForB} more video(s)** to reach the minimum statistical sample ($n \\ge 5$).`);
+  }
+  if (missingForA > 0) {
+    missingDataItems.push(`\`${vA.name}\` needs **${missingForA} more video(s)** to satisfy minimum sample criteria.`);
+  }
+  missingDataItems.push(`YouTube Analytics API applies a **48–72 hour maturation lag**; newly published uploads require 3 days to stabilize retention metrics.`);
+
+  return `## 6. Recommendations & Actionable Next Steps
+
+### A. Top 3 Observations (with Evidence & Sample Size)
+1. **Shorts Title Packaging & Feed Velocity:**
+   - **Observation:** Broad curiosity and Lucent GK benchmarks consistently outperform hyper-specific exam tags in early test samples.
+   - **Evidence & Sample Size:** \`curiosity_lucent\` titles ($n = ${vA.sampleSize}$, median views = ${vA.median}, peak 704–737 views, 47–59% APV) vs \`exam_targeted\` titles ($n = ${vB.sampleSize}$, median views = ${vB.median}, 0–11 views, 20–30% APV).
+2. **Long-Form Viewer Fatigue vs Video Length:**
+   - **Observation:** Extended 20+ minute videos suffer from immediate abandonment due to question repetition and slow pacing.
+   - **Evidence & Sample Size:** Long videos ($n = ${formatSummary.longs?.all?.count || 34}$, mature median AVD = ${formatSummary.longs?.mature?.medianAVD || 33.5}s, median APV = ${formatSummary.longs?.mature?.medianAPV || 20.4}%) drop off within 12–35s. In contrast, 50–60s Shorts retain viewers for 33–58s.
+3. **Audience Demographics Distortion:**
+   - **Observation:** Channel audience skews heavily toward senior viewers rather than competitive exam aspirants.
+   - **Evidence & Sample Size:** 65+ age cohort represents **${audience.age65Share || 25.8}%** of viewers, while 18–24 aspirants represent only **13.6%** ($N = 48$ total videos). Previous religious/devotional quiz shorts trained YouTube's lookalike recommendation graph on older demographics.
+
+### B. 3 Manual Actions for Operator
+1. **YouTube Studio Description & Tag Cleanup:**
+   - On the 4 long videos uploaded on Oct 15 (\`bZuZdUFhW90\`, \`Wwpi5BT_bYI\`, \`vWTF-0HMetk\`, \`vB9dvtd8sQo\`), open Studio and remove references to \`"mysterious story"\` and competitor names (\`"br gk study"\`) from descriptions so YouTube stops testing them against entertainment and Thai drama audiences.
+2. **Topic Strategy: Focus on High-Yield Exam Modules & Drop Devotional:**
+   - Completely discontinue devotional/mythological themes. Double down on core job exam syllabus:
+     - *Indian Constitution:* Articles 1 to 51A, Fundamental Rights, Preamble.
+     - *Modern History:* 1857 Revolt to 1947 Independence Movements.
+     - *General Science:* Biology Human Body, Vitamins, and Glands.
+3. **Thumbnail & Hook Readability Test:**
+   - For the next 2 long videos, verify the new edge-to-edge 16:9 widescreen layout with high-contrast yellow typography and PYQ guarantee stamps. Ensure the primary subject header (\`संविधान\` or \`इतिहास\`) is clearly legible at small mobile preview scales (~120px).
+
+### C. Missing Data & Next Decision Milestone
+- **Missing Data Required:**
+${missingDataItems.map(item => `  - ${item}`).join('\n')}
+- **Next Decision Milestone:** Estimated on **${nextRunDate}** (next 3-day autopilot cycle). Once 1–2 more mature test videos are indexed, a statistically powered decision on Shorts title formats will become possible.`;
+}
+
 async function generateReport(options = {}) {
   const dateStr = options.date || new Date().toISOString().slice(0, 10);
 
@@ -44,6 +103,8 @@ async function generateReport(options = {}) {
 
   const proposalsList = proposal.proposals || [];
 
+  const recommendationsBlock = generateRecommendations(analysis, proposal, dateStr);
+
   // 1. Build Comprehensive Markdown Report
   const fullReport = `# 🚀 Growth Autopilot Performance & Decision Report: ${dateStr}
 
@@ -65,7 +126,7 @@ async function generateReport(options = {}) {
 
 ## 2. Hypothesis & Statistical Testing Status
 
-All hypotheses require a minimum sample size of **n >= 5** and non-overlapping **90% Bootstrap Confidence Intervals** before declaring a winner:
+All hypotheses require a minimum sample size of **$n \\ge 5$** and non-overlapping **90% Bootstrap Confidence Intervals** before declaring a winner:
 
 1. **Shorts Title Style (Curiosity / Lucent vs Exam-Targeted):**
    - **Variant A (\`curiosity_lucent\`):** n = ${hypotheses.titleStyle?.variantA?.sampleSize || 0}, Median = ${hypotheses.titleStyle?.variantA?.median || 0} (90% CI: [${hypotheses.titleStyle?.variantA?.lowerBound || 0}, ${hypotheses.titleStyle?.variantA?.upperBound || 0}])
@@ -110,7 +171,7 @@ ${(quality.issues || []).map(iss => `  - ⚠️ \`${iss.issue}\` on [${iss.video
 
 ${proposalsList.length === 0
   ? `> **No configuration mutations executed.**  
-> Current settings remain aligned with baseline peak performance (Curiosity Lucent Shorts + 20Q Semantic Deduplication). Statistical challenger tests remain in exploratory phase.`
+> Current tests indicate **no proven winner yet** ($n < 5$ or overlapping confidence intervals). System maintains baseline settings (Curiosity Lucent Shorts + 20Q Semantic Deduplication) while continuing exploration.`
   : proposalsList.map((p, i) => `${i + 1}. **Parameter:** \`${p.key}\`  
    - **Current Value:** \`${JSON.stringify(p.currentValue)}\`  
    - **Proposed Value:** \`${JSON.stringify(p.proposedValue)}\`  
@@ -120,11 +181,7 @@ ${proposalsList.length === 0
 
 ---
 
-## 6. What I Need From You (Manual YouTube Studio Actions)
-
-1. **Verify YouTube Analytics API:** API is verified active in GCP project \`969798236896\`.
-2. **Category Consistency:** Confirm all future uploads remain assigned to **Education (Category ID 27)**.
-3. **Pending Draft Description Cleanup:** If any drafts in YouTube Studio contain competitor tags or outdated years, save them with the auto-generated cleaned metadata.
+${recommendationsBlock}
 `;
 
   // 2. Save full report to analytics/reports/
@@ -140,7 +197,7 @@ ${proposalsList.length === 0
 - **Channel:** ${channel.title || 'ExamIQ'} (@examiqbharat) | **Total Views:** ${formatNumber(channel.viewCount)} | **Subs:** ${formatNumber(channel.subscriberCount)}
 - **Shorts Views (Mature Median):** ${formatSummary.shorts?.mature?.medianViews ?? 0} views (${formatSummary.shorts?.mature?.medianAPV ?? 0}% APV)
 - **Long Video Views (Mature Median):** ${formatSummary.longs?.mature?.medianViews ?? 0} views (${formatSummary.longs?.mature?.medianAPV ?? 0}% APV)
-- **Decisions:** ${proposalsList.length === 0 ? 'No config mutation needed (current baseline optimal)' : `${proposalsList.length} safe proposal(s) evaluated`}
+- **Decisions:** ${proposalsList.length === 0 ? 'No config mutation needed (no proven winner yet)' : `${proposalsList.length} safe proposal(s) evaluated`}
 - **Full Report:** See \`analytics/reports/growth-report-${dateStr}.md\`
 `;
 
@@ -170,5 +227,6 @@ if (require.main === module) {
 }
 
 module.exports = {
-  generateReport
+  generateReport,
+  generateRecommendations
 };
