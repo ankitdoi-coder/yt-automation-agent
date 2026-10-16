@@ -1,0 +1,190 @@
+{
+  "analyzedAt": "2026-10-16T16:03:22.845Z",
+  "channel": {
+    "title": "ExamIQ Test",
+    "channelId": "UC_TEST",
+    "subscriberCount": 10,
+    "viewCount": 5000,
+    "videoCount": 12
+  },
+  "formatSummary": {
+    "shorts": {
+      "all": {
+        "count": 2,
+        "medianViews": 381,
+        "p75Views": 565.5,
+        "medianAVD": 33.5,
+        "medianAPV": 44.25,
+        "totalViews": 762
+      },
+      "mature": {
+        "count": 1,
+        "medianViews": 750,
+        "p75Views": 750,
+        "medianAVD": 52,
+        "medianAPV": 58.5,
+        "totalViews": 750
+      }
+    },
+    "longs": {
+      "all": {
+        "count": 0,
+        "medianViews": 0,
+        "p75Views": 0,
+        "medianAVD": 0,
+        "medianAPV": 0,
+        "totalViews": 0
+      },
+      "mature": {
+        "count": 0,
+        "medianViews": 0,
+        "p75Views": 0,
+        "medianAVD": 0,
+        "medianAPV": 0,
+        "totalViews": 0
+      }
+    }
+  },
+  "hypotheses": {
+    "titleStyle": {
+      "variantA": {
+        "name": "curiosity_lucent",
+        "sampleSize": 1,
+        "median": 750,
+        "lowerBound": 750,
+        "upperBound": 750,
+        "confidence": 0.9
+      },
+      "variantB": {
+        "name": "exam_targeted",
+        "sampleSize": 1,
+        "median": 12,
+        "lowerBound": 12,
+        "upperBound": 12,
+        "confidence": 0.9
+      },
+      "isConclusive": false,
+      "winner": null,
+      "reason": "Inconclusive: insufficient sample size (n=1 vs n=1, minimum required is 5)"
+    },
+    "shortsDuration": {
+      "variantA": {
+        "name": "45-60s",
+        "sampleSize": 2,
+        "median": 381,
+        "lowerBound": 12,
+        "upperBound": 750,
+        "confidence": 0.9
+      },
+      "variantB": {
+        "name": "<45s",
+        "sampleSize": 0,
+        "median": 0,
+        "lowerBound": 0,
+        "upperBound": 0,
+        "confidence": 0.9
+      },
+      "isConclusive": false,
+      "winner": null,
+      "reason": "Inconclusive: insufficient sample size (n=2 vs n=0, minimum required is 5)"
+    }
+  },
+  "topicPerformance": [
+    {
+      "topic": "Static GK",
+      "count": 2,
+      "shortsCount": 2,
+      "longsCount": 0,
+      "medianViews": 381,
+      "totalViews": 762
+    }
+  ],
+  "regressionAlert": null,
+  "audienceHealth": {
+    "age65Share": 15,
+    "age18To34Share": 45,
+    "isTargetAspirantDominant": true,
+    "diagnosis": "Healthy: Core aspirant age groups (18-34) dominate the demographic distribution."
+  },
+  "qualityAudit": {
+    "inspectedCount": 2,
+    "issueCount": 0,
+    "issues": []
+  },
+  "top5Videos": [
+    {
+      "id": "test_vid_1",
+      "title": "Top 10 GK MCQ | Lucent GK #Shorts #GK | ExamIQ",
+      "description": "Test description",
+      "publishedAt": "2026-10-11T10:00:00Z",
+      "durationSec": 55,
+      "isShort": true,
+      "views": 750,
+      "avdSec": 52,
+      "apvPct": 58.5,
+      "likes": 25,
+      "comments": 4,
+      "isMature": true,
+      "titleStyle": "curiosity_lucent",
+      "durationBucket": "45-60s",
+      "topicCluster": "Static GK",
+      "pubHourIst": 15
+    },
+    {
+      "id": "test_vid_2",
+      "title": "Police Exam 2026 | Static GK Top 5 MCQs (Set 1) #Shorts #GK",
+      "description": "Test description",
+      "publishedAt": "2026-10-15T10:00:00Z",
+      "durationSec": 50,
+      "isShort": true,
+      "views": 12,
+      "avdSec": 15,
+      "apvPct": 30,
+      "likes": 1,
+      "comments": 0,
+      "isMature": false,
+      "titleStyle": "exam_targeted",
+      "durationBucket": "45-60s",
+      "topicCluster": "Static GK",
+      "pubHourIst": 15
+    }
+  ],
+  "bottom5Videos": [
+    {
+      "id": "test_vid_2",
+      "title": "Police Exam 2026 | Static GK Top 5 MCQs (Set 1) #Shorts #GK",
+      "description": "Test description",
+      "publishedAt": "2026-10-15T10:00:00Z",
+      "durationSec": 50,
+      "isShort": true,
+      "views": 12,
+      "avdSec": 15,
+      "apvPct": 30,
+      "likes": 1,
+      "comments": 0,
+      "isMature": false,
+      "titleStyle": "exam_targeted",
+      "durationBucket": "45-60s",
+      "topicCluster": "Static GK",
+      "pubHourIst": 15
+    },
+    {
+      "id": "test_vid_1",
+      "title": "Top 10 GK MCQ | Lucent GK #Shorts #GK | ExamIQ",
+      "description": "Test description",
+      "publishedAt": "2026-10-11T10:00:00Z",
+      "durationSec": 55,
+      "isShort": true,
+      "views": 750,
+      "avdSec": 52,
+      "apvPct": 58.5,
+      "likes": 25,
+      "comments": 4,
+      "isMature": true,
+      "titleStyle": "curiosity_lucent",
+      "durationBucket": "45-60s",
+      "topicCluster": "Static GK",
+      "pubHourIst": 15
+    }
+  ]
+}

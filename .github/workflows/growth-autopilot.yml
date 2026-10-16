@@ -1,0 +1,151 @@
+name: Growth Autopilot
+
+concurrency:
+  group: growth-autopilot
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # Runs every 3 days at 04:30 UTC = 10:00 AM IST
+    - cron: '30 4 */3 * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry Run (evaluate data without changing config)'
+        required: true
+        default: true
+        type: boolean
+      apply_changes:
+        description: 'Apply approved config proposals'
+        required: true
+        default: false
+        type: boolean
+      lookback_days:
+        description: 'Number of lookback days for analytics'
+        required: true
+        default: 28
+        type: number
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  growth-autopilot:
+    name: Run Growth Autopilot & Analytics Evaluation
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 50
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Restore OAuth Credentials & Secrets
+        env:
+          ENV_SECRET: ${{ secrets.ENV_FILE }}
+          CREDS_SECRET: ${{ secrets.GOOGLE_CREDENTIALS_JSON }}
+          TOKENS_SECRET: ${{ secrets.YOUTUBE_TOKENS_JSON }}
+        run: |
+          mkdir -p config analytics/raw analytics/analysis analytics/proposals analytics/reports
+
+          if [ -z "$ENV_SECRET" ] || [ -z "$CREDS_SECRET" ] || [ -z "$TOKENS_SECRET" ]; then
+            echo "::error::Required secrets (ENV_FILE, GOOGLE_CREDENTIALS_JSON, YOUTUBE_TOKENS_JSON) are missing."
+            exit 1
+          fi
+
+          printf '%s\n' "$ENV_SECRET" > .env
+          printf '%s\n' "$CREDS_SECRET" > config/credentials.json
+          printf '%s\n' "$TOKENS_SECRET" > config/tokens.json
+
+          echo "✅ Secrets successfully restored."
+
+      - name: Test YouTube API Authentication & Handle Token Expiry
+        id: auth_check
+        run: |
+          node -e "
+            const { CredentialManager } = require('./utils/credential-manager');
+            const cm = new CredentialManager();
+            cm.initialize().then(() => {
+              const auth = cm.getYouTubeAuth();
+              if (!auth) throw new Error('YouTube auth client could not be created');
+              console.log('✅ YouTube OAuth authentication credentials verified.');
+            }).catch(err => {
+              console.error('::error::YouTube Authentication Error: ' + err.message);
+              process.exit(1);
+            });
+          " || {
+            echo "AUTH_FAILED=true" >> $GITHUB_ENV
+            exit 1
+          }
+
+      - name: Create GitHub Issue on Authentication Failure
+        if: failure() && env.AUTH_FAILED == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh issue create \
+            --title "🚨 Action Required: YouTube OAuth Token Expired or Invalid" \
+            --body "The Growth Autopilot failed during authentication. The YouTube refresh token in secrets.YOUTUBE_TOKENS_JSON may have expired or been revoked. Please run 'npm run credentials:setup' locally and update the GitHub Action secret." \
+            --label "bug" || true
+
+      - name: Run Growth Autopilot Pipeline
+        env:
+          DRY_RUN: ${{ github.event.inputs.dry_run || 'true' }}
+          APPLY_CHANGES: ${{ github.event.inputs.apply_changes || 'false' }}
+          LOOKBACK_DAYS: ${{ github.event.inputs.lookback_days || 28 }}
+          CI: true
+        run: |
+          node scripts/autopilot/run.js
+
+      - name: Check for Changes & Create PR or Direct Commit
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          APPLY_CHANGES: ${{ github.event.inputs.apply_changes || 'false' }}
+        run: |
+          DATE=$(date +'%Y-%m-%d')
+          BRANCH_NAME="growth/autopilot-$DATE"
+
+          git config user.name "Growth Autopilot Bot"
+          git config user.email "autopilot@examiq.internal"
+
+          # Check if config/growth.json was modified
+          if git diff --name-only | grep -q "config/growth.json"; then
+            echo "Config changes detected. Creating PR branch: $BRANCH_NAME"
+            git checkout -b "$BRANCH_NAME"
+            git add config/growth.json analytics/
+            git commit -m "chore(growth): autopilot tuning proposals for $DATE"
+            git push origin "$BRANCH_NAME" --force
+
+            REPORT_FILE="analytics/reports/growth-report-$DATE.md"
+            BODY="Growth Autopilot has evaluated recent channel analytics and proposed safe, guardrail-enforced changes to config/growth.json."
+            if [ -f "$REPORT_FILE" ]; then
+              BODY=$(cat "$REPORT_FILE")
+            fi
+
+            gh pr create \
+              --title "🚀 Growth Autopilot: Proposed Pipeline Tuning ($DATE)" \
+              --body "$BODY" \
+              --base master \
+              --head "$BRANCH_NAME" || true
+          else
+            echo "No config changes made. Committing updated analytics and reports to master."
+            git add analytics/
+            if git status --porcelain | grep -q "analytics"; then
+              git commit -m "chore(analytics): automated snapshot and reports for $DATE"
+              git push origin master
+            else
+              echo "No new analytics data to commit."
+            fi
+          fi
