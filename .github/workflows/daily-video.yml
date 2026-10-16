@@ -7,7 +7,7 @@ concurrency:
 on:
   schedule:
     # Runs daily at 00:20 UTC = 05:50 AM IST (Indian Standard Time)
-    # Single schedule guarantees all 4 daily slots are generated and uploaded exactly ONCE per day
+    # Single schedule guarantees all 3 daily slots are generated and uploaded exactly ONCE per day
     # Minute 20 avoids peak GitHub Actions queue bottlenecks at :00 and :30
     - cron: '20 0 * * *'
   workflow_dispatch:
@@ -15,14 +15,13 @@ on:
       target_slot:
         description: 'Which slot to generate'
         required: true
-        default: 'all (2 Long + 2 Shorts)'
+        default: 'all (1 Long + 2 Shorts)'
         type: choice
         options:
-          - all (2 Long + 2 Shorts)
-          - slot1 (11:30 AM IST Long Quiz)
-          - slot2 (01:30 PM IST Shorts)
-          - slot3 (04:30 PM IST Long Quiz)
-          - slot4 (08:00 PM IST Shorts)
+          - all (1 Long + 2 Shorts)
+          - slot1 (08:00 AM IST Shorts)
+          - slot2 (01:00 PM IST Shorts)
+          - slot3 (07:00 PM IST Long Quiz)
       privacy_status:
         description: 'Target privacy status (public = auto-publishes to everyone)'
         required: true
@@ -32,6 +31,11 @@ on:
           - public
           - private
           - unlisted
+      force_run:
+        description: 'Force run (generate even if already uploaded in last 18h)'
+        required: true
+        default: false
+        type: boolean
       topic:
         description: 'Optional custom topic (leave blank for fresh AI trend research)'
         required: false
@@ -98,6 +102,7 @@ jobs:
           TARGET_SLOT: ${{ github.event.inputs.target_slot || 'all' }}
           VIDEO_TOPIC: ${{ github.event.inputs.topic }}
           DEFAULT_PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || 'public' }}
+          FORCE_RUN: ${{ github.event.inputs.force_run || 'false' }}
           CI: true
         run: npm run daily:job
 
