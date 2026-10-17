@@ -23,6 +23,7 @@
     "credentials:setup": "node utils/credential-manager.js setup",
     "fb:reels": "node facebook/fb-runner.js",
     "fb:scheduler": "node facebook/fb-scheduler.js",
+    "fb:analytics": "node facebook/analytics-agent.js",
     "lint": "eslint ."
   },
   "dependencies": {

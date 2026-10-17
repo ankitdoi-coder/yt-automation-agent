@@ -58,6 +58,14 @@ class FacebookVideoMaker {
     this.tempDir = path.resolve(__dirname, 'temp');
     if (!fs.existsSync(this.outputDir)) fs.mkdirSync(this.outputDir, { recursive: true });
     if (!fs.existsSync(this.tempDir)) fs.mkdirSync(this.tempDir, { recursive: true });
+  getLearnedPrefs() {
+    try {
+      const prefsPath = path.resolve(__dirname, 'data/learned_preferences.json');
+      if (fs.existsSync(prefsPath)) {
+        return JSON.parse(fs.readFileSync(prefsPath, 'utf8'));
+      }
+    } catch (_) {}
+    return null;
   }
 
   // Generate crisp Hindi voice audio
@@ -139,7 +147,16 @@ class FacebookVideoMaker {
    * Generates a complete 9:16 vertical Reel MP4 for a riddle
    */
   async createReel(riddleItem, themeIndex = 0) {
-    const theme = COLOR_THEMES[themeIndex % COLOR_THEMES.length];
+    const prefs = this.getLearnedPrefs();
+    let theme = COLOR_THEMES[themeIndex % COLOR_THEMES.length];
+    if (prefs?.preferredThemes?.length) {
+      const preferredName = prefs.preferredThemes[themeIndex % prefs.preferredThemes.length];
+      const matched = COLOR_THEMES.find(t => t.name === preferredName);
+      if (matched) theme = matched;
+    }
+    const timerSecs = prefs?.recommendedTimerSeconds || 5;
+    const timerText = `⏳ सोचो! ${timerSecs}.. 3.. 2.. 1`;
+
     const timestamp = Date.now();
     const prefix = path.join(this.tempDir, `fb_${riddleItem.id}_${timestamp}`);
 
@@ -164,9 +181,9 @@ class FacebookVideoMaker {
       await this._getAudio(riddleItem.voiceTimer, timerAudio);
       await this._getAudio(riddleItem.voiceAnswer, ansAudio);
 
-      console.log(`[VideoMaker] Rendering visual frames (Theme: ${theme.name})...`);
+      console.log(`[VideoMaker] Rendering visual frames (Theme: ${theme.name}, Timer: ${timerSecs}s)...`);
       const svg1 = this._buildSVG(theme, { questionLines: riddleItem.questionLines });
-      const svg2 = this._buildSVG(theme, { questionLines: riddleItem.questionLines, timerText: '⏳ सोचो! 5.. 4.. 3.. 2.. 1' });
+      const svg2 = this._buildSVG(theme, { questionLines: riddleItem.questionLines, timerText });
       const svg3 = this._buildSVG(theme, { questionLines: riddleItem.questionLines, isAnswer: true, answerText: riddleItem.answerText, subtitle: riddleItem.subtitle });
 
       await sharp(Buffer.from(svg1)).png().toFile(f1Png);

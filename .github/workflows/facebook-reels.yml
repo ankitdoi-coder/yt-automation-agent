@@ -93,14 +93,21 @@ jobs:
           echo "🚀 Starting Facebook Reels Agent for $COUNT reel(s)..."
           node facebook/fb-runner.js --count "$COUNT"
 
-      - name: Commit Updated Upload History
+      - name: Run Facebook Analytics & Self-Optimization
+        env:
+          CI: true
+        run: |
+          echo "📊 Running Facebook Performance Analysis & Adaptive Optimizer..."
+          node facebook/analytics-agent.js || true
+
+      - name: Commit Updated Upload History & Learned Preferences
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add facebook/data/history.json || true
+          git add facebook/data/history.json facebook/data/learned_preferences.json facebook/data/reports/ || true
           if git diff --staged --quiet; then
             echo "No history changes to commit"
           else
-            git commit -m "chore(facebook): update reels upload history [skip ci]"
+            git commit -m "chore(facebook): update reels upload history and learned analytics [skip ci]"
             git push origin HEAD || true
           fi
