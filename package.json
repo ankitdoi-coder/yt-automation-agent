@@ -21,6 +21,8 @@
     "agent:publishing": "node agents/publishing-scheduling-agent.js",
     "agent:analytics": "node agents/analytics-optimization-agent.js",
     "credentials:setup": "node utils/credential-manager.js setup",
+    "fb:reels": "node facebook/fb-runner.js",
+    "fb:scheduler": "node facebook/fb-scheduler.js",
     "lint": "eslint ."
   },
   "dependencies": {

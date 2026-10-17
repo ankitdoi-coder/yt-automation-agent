@@ -90,3 +90,7 @@ data/thumbnails/
 
 # Claude worktrees
 .claude/worktrees/
+
+# Facebook Reels temp and output
+facebook/output/
+facebook/temp/

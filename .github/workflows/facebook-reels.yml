@@ -1,0 +1,106 @@
+name: Facebook Reels Automation
+
+concurrency:
+  group: facebook-reels-automation
+  cancel-in-progress: false
+
+on:
+  schedule:
+    # 5 Daily Slots at peak Indian engagement times:
+    # Slot 1: 03:30 UTC = 09:00 AM IST (Morning scroll)
+    - cron: '30 3 * * *'
+    # Slot 2: 07:30 UTC = 01:00 PM IST (Lunch break)
+    - cron: '30 7 * * *'
+    # Slot 3: 11:30 UTC = 05:00 PM IST (Evening tea time)
+    - cron: '30 11 * * *'
+    # Slot 4: 15:00 UTC = 08:30 PM IST (Prime family time)
+    - cron: '0 15 * * *'
+    # Slot 5: 17:00 UTC = 10:30 PM IST (Bedtime scroll)
+    - cron: '0 17 * * *'
+
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Number of Reels to generate and upload'
+        required: true
+        default: '1'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '5'
+
+jobs:
+  publish-reels:
+    name: Generate & Publish Facebook Reel
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install FFmpeg & Indian Devanagari Fonts
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-deva fonts-noto-core fonts-indic fonts-freefont-ttf
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Setup Environment
+        env:
+          ENV_SECRET: ${{ secrets.ENV_FILE }}
+          FB_TOKEN_SECRET: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_PAGE_SECRET: ${{ secrets.FB_PAGE_ID }}
+        run: |
+          mkdir -p facebook/data facebook/output facebook/temp
+
+          # If ENV_FILE secret exists, write it
+          if [ -n "$ENV_SECRET" ]; then
+            printf '%s\n' "$ENV_SECRET" > .env
+          fi
+
+          # Allow explicit secret overrides if configured
+          if [ -n "$FB_TOKEN_SECRET" ]; then
+            echo "FB_PAGE_ACCESS_TOKEN=$FB_TOKEN_SECRET" >> .env
+          fi
+          if [ -n "$FB_PAGE_SECRET" ]; then
+            echo "FB_PAGE_ID=$FB_PAGE_SECRET" >> .env
+          fi
+
+          # Ensure page ID fallback
+          if ! grep -q "FB_PAGE_ID=" .env 2>/dev/null; then
+            echo "FB_PAGE_ID=1289712677569663" >> .env
+          fi
+
+          echo "✅ Environment configured for Facebook Reels upload"
+
+      - name: Generate & Upload Facebook Reel(s)
+        env:
+          CI: true
+        run: |
+          COUNT="${{ github.event.inputs.count || '1' }}"
+          echo "🚀 Starting Facebook Reels Agent for $COUNT reel(s)..."
+          node facebook/fb-runner.js --count "$COUNT"
+
+      - name: Commit Updated Upload History
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add facebook/data/history.json || true
+          if git diff --staged --quiet; then
+            echo "No history changes to commit"
+          else
+            git commit -m "chore(facebook): update reels upload history [skip ci]"
+            git push origin HEAD || true
+          fi
