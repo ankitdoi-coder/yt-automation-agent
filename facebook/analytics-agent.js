@@ -21,6 +21,7 @@ require('dotenv').config();
 const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
+const { calculateMedian } = require('../utils/viral-outlier-analyzer');
 
 class FacebookAnalyticsAgent {
   constructor() {
@@ -173,6 +174,7 @@ class FacebookAnalyticsAgent {
     let topHookStyle = 'Tricky Double-Meaning with Clean Twist';
     let recommendedTimerSeconds = 5;
     let preferredThemes = ['Electric Violet', 'Cyber Teal', 'Midnight Navy', 'Ruby Crimson', 'Royal Purple'];
+    const viralOutliers = [];
 
     if (performanceList.length > 0) {
       // Analyze avg watch time across videos
@@ -191,6 +193,22 @@ class FacebookAnalyticsAgent {
       if (totalComments > 10) {
         topHookStyle = 'High-Curiosity Riddle (Comment Magnet)';
       }
+
+      // Calculate Page Median & Outliers
+      const playsList = performanceList.map(p => p.plays || 0);
+      const medianPlays = calculateMedian(playsList);
+      if (medianPlays > 0) {
+        for (const p of performanceList) {
+          const multiple = p.plays / medianPlays;
+          if (multiple >= 1.8) {
+            viralOutliers.push({
+              title: p.title,
+              plays: p.plays,
+              multiple: Math.round(multiple * 100) / 100
+            });
+          }
+        }
+      }
     }
 
     return {
@@ -200,6 +218,8 @@ class FacebookAnalyticsAgent {
       preferredThemes,
       highRetentionPacing: true,
       autoCallToAction: '👉 कमेंट में बताओ आपका दिमाग पहले कहां गया था! 👇😂',
+      viralOutliersCount: viralOutliers.length,
+      viralOutliers: viralOutliers.slice(0, 5)
     };
   }
 

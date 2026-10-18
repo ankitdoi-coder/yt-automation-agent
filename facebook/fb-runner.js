@@ -43,6 +43,9 @@ async function runFacebookReelsAutomation() {
     const item = riddles[i];
     console.log(`----------------------------------------------------`);
     console.log(`🎬 Processing Reel [${i + 1}/${riddles.length}]: "${item.title}"`);
+    if (item.virality) {
+      console.log(`🎯 Virality Hook Score: ${item.virality.score}/100 (${item.virality.band}) [Weakest: ${item.virality.weakest}]`);
+    }
     console.log(`Question: ${item.questionLines.join(' ')}`);
     console.log(`Answer: ${item.answerText}`);
     console.log(`----------------------------------------------------`);

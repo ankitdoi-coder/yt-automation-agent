@@ -11,6 +11,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const { scoreHook } = require('../utils/hook-scorer');
 
 // 🌶️ Category 1: Double-Meaning Style (Spicy Hook + 100% Clean & Funny Innocent Answer)
 const DOUBLE_MEANING_RIDDLES = [
@@ -360,32 +361,48 @@ class ContentVault {
     const shufDouble = [...poolDouble].sort(() => 0.5 - Math.random());
     const shufNormal = [...poolNormal].sort(() => 0.5 - Math.random());
 
+    // Attach Virality Hook Score to each riddle candidate
+    const enrichWithVirality = (item) => {
+      if (!item) return item;
+      const textToScore = `${item.title} ${item.questionLines.join(' ')}`;
+      const virality = scoreHook(textToScore);
+      return {
+        ...item,
+        virality: {
+          score: virality.verdict,
+          band: virality.band,
+          formula: virality.formula,
+          weakest: virality.weakest,
+          fix: virality.fix
+        }
+      };
+    };
+
+    let selected = [];
     if (count === 5) {
       // Golden 3:2 Ratio (3 Normal, 2 Double Meaning)
-      const selected = [
+      selected = [
         shufNormal[0], // Slot 1: Normal (Morning)
         shufDouble[0], // Slot 2: Double Meaning 🔥 (Lunch)
         shufNormal[1], // Slot 3: Normal (Tea Time)
         shufDouble[1], // Slot 4: Double Meaning 🔥 (Evening Peak)
         shufNormal[2], // Slot 5: Normal (Night)
       ];
-      return selected;
-    }
-
-    if (count === 1) {
+    } else if (count === 1) {
       // 40% chance of double meaning, 60% normal
-      return Math.random() < 0.4 ? [shufDouble[0]] : [shufNormal[0]];
+      selected = Math.random() < 0.4 ? [shufDouble[0]] : [shufNormal[0]];
+    } else {
+      // Generic count: calculate ~40% double, 60% normal
+      const doubleCount = Math.round(count * 0.4);
+      const normalCount = count - doubleCount;
+      const mixed = [
+        ...shufNormal.slice(0, normalCount),
+        ...shufDouble.slice(0, doubleCount),
+      ].sort(() => 0.5 - Math.random());
+      selected = mixed.slice(0, count);
     }
 
-    // Generic count: calculate ~40% double, 60% normal
-    const doubleCount = Math.round(count * 0.4);
-    const normalCount = count - doubleCount;
-    const mixed = [
-      ...shufNormal.slice(0, normalCount),
-      ...shufDouble.slice(0, doubleCount),
-    ].sort(() => 0.5 - Math.random());
-
-    return mixed.slice(0, count);
+    return selected.filter(Boolean).map(enrichWithVirality);
   }
 }
 

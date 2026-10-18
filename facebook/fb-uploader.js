@@ -6,6 +6,7 @@ require('dotenv').config();
 const fs = require('fs');
 const axios = require('axios');
 const FormData = require('form-data');
+const { lintTitleAndThumbnail } = require('../utils/title-thumbnail-linter');
 
 class FacebookUploader {
   constructor(pageId = null, accessToken = null) {
@@ -30,6 +31,14 @@ class FacebookUploader {
       '',
       riddleItem.tags ? riddleItem.tags.join(' ') : '#reels #facebookreels #paheliyan #funny #jokes #desicomedy #viral'
     ].join('\n');
+
+    // Audit Packaging (Title & Hook)
+    const titleAudit = lintTitleAndThumbnail(title, riddleItem.title);
+    if (!titleAudit.isPassing) {
+      console.log(`[FacebookUploader] ⚠️ Packaging audit warning (${titleAudit.score}/100): ${titleAudit.issues.map(i => i[1]).join(' | ')}`);
+    } else {
+      console.log(`[FacebookUploader] ✅ Packaging audit passed (${titleAudit.score}/100)`);
+    }
 
     console.log(`[FacebookUploader] Uploading to Facebook Page (${this.pageId})...`);
 
@@ -59,6 +68,7 @@ class FacebookUploader {
       url: `https://www.facebook.com/reel/${videoId}`,
       pageUrl: `https://www.facebook.com/${this.pageId}`,
       title,
+      titleAudit,
     };
   }
 }

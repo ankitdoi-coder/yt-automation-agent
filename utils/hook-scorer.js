@@ -28,11 +28,11 @@ const VAGUE = new Set([
   'powerful', 'ultimate', 'best', 'revolutionary', 'mind', 'blowing', 'unbelievable'
 ]);
 
-const CONCRETE_REGEX = /\b(\d[\d,.]*\s?(%|k|m|x|s|m|h)?|\$\d|\d+\s?(second|minute|hour|day|week|month|year)s?)\b/gi;
-const YOU_REGEX = /\b(you|your|you're|youre|yourself)\b/gi;
-const STAKE_REGEX = /\b(lose|lost|wasting|waste|quit|fail|broke|cost|risk|before|stop|never|die|dying|dead)\b/gi;
-const CURIOSITY_REGEX = /\b(why|how|what|which|until|before|but|nobody|almost|except|reason|actually)\b/gi;
-const CLOSED_GAP_REGEX = /\b(because|so that|which means)\b/i;
+const CONCRETE_PATTERN = /\b(\d[\d,.]*\s?(%|k|m|x|s|m|h)?|\$\d|\d+\s?(second|minute|hour|day|week|month|year)s?)\b|[०-९]+|(?:^|\s|[.,!?])(एक|दो|तीन|चार|पाँच|दस|सौ|हज़ार|लाख)(?:\s|$|[.,!?])/gi;
+const YOU_PATTERN = /\b(you|your|you're|youre|yourself)\b|(?:^|\s|[.,!?])(आप|आपका|आपकी|आपको|तुम|तुम्हारा|तुम्हारी|तुम्हें)(?:\s|$|[.,!?])/gi;
+const STAKE_PATTERN = /\b(lose|lost|wasting|waste|quit|fail|broke|cost|risk|before|stop|never|die|dying|dead)\b|(?:^|\s|[.,!?])(हार|गलत|फेल|दम|नुकसान|खतरा|रोक|रुक|मौत|दर्द|खून)(?:\s|$|[.,!?])/gi;
+const CURIOSITY_PATTERN = /\b(why|how|what|which|until|before|but|nobody|almost|except|reason|actually)\b|(?:^|\s|[.,!?])(क्यों|कैसे|क्या|कौन|कहाँ|किस|किसका|कारण)(?:\s|$|[.,!?])/gi;
+const CLOSED_GAP_PATTERN = /\b(because|so that|which means)\b|(?:^|\s|[.,!?])(क्योंकि|ताकि|जिसका मतलब)(?:\s|$|[.,!?])/i;
 
 const FIX = {
   SPECIFICITY: "swap one adjective for a number, a name or a date",
@@ -44,15 +44,25 @@ const FIX = {
 
 function getWords(text) {
   if (!text) return [];
-  const matches = text.toLowerCase().match(/[a-z0-9'%$.]+/g);
+  const matches = text.toLowerCase().match(/[a-zA-Z0-9\u0900-\u097F'%$.]+/g);
   return matches || [];
+}
+
+function testPattern(text, pattern) {
+  const nonGlobal = new RegExp(pattern.source, pattern.flags.replace('g', ''));
+  return nonGlobal.test(text);
+}
+
+function countMatches(text, pattern) {
+  const global = new RegExp(pattern.source, pattern.flags.includes('g') ? pattern.flags : pattern.flags + 'g');
+  const matches = text.match(global);
+  return matches ? matches.length : 0;
 }
 
 function calculateSpecificity(text) {
   const words = getWords(text);
   if (!words.length) return 0;
-  const numMatches = text.match(CONCRETE_REGEX) || [];
-  const nums = numMatches.length;
+  const nums = countMatches(text, CONCRETE_PATTERN);
   const vague = words.filter(w => VAGUE.has(w)).length;
   const filler = words.filter(w => FILLER.has(w)).length;
 
@@ -66,25 +76,22 @@ function calculateSpecificity(text) {
 }
 
 function calculateAddress(text) {
-  const matches = text.match(YOU_REGEX) || [];
-  const n = matches.length;
+  const n = countMatches(text, YOU_PATTERN);
   const firstSixWords = text.split(/\s+/).slice(0, 6).join(' ');
-  const first = YOU_REGEX.test(firstSixWords) ? 30 : 0;
+  const first = testPattern(firstSixWords, YOU_PATTERN) ? 30 : 0;
   return Math.max(0, Math.min(100, Math.round(26 + n * 20 + first)));
 }
 
 function calculateStakes(text) {
-  const matches = text.match(STAKE_REGEX) || [];
-  const n = matches.length;
-  const hasConcrete = CONCRETE_REGEX.test(text);
+  const n = countMatches(text, STAKE_PATTERN);
+  const hasConcrete = testPattern(text, CONCRETE_PATTERN);
   return Math.max(0, Math.min(100, Math.round(22 + n * 26 + (hasConcrete ? 14 : 0))));
 }
 
 function calculateCuriosity(text) {
-  const matches = text.match(CURIOSITY_REGEX) || [];
-  const n = matches.length;
+  const n = countMatches(text, CURIOSITY_PATTERN);
   const hasQuestionMark = text.trim().endsWith('?') ? 18 : 0;
-  const isClosed = CLOSED_GAP_REGEX.test(text) ? -18 : 0;
+  const isClosed = testPattern(text, CLOSED_GAP_PATTERN) ? -18 : 0;
   return Math.max(0, Math.min(100, Math.round(24 + n * 17 + hasQuestionMark + isClosed)));
 }
 
