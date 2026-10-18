@@ -137,14 +137,14 @@ jobs:
             gh pr create \
               --title "🚀 Growth Autopilot: Proposed Pipeline Tuning ($DATE)" \
               --body "$BODY" \
-              --base master \
+              --base main \
               --head "$BRANCH_NAME" || true
           else
-            echo "No config changes made. Committing updated analytics and reports to master."
+            echo "No config changes made. Committing updated analytics and reports to main."
             git add analytics/
             if git status --porcelain | grep -q "analytics"; then
               git commit -m "chore(analytics): automated snapshot and reports for $DATE"
-              git push origin master
+              git push origin main
             else
               echo "No new analytics data to commit."
             fi
