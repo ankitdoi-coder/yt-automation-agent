@@ -6,15 +6,16 @@ const logger = new Logger('DailyRunner');
 
 // Optimal Educational Upload Schedule for Indian Audience (IST)
 // Optimal Educational Upload Schedule for Indian Audience (IST)
-// Tuned for workflow finishing at ~11:00 AM IST:
-// 1. Slot 1 (01:00 PM IST) - Lunch Break Shorts
-// 2. Slot 2 (07:00 PM IST) - Evening Prime Class (Long Video, 50 PYQs)
-// 3. Slot 3 (09:00 PM IST) - Post-Dinner Bedtime Shorts
+// 4 Daily Slots: 2 Long Videos (50 PYQs each) + 2 Shorts (9:16 Vertical)
+// 1. Slot 1 (09:30 AM IST) - Morning Rapid Revision (Shorts, 9:16 Vertical)
+// 2. Slot 2 (02:00 PM IST) - Afternoon Study Masterclass (Long Video 1, 50 Questions)
+// 3. Slot 3 (07:00 PM IST) - Evening Prime Exam Class (Long Video 2, 50 Questions)
+// 4. Slot 4 (09:30 PM IST) - Bedtime Rapid Scroll (Shorts, 9:16 Vertical)
 const SCHEDULE_SLOTS = [
   {
     id: 'slot1',
-    name: 'Lunch-Break Student Scroll (Shorts, 9:16 Vertical)',
-    timeIST: '13:00',
+    name: 'Morning Rapid Revision (Shorts 1, 9:16 Vertical)',
+    timeIST: '09:30',
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
@@ -22,21 +23,30 @@ const SCHEDULE_SLOTS = [
   },
   {
     id: 'slot2',
-    name: 'Evening Prime Study Class (Long-Form, 50 Questions)',
+    name: 'Afternoon Study Masterclass (Long Video 1, 50 Questions)',
+    timeIST: '14:00',
+    style: 'quiz',
+    length: 'medium',
+    contentType: 'quiz',
+    defaultTopic: 'प्राचीन एवं मध्यकालीन भारत का इतिहास: 50 सबसे महत्वपूर्ण प्रश्न | Indian History GK'
+  },
+  {
+    id: 'slot3',
+    name: 'Evening Prime Exam Class (Long Video 2, 50 Questions)',
     timeIST: '19:00',
     style: 'quiz',
     length: 'medium',
     contentType: 'quiz',
-    defaultTopic: 'भारत का इतिहास एवं संविधान: 50 सबसे महत्वपूर्ण प्रश्न | Indian History & Polity GK'
+    defaultTopic: 'भारतीय संविधान, भूगोल एवं सामान्य विज्ञान: 50 रामबाण प्रश्न | Lucent GK Marathon'
   },
   {
-    id: 'slot3',
-    name: 'Post-Dinner Bedtime Scroll (Shorts, 9:16 Vertical)',
-    timeIST: '21:00',
+    id: 'slot4',
+    name: 'Bedtime Rapid Scroll (Shorts 2, 9:16 Vertical)',
+    timeIST: '21:30',
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
-    defaultTopic: 'भारत में प्रथम व रोचक सामान्य ज्ञान: Top 5 GK Questions | ExamIQ Bharat Shorts'
+    defaultTopic: 'भारत में प्रथम व रोचक सामान्य ज्ञान: Top 5 Most Repeated Questions | ExamIQ Bharat Shorts'
   }
 ];
 
@@ -65,11 +75,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/science|विज्ञान/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - भौतिक विज्ञान (Physics) के 5 रोचक व महत्वपूर्ण सवाल | GK Shorts');
+        return formatSlotTopic(cleanBase, ' - भौतिक विज्ञान (Physics) के 5 रोचक सवाल | GK Shorts 1');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - जीव विज्ञान एवं रसायन विज्ञान: 50 महत्वपूर्ण प्रश्न | SSC & Railway GK');
+        return formatSlotTopic(cleanBase, ' - जीव विज्ञान (Biology): 50 महत्वपूर्ण प्रश्न | Long Class 1');
       case 'slot3':
-        return formatSlotTopic(cleanBase, ' - प्रमुख वैज्ञानिक खोजें, अंतरिक्ष व आविष्कार: Top 5 GK Shorts');
+        return formatSlotTopic(cleanBase, ' - रसायन विज्ञान व पर्यावरण: 50 महत्वपूर्ण प्रश्न | Long Class 2');
+      case 'slot4':
+        return formatSlotTopic(cleanBase, ' - अंतरिक्ष, प्रमुख आविष्कार व वैज्ञानिक खोजें: Top 5 GK Shorts 2');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -79,11 +91,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/history|इतिहास|संविधान|polity/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - 1857 की क्रांति व स्वतंत्रता सेनानी: Top 5 GK Shorts');
+        return formatSlotTopic(cleanBase, ' - 1857 की क्रांति व स्वतंत्रता सेनानी: Top 5 GK Shorts 1');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - प्राचीन एवं आधुनिक भारत का इतिहास: 50 महत्वपूर्ण प्रश्न | Exam Special');
+        return formatSlotTopic(cleanBase, ' - प्राचीन एवं मध्यकालीन भारत का इतिहास: 50 महत्वपूर्ण प्रश्न | Long Class 1');
       case 'slot3':
-        return formatSlotTopic(cleanBase, ' - भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: Top 5 GK Shorts');
+        return formatSlotTopic(cleanBase, ' - आधुनिक भारत का इतिहास एवं भारतीय संविधान: 50 महत्वपूर्ण प्रश्न | Long Class 2');
+      case 'slot4':
+        return formatSlotTopic(cleanBase, ' - भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: Top 5 GK Shorts 2');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -93,11 +107,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/geography|भूगोल/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - भारत के प्रमुख बांध व झीलें: Top 5 GK Shorts');
+        return formatSlotTopic(cleanBase, ' - भारत के प्रमुख बांध व झीलें: Top 5 GK Shorts 1');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - भारत की नदियां, पर्वत व राष्ट्रीय उद्यान: 50 महत्वपूर्ण प्रश्न');
+        return formatSlotTopic(cleanBase, ' - भारत की नदियां, पर्वत व राष्ट्रीय उद्यान: 50 महत्वपूर्ण प्रश्न | Long Class 1');
       case 'slot3':
-        return formatSlotTopic(cleanBase, ' - भारत के राज्य, सीमाएं व दर्रे: Top 5 GK Shorts');
+        return formatSlotTopic(cleanBase, ' - विश्व का भूगोल, सौरमंडल व महाद्वीप: 50 महत्वपूर्ण प्रश्न | Long Class 2');
+      case 'slot4':
+        return formatSlotTopic(cleanBase, ' - भारत के राज्य, सीमाएं व प्रमुख दर्रे: Top 5 GK Shorts 2');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -106,11 +122,13 @@ function resolveSlotTopic(slot, baseTopic) {
   // General custom topic - give distinct sub-angles per slot
   switch (slot.id) {
     case 'slot1':
-      return formatSlotTopic(cleanBase, ': Top 5 रोचक व परीक्षा उपयोगी सवाल | Rapid Fire GK Shorts');
+      return formatSlotTopic(cleanBase, ': Top 5 रोचक व परीक्षा उपयोगी सवाल | Rapid Fire GK Shorts 1');
     case 'slot2':
-      return formatSlotTopic(cleanBase, ': 50 अति महत्वपूर्ण प्रश्न (संपूर्ण रिवीजन क्लास)');
+      return formatSlotTopic(cleanBase, ': भाग 1 - 50 अति महत्वपूर्ण प्रश्न (दोपहर मास्टरक्लास)');
     case 'slot3':
-      return formatSlotTopic(cleanBase, ': Top 5 मोस्ट रिपीटेड कठिन सवाल | ExamIQ Bharat Shorts');
+      return formatSlotTopic(cleanBase, ': भाग 2 - 50 अति महत्वपूर्ण प्रश्न (शाम की प्राइम क्लास)');
+    case 'slot4':
+      return formatSlotTopic(cleanBase, ': Top 5 मोस्ट रिपीटेड कठिन सवाल | ExamIQ Bharat Shorts 2');
     default:
       return formatSlotTopic(cleanBase, ` - ${slot.name}`);
   }
@@ -146,7 +164,7 @@ function calculateSlotPublishDate(timeIST) {
 
 
 async function run() {
-  logger.info('🚀 Starting Daily Educational YouTube Pipeline (1 Long + 2 Shorts)...');
+  logger.info('🚀 Starting Daily Educational YouTube Pipeline (2 Long + 2 Shorts)...');
   const agent = new YouTubeAutomationAgent();
 
   const initialized = await agent.initialize();
@@ -175,7 +193,7 @@ async function run() {
     if (matched.length > 0) {
       slotsToRun = matched;
     } else {
-      logger.warn(`Unknown TARGET_SLOT "${process.env.TARGET_SLOT}", defaulting to all 3 daily slots`);
+      logger.warn(`Unknown TARGET_SLOT "${process.env.TARGET_SLOT}", defaulting to all 4 daily slots`);
     }
   }
 
@@ -217,8 +235,9 @@ async function run() {
         if (ageHours > 18) return false;
         const title = (item.snippet?.title || '').toLowerCase();
         if (slot.id === 'slot1' && (title.includes('रामायण') || title.includes('महाभारत') || title.includes('ramayan'))) return true;
-        if (slot.id === 'slot2' && (title.includes('इतिहास') || title.includes('history') || title.includes('संविधान') || title.includes('भूगोल'))) return true;
-        if (slot.id === 'slot3' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk'))) return true;
+        if (slot.id === 'slot2' && (title.includes('इतिहास') || title.includes('history') || title.includes('प्राचीन') || title.includes('भाग 1') || title.includes('masterclass'))) return true;
+        if (slot.id === 'slot3' && (title.includes('संविधान') || title.includes('भूगोल') || title.includes('polity') || title.includes('भाग 2') || title.includes('marathon') || title.includes('विज्ञान'))) return true;
+        if (slot.id === 'slot4' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk') || title.includes('shorts 2'))) return true;
         return false;
       });
 

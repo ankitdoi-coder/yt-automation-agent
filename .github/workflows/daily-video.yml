@@ -6,22 +6,22 @@ concurrency:
 
 on:
   schedule:
-    # Runs daily at 00:20 UTC = 05:50 AM IST (Indian Standard Time)
-    # Single schedule guarantees all 3 daily slots are generated and uploaded exactly ONCE per day
-    # Minute 20 avoids peak GitHub Actions queue bottlenecks at :00 and :30
-    - cron: '20 0 * * *'
+    # Runs daily at 23:00 UTC = 04:30 AM IST (Indian Standard Time)
+    # Starts at 04:30 AM everyday to generate, render, and schedule all 4 daily slots (2 Long + 2 Shorts)
+    - cron: '0 23 * * *'
   workflow_dispatch:
     inputs:
       target_slot:
         description: 'Which slot to generate'
         required: true
-        default: 'all (1 Long + 2 Shorts)'
+        default: 'all (2 Long + 2 Shorts)'
         type: choice
         options:
-          - all (1 Long + 2 Shorts)
-          - slot1 (01:00 PM IST Shorts - Lunch Break)
-          - slot2 (07:00 PM IST Long Quiz - Evening Class)
-          - slot3 (09:00 PM IST Shorts - Bedtime Scroll)
+          - all (2 Long + 2 Shorts)
+          - slot1 (09:30 AM IST Shorts - Morning Revision)
+          - slot2 (02:00 PM IST Long - Afternoon Study Masterclass)
+          - slot3 (07:00 PM IST Long - Evening Prime Exam Class)
+          - slot4 (09:30 PM IST Shorts - Bedtime Rapid Scroll)
       privacy_status:
         description: 'Target privacy status (public = auto-publishes to everyone)'
         required: true
@@ -43,9 +43,9 @@ on:
 
 jobs:
   generate-and-publish:
-    name: Generate & Publish Daily Videos
+    name: Generate & Publish Daily Videos (2 Long + 2 Shorts)
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 180
 
     steps:
       - name: Checkout Code
