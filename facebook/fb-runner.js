@@ -90,6 +90,15 @@ async function runFacebookReelsAutomation() {
   console.log('📊 BATCH EXECUTION SUMMARY');
   console.log('====================================================');
   console.table(results);
+
+  const successfulCount = results.filter(r => r.status === 'SUCCESS').length;
+  console.log(`\nCompleted: ${successfulCount}/${results.length} Reels published successfully.`);
+
+  if (successfulCount === 0 && results.length > 0) {
+    console.error('❌ Error: All Reel uploads failed in this run. Check error details above.');
+    process.exit(1);
+  }
+
   console.log('All done! You can check your Facebook Page reels feed.');
 }
 
