@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-18T11:55:04.193Z",
+  "updatedAt": "2026-10-18T14:42:58.420Z",
   "recommendedTimerSeconds": 4,
   "topHookStyle": "Tricky Double-Meaning with Clean Twist",
   "preferredThemes": [
@@ -11,27 +11,17 @@
   ],
   "highRetentionPacing": true,
   "autoCallToAction": "👉 कमेंट में बताओ आपका दिमाग पहले कहां गया था! 👇😂",
-  "viralOutliersCount": 4,
+  "viralOutliersCount": 2,
   "viralOutliers": [
+    {
+      "title": "पानी पीते ही मर जाती है!",
+      "plays": 3,
+      "multiple": 3
+    },
     {
       "title": "डालने पर कड़क, निकालने पर ढीला!",
       "plays": 3,
-      "multiple": 6
-    },
-    {
-      "title": "ऐसी कौन सी चीज़ है?",
-      "plays": 1,
-      "multiple": 2
-    },
-    {
-      "title": "दोनों टांगें उठाकर अंदर डाला जाता है!",
-      "plays": 1,
-      "multiple": 2
-    },
-    {
-      "title": "ऊपर भी जाता है, नीचे भी आता है!",
-      "plays": 1,
-      "multiple": 2
+      "multiple": 3
     }
   ]
 }
