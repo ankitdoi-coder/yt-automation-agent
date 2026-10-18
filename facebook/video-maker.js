@@ -58,6 +58,8 @@ class FacebookVideoMaker {
     this.tempDir = path.resolve(__dirname, 'temp');
     if (!fs.existsSync(this.outputDir)) fs.mkdirSync(this.outputDir, { recursive: true });
     if (!fs.existsSync(this.tempDir)) fs.mkdirSync(this.tempDir, { recursive: true });
+  }
+
   getLearnedPrefs() {
     try {
       const prefsPath = path.resolve(__dirname, 'data/learned_preferences.json');
