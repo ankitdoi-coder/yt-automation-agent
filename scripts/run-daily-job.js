@@ -19,7 +19,7 @@ const SCHEDULE_SLOTS = [
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
-    defaultTopic: 'रामायण एवं महाभारत के 5 रोचक व महत्वपूर्ण सवाल | Ramayan & Mahabharat GK Shorts'
+    defaultTopic: 'सामान्य विज्ञान (General Science): जीव विज्ञान (Biology) के 5 अति महत्वपूर्ण प्रश्न | Science GK Shorts'
   },
   {
     id: 'slot2',
@@ -37,7 +37,7 @@ const SCHEDULE_SLOTS = [
     style: 'quiz',
     length: 'medium',
     contentType: 'quiz',
-    defaultTopic: 'भारतीय संविधान, भूगोल एवं सामान्य विज्ञान: 50 रामबाण प्रश्न | Lucent GK Marathon'
+    defaultTopic: 'सामान्य विज्ञान एवं Static GK: 50 रामबाण प्रश्न | Lucent GK Marathon'
   },
   {
     id: 'slot4',
@@ -46,9 +46,62 @@ const SCHEDULE_SLOTS = [
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
-    defaultTopic: 'भारत में प्रथम व रोचक सामान्य ज्ञान: Top 5 Most Repeated Questions | ExamIQ Bharat Shorts'
+    defaultTopic: 'प्रमुख पुस्तकें और लेखक व भारत के राष्ट्रीय उद्यान: Top 5 Static GK Shorts'
   }
 ];
+
+// High-Yield Syllabus Topic Pools for Daily Automated Rotation (Inspired by 1M+ views viral benchmarks)
+// Prioritizes: General Science (Biology, Chemistry, Physics), High-Yield Static GK, and Indian History/Polity
+const SLOT_TOPIC_POOLS = {
+  slot1: [
+    'सामान्य विज्ञान (General Science): जीव विज्ञान (Biology) के 5 अति महत्वपूर्ण प्रश्न | Science GK Shorts',
+    'मानव शरीर (Human Anatomy) एवं विटामिन्स के 5 सबसे महत्वपूर्ण सवाल | Biology GK Shorts',
+    'कोशिका (Cell) व मानव रोग: बार-बार पूछे जाने वाले 5 प्रश्न | General Science GK Shorts',
+    'रसायन विज्ञान (Chemistry): अम्ल, क्षार और pH मान के 5 महत्वपूर्ण प्रश्न | Science GK Shorts',
+    'भौतिक विज्ञान (Physics): प्रमुख मात्रक और आविष्कार के 5 प्रश्न | Science GK Shorts',
+    'मानव रक्त परिसंचरण व प्रमुख अंग: Top 5 Biology GK Questions | Science Shorts',
+    'विटामिन, उनके रासायनिक नाम व कमी से रोग: Top 5 Science GK Shorts'
+  ],
+  slot2: [
+    'प्राचीन एवं मध्यकालीन भारत का इतिहास: 50 सबसे महत्वपूर्ण प्रश्न | Indian History GK Masterclass',
+    'सामान्य विज्ञान (General Science): 50 सबसे महत्वपूर्ण प्रश्न (Biology + Physics + Chemistry) | Science GK',
+    'भारतीय संविधान एवं राजव्यवस्था: 50 अति महत्वपूर्ण अनुच्छेद व प्रश्न | Indian Polity GK',
+    'आधुनिक भारत का इतिहास एवं 1857 की क्रांति: 50 महत्वपूर्ण प्रश्न | Modern History GK Class',
+    'जीव विज्ञान (Biology): कोशिका से मानव शरीर तक 50 महत्वपूर्ण प्रश्न | Lucent Science GK',
+    'मौर्य वंश एवं गुप्त काल का स्वर्णिम इतिहास: 50 अति महत्वपूर्ण प्रश्न | Ancient History GK'
+  ],
+  slot3: [
+    'Static GK Marathon: भारत के राष्ट्रीय उद्यान, लोक नृत्य, नदियां व बांध: 50 प्रश्न | Static GK Class',
+    'Lucent GK Top 50 Most Repeated Questions | SSC CGL, Railway NTPC, Police Exam GK',
+    'रसायन एवं भौतिक विज्ञान (Chemistry & Physics): 50 रामबाण प्रश्न | General Science GK Marathon',
+    'भारत एवं विश्व का भूगोल: नदियां, पर्वत, दर्रे और सौरमंडल के 50 महत्वपूर्ण प्रश्न | Geography GK',
+    'प्रमुख पुस्तकें और लेखक, दिवस एवं महत्वपूर्ण संस्थान: Top 50 Static GK Marathon',
+    'भारतीय इतिहास के 50 महत्वपूर्ण युद्ध, संधियां व राष्ट्रीय आंदोलन | History GK Marathon'
+  ],
+  slot4: [
+    'प्रमुख पुस्तकें और लेखक (Books and Authors): Top 5 Most Repeated Static GK | GK Shorts',
+    'भारत के प्रमुख राष्ट्रीय उद्यान (National Parks of India): Top 5 Static GK Shorts',
+    'भारत के प्रमुख लोक नृत्य एवं त्यौहार: Top 5 Most Repeated Questions | Static GK Shorts',
+    'भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: बार-बार पूछे जाने वाले सवाल | Polity GK Shorts',
+    'भारत में प्रथम (First in India - Male & Female): Top 5 Static GK | GK Shorts',
+    'प्रमुख नदियों के किनारे बसे शहर व प्रमुख बांध: Top 5 Static GK Shorts',
+    'गुप्त वंश व मौर्य साम्राज्य: भारतीय इतिहास के 5 महत्वपूर्ण सवाल | History GK Shorts'
+  ]
+};
+
+function getSlotDefaultTopic(slot) {
+  const pool = SLOT_TOPIC_POOLS[slot.id];
+  if (pool && pool.length > 0) {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 0);
+    const diff = now - startOfYear;
+    const dayOfYear = Math.floor(diff / (1000 * 60 * 60 * 24));
+    const offset = slot.id === 'slot1' ? 0 : slot.id === 'slot2' ? 1 : slot.id === 'slot3' ? 2 : 3;
+    const index = (dayOfYear + offset) % pool.length;
+    return pool[index];
+  }
+  return slot.defaultTopic;
+}
 
 function formatSlotTopic(cleanBase, suffix = '', maxLen = 200) {
   if (!suffix) {
@@ -67,21 +120,37 @@ function formatSlotTopic(cleanBase, suffix = '', maxLen = 200) {
 // Differentiates each daily slot so parallel/sequential videos NEVER generate the same questions
 function resolveSlotTopic(slot, baseTopic) {
   if (!baseTopic || !baseTopic.trim()) {
-    return formatSlotTopic(slot.defaultTopic, '', 200);
+    return formatSlotTopic(getSlotDefaultTopic(slot), '', 200);
   }
   const cleanBase = baseTopic.trim();
 
   // If topic is broad science / general science
-  if (/science|विज्ञान/i.test(cleanBase)) {
+  if (/science|विज्ञान|bio|biology|chem|physics/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - भौतिक विज्ञान (Physics) के 5 रोचक सवाल | GK Shorts 1');
+        return formatSlotTopic(cleanBase, ' - जीव विज्ञान (Biology) के 5 अति महत्वपूर्ण प्रश्न | Science GK Shorts 1');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - जीव विज्ञान (Biology): 50 महत्वपूर्ण प्रश्न | Long Class 1');
+        return formatSlotTopic(cleanBase, ' - जीव विज्ञान (Biology) व मानव शरीर: 50 महत्वपूर्ण प्रश्न | Long Class 1');
       case 'slot3':
-        return formatSlotTopic(cleanBase, ' - रसायन विज्ञान व पर्यावरण: 50 महत्वपूर्ण प्रश्न | Long Class 2');
+        return formatSlotTopic(cleanBase, ' - रसायन विज्ञान व भौतिक विज्ञान: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - अंतरिक्ष, प्रमुख आविष्कार व वैज्ञानिक खोजें: Top 5 GK Shorts 2');
+        return formatSlotTopic(cleanBase, ' - प्रमुख वैज्ञानिक आविष्कार, मात्रक व खोजें: Top 5 GK Shorts 2');
+      default:
+        return formatSlotTopic(cleanBase, ` (${slot.name})`);
+    }
+  }
+
+  // If topic is static GK / विविध / पुस्तकें / राष्ट्रीय उद्यान / नृत्य
+  if (/static|विविध|पुस्तक|author|book|उद्यान|park|dance|नृत्य|त्यौहार|festival/i.test(cleanBase)) {
+    switch (slot.id) {
+      case 'slot1':
+        return formatSlotTopic(cleanBase, ' - प्रमुख पुस्तकें व लेखक: Top 5 Static GK Shorts 1');
+      case 'slot2':
+        return formatSlotTopic(cleanBase, ' - भारत के राष्ट्रीय उद्यान, बांध व नदियां: 50 महत्वपूर्ण प्रश्न | Long Class 1');
+      case 'slot3':
+        return formatSlotTopic(cleanBase, ' - लोक नृत्य, प्रमुख त्यौहार व दिवस: 50 महत्वपूर्ण प्रश्न | Long Class 2');
+      case 'slot4':
+        return formatSlotTopic(cleanBase, ' - भारत में प्रथम (First in India): Top 5 Static GK Shorts 2');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -91,7 +160,7 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/history|इतिहास|संविधान|polity/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - 1857 की क्रांति व स्वतंत्रता सेनानी: Top 5 GK Shorts 1');
+        return formatSlotTopic(cleanBase, ' - मौर्य काल, गुप्त वंश व 1857 की क्रांति: Top 5 GK Shorts 1');
       case 'slot2':
         return formatSlotTopic(cleanBase, ' - प्राचीन एवं मध्यकालीन भारत का इतिहास: 50 महत्वपूर्ण प्रश्न | Long Class 1');
       case 'slot3':
@@ -234,10 +303,10 @@ async function run() {
         const ageHours = (Date.now() - publishedAt) / (1000 * 60 * 60);
         if (ageHours > 18) return false;
         const title = (item.snippet?.title || '').toLowerCase();
-        if (slot.id === 'slot1' && (title.includes('रामायण') || title.includes('महाभारत') || title.includes('ramayan'))) return true;
+        if (slot.id === 'slot1' && (title.includes('science') || title.includes('विज्ञान') || title.includes('biology') || title.includes('जीव विज्ञान') || title.includes('shorts 1') || title.includes('rapid revision'))) return true;
         if (slot.id === 'slot2' && (title.includes('इतिहास') || title.includes('history') || title.includes('प्राचीन') || title.includes('भाग 1') || title.includes('masterclass'))) return true;
-        if (slot.id === 'slot3' && (title.includes('संविधान') || title.includes('भूगोल') || title.includes('polity') || title.includes('भाग 2') || title.includes('marathon') || title.includes('विज्ञान'))) return true;
-        if (slot.id === 'slot4' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk') || title.includes('shorts 2'))) return true;
+        if (slot.id === 'slot3' && (title.includes('संविधान') || title.includes('भूगोल') || title.includes('polity') || title.includes('भाग 2') || title.includes('marathon') || title.includes('विज्ञान') || title.includes('static'))) return true;
+        if (slot.id === 'slot4' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk') || title.includes('shorts 2') || title.includes('static') || title.includes('पुस्तक') || title.includes('उद्यान'))) return true;
         return false;
       });
 

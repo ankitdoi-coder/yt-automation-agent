@@ -564,6 +564,7 @@ ${existing}
 12. REQUIRED visualPrompt: Write a specific descriptive English visual prompt for generating an image strictly relevant to the correct answer. For historical people/rulers/leaders, specify a historical portrait photograph or painting. For historical battles/events/movements, describe that event scene. For laws/articles/constitution, describe the Indian constitution parchment or Parliament. For geography, describe that specific place/map. Do NOT default to generic buildings or landmarks when the subject is a person, battle, document, or science topic.
 13. Strict JSON: every string in "options" and "question" must be enclosed in double quotes. Do NOT use unescaped double quotes inside question, options, or explanation text; use single quotes ('...') for any terms or titles inside sentences (e.g. 'मास्टर ग्रंथि', 'विटामिन C').
 14. ZERO REPETITION & NO CLICHES: Never ask beginner cliches (e.g. counting bones in human body "मानव शरीर में हड्डियां", simple national symbols, simple capitals). Every question must be a fresh, competitive-exam level question (SSC CGL / UPSC / Railway NTPC standard) covering diverse specialized sub-domains.
+15. SYLLABUS-BACKED SCIENCE & STATIC GK FOCUS: For General Science topics, prioritize high-yield exam concepts: cell biology (माइटोकॉन्ड्रिया, राइबोसोम, लाइसोसोम), vitamins & chemical names (एस्कॉर्बिक एसिड, रेटिनॉल), human anatomy & organs (हृदय, वृक्क, यकृत, इंसुलिन), acid/base & pH values (रक्त का pH, अम्लीय वर्षा), physics SI units (पास्कल, जूल, वाट) and inventions. For Static GK, prioritize Books & Authors, National Parks with states, Folk Dances with festivals, and Dams with river projects.
 Return only the valid JSON, no markdown outside, no commentary.`;
   }
 
@@ -836,13 +837,19 @@ ${flaggedItems}`;
 
   deriveQuizSubjectHindi(topic, englishSubject = '') {
     const combined = `${topic || ''} ${englishSubject || ''}`.toLowerCase();
+    if (/जीव\s*विज्ञान|biology|मानव शरीर|कोशिका|विटामिन/i.test(combined)) return 'जीव विज्ञान (Biology) GK';
+    if (/रसायन\s*विज्ञान|chemistry|अम्ल|क्षार|आवर्त सारणी/i.test(combined)) return 'रसायन विज्ञान (Chemistry) GK';
+    if (/भौतिक\s*विज्ञान|physics|मात्रक|आविष्कार/i.test(combined)) return 'भौतिक विज्ञान (Physics) GK';
+    if (/विज्ञान|science/i.test(combined)) return 'सामान्य विज्ञान GK';
+    if (/पुस्तक|author|book|लेखक/i.test(combined)) return 'प्रमुख पुस्तकें और लेखक (Static GK)';
+    if (/राष्ट्रीय\s*उद्यान|अभयारण्य|national\s*park/i.test(combined)) return 'राष्ट्रीय उद्यान व अभयारण्य (Static GK)';
+    if (/नृत्य|त्यौहार|dance|festival/i.test(combined)) return 'लोक नृत्य एवं त्यौहार (Static GK)';
     if (/प्राचीन\s*भारत|ancient\s*india|ancient\s*history/i.test(combined)) return 'प्राचीन भारत का इतिहास';
     if (/मध्यकालीन|medieval/i.test(combined)) return 'मध्यकालीन भारत का इतिहास';
     if (/आधुनिक\s*भारत|modern\s*india|modern\s*history/i.test(combined)) return 'आधुनिक भारत का इतिहास';
     if (/इतिहास|history/i.test(combined)) return 'भारत का इतिहास';
     if (/भूगोल|geography/i.test(combined)) return 'भारत का भूगोल';
     if (/संविधान|polity|constitution/i.test(combined)) return 'भारतीय संविधान';
-    if (/विज्ञान|science|physics|chemistry|biology/i.test(combined)) return 'सामान्य विज्ञान GK';
     if (/अर्थव्यवस्था|economy|economics/i.test(combined)) return 'भारतीय अर्थव्यवस्था';
     if (/करंट\s*अफेयर्स|current\s*affairs/i.test(combined)) return 'करंट अफेयर्स';
     if (/static\s*gk|विविध/i.test(combined)) return 'Static GK (सामान्य ज्ञान)';

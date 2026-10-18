@@ -319,24 +319,33 @@ ${timestampsText}
     let examTag = 'SSC GD';
     let topicName = 'सामान्य ज्ञान';
 
-    if (/संविधान|polity|article|अनुच्छेद|राष्ट्रपति|संसद/i.test(combined)) {
+    if (/bio|जीव\s*विज्ञान|मानव शरीर|विटामिन|cell|कोशिका/i.test(combined)) {
+      examTag = 'Railway NTPC';
+      topicName = 'जीव विज्ञान';
+    } else if (/रसायन|chemistry|भौतिक|physics|विज्ञान|science/i.test(combined)) {
+      examTag = 'SSC Railway';
+      topicName = 'सामान्य विज्ञान';
+    } else if (/पुस्तक|author|book|लेखक/i.test(combined)) {
+      examTag = 'SSC CGL';
+      topicName = 'पुस्तकें व लेखक';
+    } else if (/राष्ट्रीय\s*उद्यान|अभयारण्य|national\s*park/i.test(combined)) {
+      examTag = 'Railway NTPC';
+      topicName = 'राष्ट्रीय उद्यान';
+    } else if (/नृत्य|त्यौहार|dance|festival/i.test(combined)) {
+      examTag = 'SSC GD';
+      topicName = 'लोक नृत्य व कला';
+    } else if (/संविधान|polity|article|अनुच्छेद|राष्ट्रपति|संसद/i.test(combined)) {
       examTag = 'SSC CGL';
       topicName = 'संविधान';
     } else if (/भूगोल|geog|नदी|पर्वत|झील|river|mountain/i.test(combined)) {
       examTag = 'SSC GD';
       topicName = 'भारत का भूगोल';
-    } else if (/इतिहास|history|युद्ध|मुगल|मौर्य|गांधी|1857/i.test(combined)) {
+    } else if (/इतिहास|history|युद्ध|मुगल|मौर्य|गुप्त|गांधी|1857/i.test(combined)) {
       examTag = 'Railway NTPC';
       topicName = 'भारतीय इतिहास';
-    } else if (/bio|विज्ञान|science|मानव शरीर|विटामिन|cell/i.test(combined)) {
-      examTag = 'Railway';
-      topicName = 'विज्ञान GK';
-    } else if (/रामायण|महाभारत|ramayan|mythology/i.test(combined)) {
-      examTag = 'रोचक GK';
-      topicName = 'रामायण व महाभारत';
-    } else if (/first|प्रथम|राष्ट्रीय|static/i.test(combined)) {
+    } else if (/first|प्रथम|static|विविध/i.test(combined)) {
       examTag = 'Police Exam';
-      topicName = 'भारत में प्रथम';
+      topicName = 'Static GK';
     } else if (subjectHindi && subjectHindi.length <= 15) {
       topicName = subjectHindi;
     }

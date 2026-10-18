@@ -504,13 +504,13 @@ Return only valid JSON with this exact shape:
 
 Requested topic: ${requestedTopic || 'none'}
 Core Indian GK Pillars (Choose strictly from these):
-1. Indian History (प्राचीन भारत, मध्यकालीन भारत, आधुनिक भारत, 1857 की क्रांति, स्वतंत्रता संग्राम सेनानी)
-2. Indian Constitution & Polity (भारतीय संविधान, प्रमुख अनुच्छेद, राष्ट्रपति, प्रधानमंत्री, संसद)
-3. Indian Geography (भारत की प्रमुख नदियां, पर्वत श्रृंखलाएं, राज्य, बांध, राष्ट्रीय उद्यान)
-4. Ramayan & Mahabharat Mythology GK (रामायण, महाभारत, भगवान राम, श्रीकृष्ण, कुरुक्षेत्र)
-5. General Science & Space/ISRO (मानव शरीर, जीव विज्ञान, चंद्रयान, प्रमुख वैज्ञानिक खोजें)
-6. First in India (भारत में प्रथम - पुरुष व महिला, प्रथम उपग्रह, प्रथम नोबेल)
-7. Maths & Reasoning Brain Teasers & Puzzles (रोचक गणित व रीजनिंग पहेलियां)
+1. General Science & Biology (जीव विज्ञान - कोशिका, मानव शरीर, रक्त परिसंचरण, विटामिन्स, रोग व उपचार)
+2. General Science & Chemistry/Physics (अम्ल-क्षार-लवण, pH मान, आवर्त सारणी, प्रमुख मात्रक, भौतिक राशियां, वैज्ञानिक खोजें व आविष्कार)
+3. High-Yield Static GK (प्रमुख पुस्तकें और लेखक, भारत के राष्ट्रीय उद्यान व वन्यजीव अभयारण्य, प्रमुख लोक नृत्य व त्यौहार, बांध व नदी परियोजनाएं)
+4. Indian History (प्राचीन भारत - मौर्य/गुप्त काल, मध्यकालीन भारत - सल्तनत व मुग़ल काल, आधुनिक भारत, 1857 की क्रांति, स्वतंत्रता संग्राम सेनानी)
+5. Indian Constitution & Polity (भारतीय संविधान, प्रमुख अनुच्छेद, मौलिक अधिकार व कर्तव्य, राष्ट्रपति, संसद, संविधान संशोधन)
+6. Indian Geography (भारत की नदियां, पर्वत श्रृंखलाएं, प्रमुख दर्रे, झीलें, भारत के राज्य व सीमाएं)
+7. First in India & World (भारत में प्रथम - पुरुष व महिला, प्रमुख सम्मान, भारत रत्न, नोबेल पुरस्कार)
 
 Rules:
 - NEVER generate Western business, corporate MBA, self-help, or tech topics (e.g. negotiation, productivity, side hustles).
@@ -633,20 +633,20 @@ Rules:
 
   getEvergreenFallbackTopics() {
     return [
-      'रामायण एवं महाभारत से जुड़े 50 सबसे महत्वपूर्ण प्रश्न | Ramayan & Mahabharat GK Quiz',
+      'सामान्य विज्ञान (General Science): जीव विज्ञान (Biology) के 50 सबसे महत्वपूर्ण प्रश्न | Science GK',
       'भारत का संविधान: 50 सबसे महत्वपूर्ण अनुच्छेद और प्रश्न | Indian Polity GK Quiz',
       'भारत का इतिहास: प्राचीन से आधुनिक भारत के 50 महत्वपूर्ण प्रश्न | Indian History GK Quiz',
       'भारत का भूगोल: प्रमुख नदियां, पर्वत और राष्ट्रीय उद्यान | Indian Geography GK Quiz',
-      'सामान्य विज्ञान (General Science): मानव शरीर व अंतरिक्ष के 50 महत्वपूर्ण प्रश्न | Science GK',
+      'सामान्य विज्ञान: रसायन व भौतिक विज्ञान (Chemistry & Physics) के 50 महत्वपूर्ण प्रश्न | Science GK',
       'भारत में प्रथम (First in India): सबसे ज्यादा पूछे जाने वाले सामान्य ज्ञान प्रश्न | Static GK',
-      'रामायण सामान्य ज्ञान: भगवान राम व अयोध्या से जुड़े महत्वपूर्ण प्रश्न | Ramayan GK Quiz',
-      'महाभारत सामान्य ज्ञान: कुरुक्षेत्र युद्ध व भगवान कृष्ण से जुड़े रोचक प्रश्न | Mahabharat GK',
+      'प्रमुख पुस्तकें और लेखक (Books and Authors): Static GK Top 50 Most Repeated Questions',
+      'भारत के प्रमुख राष्ट्रीय उद्यान एवं वन्यजीव अभयारण्य: Static GK 50 महत्वपूर्ण प्रश्न',
       'भारत के प्रमुख ऐतिहासिक युद्ध और 1857 की क्रांति | Indian History Battle GK Quiz',
       'भारत की नदियां एवं बांध: प्रतियोगी परीक्षाओं के महत्वपूर्ण प्रश्न | Indian Rivers GK Quiz',
       'प्रसिद्ध वैज्ञानिक खोजें और आविष्कार सामान्य ज्ञान | Science Inventions GK Quiz',
-      'भारत के प्रमुख मंदिर, किले और धरोहर स्थल | Indian Heritage & Culture GK Quiz',
-      'गणित व रीजनिंग के 10 रोचक दिमाग घुमाने वाले सवाल व पहेलियां | Maths & Reasoning Puzzles',
-      'भारत के प्रमुख राष्ट्रीय उद्यान व वन्यजीव अभयारण्य | National Parks GK Quiz',
+      'भारत के प्रमुख लोक नृत्य एवं त्यौहार: Static GK 50 महत्वपूर्ण प्रश्न',
+      'मानव शरीर (Human Anatomy) एवं विटामिन्स: Biology GK Top 50 Questions | SSC Railway',
+      'गुप्त वंश एवं मौर्य साम्राज्य: भारतीय इतिहास के 50 सबसे महत्वपूर्ण प्रश्न | History GK Quiz',
       'विश्व व भारत का भूगोल: सौरमंडल और पृथ्वी से जुड़े महत्वपूर्ण प्रश्न | Solar System & Geography GK'
     ];
   }
