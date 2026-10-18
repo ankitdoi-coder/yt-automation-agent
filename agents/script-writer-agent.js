@@ -8,6 +8,7 @@ const {
   isDuplicateQuestion,
   recordGeneratedQuestions
 } = require('../utils/quiz-question-deduplicator');
+const { scoreHook, scoreHooks } = require('../utils/hook-scorer');
 
 class ScriptWriterAgent {
   constructor(db, credentials) {
@@ -271,6 +272,7 @@ CONTENT RULES — these decide whether the script is accepted:
 5. SPOKEN STYLE: conversational, direct, second person. Each section: 80-200 spoken words. Numbers and specifics beat adjectives.
 6. SLIDES: "onScreen" max 6 words, "bullets" are fragments not sentences. The narration carries the detail; slides stay skimmable.
 7. VISUALS: each "visual" describes ONE concrete drawable scene or diagram with its subjects and layout. No words or letters in the image.
+8. VIRAL HOOK & ZERO 0:30 CLIFF: The opening hook (10-24 words) must use one of the 21 YouTube Hook Formulas (The Statistic, The Mistake, Contrarian Flip, Someone Else's Result, The Reveal, The Superlative, The Clock, I Tried It). Say 'you' in the first 6 words, state the stakes (cost/risk/loss), and confirm the title payoff immediately. BANNED: 'Welcome to my channel', 'Hey guys', 'In today's video', 'Before we get started', or any channel intro. Start delivering value in the very first sentence.
 
 Avoid fabricated statistics, unsupported claims, and fake urgency. List every externally verifiable factual claim in claims. Use only exact URLs from Research sources; use an empty sourceUrls array when the supplied sources do not support a claim.`;
 
@@ -989,6 +991,33 @@ ${flaggedItems}`;
       violations.push(`Only ${words.length} spoken words for ${script.duration} of declared runtime (~${Math.round(speakableSeconds)}s speakable)`);
     }
 
+    // 7. Hook Virality Check (Formula & Hookscore Linting)
+    const hookText = String(script.hook?.text || '').trim();
+    if (hookText) {
+      const hookVirality = scoreHook(hookText);
+      if (script.hook && typeof script.hook === 'object') {
+        script.hook.virality = hookVirality;
+      }
+      if (hookVirality.verdict < 45) {
+        violations.push(`Hook virality score too weak (${hookVirality.verdict}/100, ${hookVirality.band}) - ${hookVirality.weakest}: ${hookVirality.fix}`);
+      }
+    }
+
+    // 8. 0:30 Retention Cliff Guard (detects generic channel openers)
+    const openingSlice = spoken.split(/\s+/).slice(0, 40).join(' ').toLowerCase();
+    const cliffOpeners = [
+      'welcome back to my channel',
+      'welcome to my channel',
+      'in today\'s video',
+      'before we get started',
+      'make sure to subscribe',
+      'smash that subscribe button'
+    ];
+    const detectedCliffs = cliffOpeners.filter(opener => openingSlice.includes(opener));
+    if (detectedCliffs.length > 0) {
+      violations.push(`0:30 Retention cliff openers detected: ${detectedCliffs.join(', ')}`);
+    }
+
     return { passed: violations.length === 0, violations };
   }
 
@@ -1142,11 +1171,29 @@ ${flaggedItems}`;
 
   normalizeAIHook(hook) {
     const text = typeof hook === 'object' && hook !== null ? hook.text : hook;
+    const cleanText = String(text || '').trim();
+    const virality = scoreHook(cleanText);
     return {
       type: 'ai',
-      text: String(text).trim(),
-      duration: '0:00-0:05'
+      text: cleanText,
+      duration: '0:00-0:05',
+      virality: {
+        score: virality.verdict,
+        band: virality.band,
+        formula: virality.formula,
+        properties: virality.properties,
+        weakest: virality.weakest,
+        fix: virality.fix
+      }
     };
+  }
+
+  scoreHook(text) {
+    return scoreHook(text);
+  }
+
+  scoreHooks(hooksList) {
+    return scoreHooks(hooksList);
   }
 
   normalizeAISections(sections, strategy) {

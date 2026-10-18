@@ -1,5 +1,6 @@
 const { Logger } = require('../utils/logger');
 const { AITextService } = require('../utils/ai-text-service');
+const { analyzeViralOutliers } = require('../utils/viral-outlier-analyzer');
 
 class ContentStrategyAgent {
   constructor(db, credentials) {
@@ -85,11 +86,23 @@ class ContentStrategyAgent {
       try {
         const videos = await this.getChannelVideos(channelId);
         const analysis = this.analyzeVideoPerformance(videos);
+        
+        // Transform videos for viral outlier multiplier calculation
+        const formattedVideos = (videos || []).map(v => ({
+          channel: v.snippet?.channelTitle || channelId,
+          title: v.snippet?.title || '',
+          views: parseInt(v.statistics?.viewCount, 10) || 0,
+          url: `https://www.youtube.com/watch?v=${v.id}`
+        }));
+        const viralOutliers = analyzeViralOutliers(formattedVideos, 1.8);
+
         competitorData.push({
           channelId,
           topPerformingTopics: analysis.topTopics,
           averageViews: analysis.avgViews,
-          uploadFrequency: analysis.frequency
+          uploadFrequency: analysis.frequency,
+          viralOutliers: viralOutliers.outliers.slice(0, 5),
+          formulaBreakdown: viralOutliers.formulaBreakdown
         });
       } catch (error) {
         this.logger.error(`Failed to analyze competitor ${channelId}:`, error);
@@ -97,6 +110,10 @@ class ContentStrategyAgent {
     }
 
     return competitorData;
+  }
+
+  findViralOutliers(videos, minMultiplier = 1.5) {
+    return analyzeViralOutliers(videos, minMultiplier);
   }
 
   async getChannelVideos(channelId) {

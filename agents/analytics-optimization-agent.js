@@ -1,6 +1,7 @@
 const { google } = require('googleapis');
 const { Logger } = require('../utils/logger');
 const { ChannelLearningEngine } = require('../utils/channel-learning-engine');
+const { analyzeRetention } = require('../utils/retention-analyzer');
 
 class AnalyticsOptimizationAgent {
   constructor(db, credentials) {
@@ -795,18 +796,30 @@ class AnalyticsOptimizationAgent {
         stoppedWatching: value(row, 'stoppedWatching'),
         totalSegmentImpressions: value(row, 'totalSegmentImpressions')
       })).filter(point => point.elapsedRatio > 0);
+      const durationSeconds = this.parseISODurationSeconds(isoDuration);
+      let diagnostics = null;
+      if (points.length >= 5) {
+        const retentionPairs = points.map(p => [p.elapsedRatio * 100, p.audienceWatchRatio * 100]);
+        diagnostics = analyzeRetention(retentionPairs, { duration: durationSeconds });
+      }
+
       return {
         available: points.length > 0,
         simulated: false,
         reason: points.length ? null : 'no_retention_rows',
         period: { startDate, endDate },
-        durationSeconds: this.parseISODurationSeconds(isoDuration),
+        durationSeconds,
+        diagnostics,
         points
       };
     } catch (error) {
       this.logger.warn(`Audience retention curve unavailable for ${videoId}: ${error.message}`);
       return { available: false, simulated: false, reason: 'retention_api_unavailable', points: [] };
     }
+  }
+
+  analyzeRetentionData(data, options = {}) {
+    return analyzeRetention(data, options);
   }
 
   parseISODurationSeconds(value) {

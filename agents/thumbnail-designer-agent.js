@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs').promises;
 const { Logger } = require('../utils/logger');
 const { AIVideoGenerator } = require('../utils/ai-video-generator');
+const { lintTitleAndThumbnail } = require('../utils/title-thumbnail-linter');
 
 class ThumbnailDesignerAgent {
   constructor(db, credentials) {
@@ -52,6 +53,12 @@ class ThumbnailDesignerAgent {
       
       // Optimize for YouTube
       const optimizedThumbnail = await this.optimizeForYouTube(finalThumbnail);
+
+      const thumbText = [concept?.primaryText, concept?.secondaryText].filter(Boolean).join(' ');
+      const pairingAudit = lintTitleAndThumbnail(script.title || '', thumbText);
+      if (!pairingAudit.isPassing) {
+        this.logger.warn(`Thumbnail and title pairing warning (Score: ${pairingAudit.score}/100): ${pairingAudit.issues.map(i => i[1]).join(' | ')}`);
+      }
       
       const thumbnailData = {
         path: optimizedThumbnail,
@@ -59,6 +66,7 @@ class ThumbnailDesignerAgent {
         prompt,
         dimensions: { width: 1280, height: 720 },
         fileSize: await this.getFileSize(optimizedThumbnail),
+        pairingAudit,
         createdAt: new Date().toISOString()
       };
       
@@ -71,6 +79,10 @@ class ThumbnailDesignerAgent {
       this.logger.error('Failed to generate thumbnail:', error);
       throw error;
     }
+  }
+
+  lintPairing(title, thumbText) {
+    return lintTitleAndThumbnail(title, thumbText);
   }
 
   // High-CTR 16:9 Full-Screen Text Quiz Thumbnail Generator (Clean educational layout)

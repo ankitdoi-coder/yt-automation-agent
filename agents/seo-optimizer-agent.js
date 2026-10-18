@@ -7,6 +7,7 @@ const {
   buildShortVideoDescription,
   buildUniversalViralDescription
 } = require('../utils/long-video-seo-template');
+const { lintTitleAndThumbnail } = require('../utils/title-thumbnail-linter');
 
 class SEOOptimizerAgent {
   constructor(db, credentials) {
@@ -149,8 +150,12 @@ class SEOOptimizerAgent {
       // Generate end screen elements
       const endScreen = await this.generateEndScreenStrategy();
       
-      // Calculate SEO score
+      // Calculate SEO score and Title Packaging Audit
       const seoScore = await this.calculateSEOScore(title, description, tags);
+      const titleAudit = lintTitleAndThumbnail(title);
+      if (!titleAudit.isPassing) {
+        this.logger.warn(`SEO Title packaging warning (Score: ${titleAudit.score}/100): ${titleAudit.issues.map(i => i[1]).join(' | ')}`);
+      }
       const categoryId = String(process.env.YOUTUBE_CATEGORY_ID || this.selectCategory(strategy) || 27);
       
       const seoData = {
@@ -161,6 +166,7 @@ class SEOOptimizerAgent {
         chapters,
         endScreen,
         seoScore,
+        titleAudit,
         categoryId,
         metadata: {
           primaryKeyword: strategy.keywords?.[0] || strategy.topic || 'General Knowledge',
