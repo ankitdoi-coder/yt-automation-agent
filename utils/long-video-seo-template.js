@@ -135,8 +135,42 @@ function buildLongVideoDescription(opts = {}) {
   return buildUniversalViralDescription({ ...opts, isShort: false });
 }
 
-function buildShortVideoDescription(opts = {}) {
-  return buildUniversalViralDescription({ ...opts, isShort: true });
+function buildShortVideoDescription({
+  title = '',
+  brand = 'ExamIQ Bharat',
+  topic = 'General Knowledge',
+  questions = [],
+  year = new Date().getFullYear()
+} = {}) {
+  const cleanTitle = (title || 'Top 5 GK Questions in Hindi | GK Quiz #Shorts').trim();
+  const cleanTopic = (topic || 'सामान्य ज्ञान').trim();
+
+  let questionsList = '';
+  if (Array.isArray(questions) && questions.length > 0) {
+    const validQs = questions.slice(0, 5).map((q, idx) => {
+      const qText = typeof q === 'string' ? q : (q.question || '');
+      return `Q${idx + 1}. ${qText.trim()}`;
+    }).filter(q => q.length > 6);
+    if (validQs.length > 0) {
+      questionsList = '\n\n📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:\n' + validQs.join('\n');
+    }
+  }
+
+  return `🎯 ${cleanTitle}
+
+इस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD ${year}, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।${questionsList}
+
+💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯
+🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ${brand} को Subscribe करें!
+
+🔍 Queries Solved:
+• GK in Hindi
+• General Knowledge Quiz
+• Lucent GK Important Questions
+• Samanya Gyan for Competitive Exams
+• Viral GK Shorts
+
+#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq`.trim();
 }
 
 module.exports = {

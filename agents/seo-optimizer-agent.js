@@ -70,7 +70,7 @@ class SEOOptimizerAgent {
         
         // High-CTR, search-optimized Short title with exam targets, micro-topics, and set deduplication
         title = this.buildExamOptimizedShortTitle(script, strategy, brand);
-        description = this.generateShortQuizDescription(title, brand, cleanTopic);
+        description = this.generateShortQuizDescription(title, brand, cleanTopic, script.quiz?.questions);
         tags = [
           'Shorts',
           'GK Shorts',
@@ -299,8 +299,16 @@ ${timestampsText}
     // Extract micro-topic from subjectHindi, subject, questions, or topic
     const subjectHindi = script.quiz?.subjectHindi || '';
     const subjectEng = script.quiz?.subject || '';
-    const firstQuestion = (script.quiz?.questions?.[0]?.question || '').slice(0, 35);
-    const combined = `${strategy?.topic || ''} ${script.title || ''} ${subjectHindi} ${subjectEng} ${firstQuestion}`.toLowerCase();
+    
+    // Extract actual first question text for curiosity hook
+    const rawFirstQ = script.quiz?.questions?.[0]?.question || '';
+    const cleanFirstQ = rawFirstQ
+      .replace(/^प्रश्न\s*\d*[:\.\-]?\s*/i, '')
+      .replace(/^q\d*[:\.\-]?\s*/i, '')
+      .replace(/[\?\।\!]+$/g, '')
+      .trim();
+
+    const combined = `${strategy?.topic || ''} ${script.title || ''} ${subjectHindi} ${subjectEng} ${cleanFirstQ}`.toLowerCase();
 
     let examTag = 'SSC GD';
     let topicName = 'सामान्य ज्ञान';
@@ -310,64 +318,57 @@ ${timestampsText}
       topicName = 'संविधान';
     } else if (/भूगोल|geog|नदी|पर्वत|झील|river|mountain/i.test(combined)) {
       examTag = 'SSC GD';
-      topicName = 'भूगोल';
-    } else if (/इतिहास|history|युद्ध|मुगल|मौर्य|गांधी/i.test(combined)) {
+      topicName = 'भारत का भूगोल';
+    } else if (/इतिहास|history|युद्ध|मुगल|मौर्य|गांधी|1857/i.test(combined)) {
       examTag = 'Railway NTPC';
-      topicName = 'इतिहास';
+      topicName = 'भारतीय इतिहास';
     } else if (/bio|विज्ञान|science|मानव शरीर|विटामिन|cell/i.test(combined)) {
       examTag = 'Railway';
       topicName = 'विज्ञान GK';
+    } else if (/रामायण|महाभारत|ramayan|mythology/i.test(combined)) {
+      examTag = 'रोचक GK';
+      topicName = 'रामायण व महाभारत';
     } else if (/first|प्रथम|राष्ट्रीय|static/i.test(combined)) {
       examTag = 'Police Exam';
-      topicName = 'Static GK';
+      topicName = 'भारत में प्रथम';
     } else if (subjectHindi && subjectHindi.length <= 15) {
       topicName = subjectHindi;
     }
 
-    // Read growth configuration
-    let growth = {};
-    try {
-      const configPath = path.resolve(__dirname, '..', 'config', 'growth.json');
-      if (fs.existsSync(configPath)) {
-        growth = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-      }
-    } catch (_) {}
-
-    const titleStyle = growth.shorts?.titleStyle || 'curiosity_lucent';
-
-    if (titleStyle === 'curiosity_lucent') {
-      // High-velocity curiosity and Lucent GK titles proven to drive 700+ views in Shorts Feed
-      const curiosityTemplates = [
-        `Top ${qCount} GK MCQ | GK Questions | GK Quiz in Hindi | Lucent GK #Shorts #GK | ${brand}`,
-        `Top ${qCount} GK MCQ | ${topicName} महत्वपूर्ण प्रश्न | Lucent GK #Shorts #GK | ${brand}`,
-        `Top ${qCount} GK MCQ | Lucent GK निचोड़ | Samanya Gyan GK Quiz #Shorts #GK | ${brand}`,
-        `Top ${qCount} GK Questions | GK Quiz in Hindi | Lucent GK MCQ #Shorts #GK | ${brand}`
+    // 1. High-CTR Dynamic Question Hook (What actually drives 10k-100k views on YouTube Shorts)
+    if (cleanFirstQ && cleanFirstQ.length >= 10 && cleanFirstQ.length <= 48) {
+      const questionHookTemplates = [
+        `99% लोग फेल ❌ ${cleanFirstQ}? 🤔 #shorts #gk`,
+        `क्या आप जानते हैं? 🇮🇳 ${cleanFirstQ}? #shorts #gk`,
+        `${cleanFirstQ}? 🤯 Top ${qCount} GK Quiz #shorts`,
+        `दम है तो उत्तर दो! 🔥 ${cleanFirstQ}? #shorts #gk`,
+        `90% लोग इस सवाल पर चकरा गए! 😱 ${cleanFirstQ}? #shorts`
       ];
-      const curIdx = (partNumber - 1) % curiosityTemplates.length;
-      return curiosityTemplates[curIdx].slice(0, 98);
+      const qIdx = Math.abs((partNumber + cleanFirstQ.length) % questionHookTemplates.length);
+      const chosenTitle = questionHookTemplates[qIdx];
+      if (chosenTitle.length <= 80) {
+        return chosenTitle;
+      }
     }
 
-    const templates = [
-      `${examTag} ${year} | ${topicName} Top ${qCount} MCQs (Set ${partNumber}) #Shorts #GK`,
-      `Lucent GK निचोड़: ${topicName} Top ${qCount} प्रश्न for ${examTag} #Shorts #GK`,
-      `${examTag} & Railway: ${topicName} Top ${qCount} महत्वपूर्ण MCQs #Shorts #GK`,
-      `Top ${qCount} ${topicName} GK Quiz (${year}) | ${examTag} & Police #Shorts #GK`
+    // 2. High-Curiosity Topic Hook Templates (Never repetitive, emotion-driven)
+    const curiosityTemplates = [
+      `99% लोग फेल ❌ ${topicName} के Top ${qCount} सबसे कठिन सवाल! 🤯 #shorts #gk`,
+      `दिमाग हिला देने वाले 5 GK सवाल 🧠 ${topicName} Quiz #shorts #gk`,
+      `${topicName}: परीक्षा में बार-बार पूछे जाने वाले Top ${qCount} सवाल! 🎯 #shorts #gk`,
+      `क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 ${topicName} GK #shorts`,
+      `${examTag} 2026 स्पेशल 🎯 ${topicName} Top ${qCount} MCQs #shorts #gk`
     ];
-
-    const templateIdx = (partNumber - 1) % templates.length;
-    let title = templates[templateIdx];
-
-    if (title.length > 95) {
-      title = `${examTag} ${year} | ${topicName} Top ${qCount} MCQs #Shorts #GK`;
-    }
-    return title.slice(0, 98);
+    const curIdx = Math.abs((partNumber * 3) % curiosityTemplates.length);
+    return curiosityTemplates[curIdx].slice(0, 85);
   }
 
-  generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge') {
+  generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge', questions = []) {
     return buildShortVideoDescription({
       title,
       brand,
-      topic: cleanTopic
+      topic: cleanTopic,
+      questions
     });
   }
 
