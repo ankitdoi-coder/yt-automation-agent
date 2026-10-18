@@ -5,7 +5,9 @@
     "fb_01",
     "fb_13",
     "fb_06",
-    "norm_11"
+    "norm_11",
+    "dm_03",
+    "norm_03"
   ],
   "uploads": [
     {
@@ -50,6 +52,22 @@
       "fbVideoId": "1625226655129447",
       "uploadedAt": "2026-10-18T08:54:37.111Z",
       "answer": "सीढ़ियां (Stairs)! 🪜🏢"
+    },
+    {
+      "id": "dm_03",
+      "category": "double_meaning",
+      "title": "हाथ में पकड़कर हिलाओ तो पानी निकलता है!",
+      "fbVideoId": "1444522827626281",
+      "uploadedAt": "2026-10-18T11:54:37.518Z",
+      "answer": "गांव का हैंडपंप (Handpump)! 🚰😂"
+    },
+    {
+      "id": "norm_03",
+      "category": "smart_normal",
+      "title": "पानी पीते ही मर जाती है!",
+      "fbVideoId": "1119946133731530",
+      "uploadedAt": "2026-10-18T11:54:58.358Z",
+      "answer": "प्यास (Thirst) या आग! 💧🔥"
     }
   ]
 }
