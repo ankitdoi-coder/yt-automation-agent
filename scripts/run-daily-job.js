@@ -290,6 +290,8 @@ async function run() {
   }
 
   const results = [];
+  const skippedSlots = [];
+  const failedSlots = [];
 
   for (let i = 0; i < slotsToRun.length; i++) {
     const slot = slotsToRun[i];
@@ -303,15 +305,31 @@ async function run() {
         const ageHours = (Date.now() - publishedAt) / (1000 * 60 * 60);
         if (ageHours > 18) return false;
         const title = (item.snippet?.title || '').toLowerCase();
-        if (slot.id === 'slot1' && (title.includes('science') || title.includes('विज्ञान') || title.includes('biology') || title.includes('जीव विज्ञान') || title.includes('shorts 1') || title.includes('rapid revision'))) return true;
-        if (slot.id === 'slot2' && (title.includes('इतिहास') || title.includes('history') || title.includes('प्राचीन') || title.includes('भाग 1') || title.includes('masterclass'))) return true;
-        if (slot.id === 'slot3' && (title.includes('संविधान') || title.includes('भूगोल') || title.includes('polity') || title.includes('भाग 2') || title.includes('marathon') || title.includes('विज्ञान') || title.includes('static'))) return true;
-        if (slot.id === 'slot4' && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk') || title.includes('shorts 2') || title.includes('static') || title.includes('पुस्तक') || title.includes('उद्यान'))) return true;
+        const isUploadShorts = title.includes('#shorts') || title.includes('#short') || /top\s*5\b|5\s*सवाल|5\s*mcq/i.test(title);
+        const isUploadLong = !isUploadShorts && (/50\b|masterclass|marathon|क्लास|भाग\s*\d/i.test(title) || !title.includes('shorts'));
+
+        if (slot.id === 'slot1') {
+          // Slot 1 is Morning Rapid Revision Shorts (Science / Biology)
+          return isUploadShorts && (title.includes('science') || title.includes('विज्ञान') || title.includes('biology') || title.includes('जीव विज्ञान') || title.includes('shorts 1') || title.includes('rapid revision'));
+        }
+        if (slot.id === 'slot2') {
+          // Slot 2 is Afternoon Study Masterclass Long Video (50 Questions - History / Science)
+          return isUploadLong && (title.includes('इतिहास') || title.includes('history') || title.includes('प्राचीन') || title.includes('मध्यकालीन') || title.includes('आधुनिक') || title.includes('भाग 1') || title.includes('masterclass'));
+        }
+        if (slot.id === 'slot3') {
+          // Slot 3 is Evening Prime Exam Class Long Video (50 Questions - Marathon / Science / Polity)
+          return isUploadLong && (title.includes('संविधान') || title.includes('भूगोल') || title.includes('polity') || title.includes('भाग 2') || title.includes('marathon') || title.includes('static') || title.includes('रामबाण'));
+        }
+        if (slot.id === 'slot4') {
+          // Slot 4 is Bedtime Rapid Scroll Shorts (Static GK / First in India / Mixed)
+          return isUploadShorts && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk') || title.includes('shorts 2') || title.includes('static') || title.includes('पुस्तक') || title.includes('उद्यान') || title.includes('नृत्य'));
+        }
         return false;
       });
 
       if (alreadyUploaded) {
         logger.info(`⏭️ Skipping ${slot.name} (${slot.id}): Already uploaded to channel today: "${alreadyUploaded.snippet?.title}". (Set FORCE_RUN=true to override).`);
+        skippedSlots.push({ slot: slot.name, timeIST: slot.timeIST, title: alreadyUploaded.snippet?.title });
         continue;
       }
     }
@@ -335,6 +353,7 @@ async function run() {
 
       if (finished.status === 'failed') {
         logger.error(`Generation failed for ${slot.name}: ${finished.error}`);
+        failedSlots.push({ slot: slot.name, timeIST: slot.timeIST, error: finished.error });
         continue;
       }
 
@@ -390,16 +409,24 @@ async function run() {
       }
     } catch (err) {
       logger.error(`Failed to process ${slot.name}: ${err.message}`, err);
+      failedSlots.push({ slot: slot.name, timeIST: slot.timeIST, error: err.message });
     }
   }
 
   logger.info(`\n════════════════════════════════════════════════════════════`);
-  logger.info(`📊 Daily Automation Summary (${results.length}/${slotsToRun.length} succeeded):`);
+  logger.info(`📊 Daily Automation Summary (${results.length}/${slotsToRun.length} produced, ${skippedSlots.length} skipped):`);
   results.forEach(r => logger.info(`  ✅ [${r.timeIST} IST] ${r.slot} -> ${r.url} (${r.status})`));
+  skippedSlots.forEach(s => logger.info(`  ⏭️ [${s.timeIST} IST] ${s.slot} -> Skipped (already published today: "${s.title}")`));
+  failedSlots.forEach(f => logger.info(`  ❌ [${f.timeIST} IST] ${f.slot} -> Failed (${f.error})`));
   logger.info(`════════════════════════════════════════════════════════════`);
 
-  if (results.length === 0 && slotsToRun.length > 0) {
-    throw new Error('All scheduled video jobs failed.');
+  if (failedSlots.length > 0) {
+    throw new Error(`${failedSlots.length} scheduled video job(s) failed.`);
+  }
+
+  if (results.length === 0 && skippedSlots.length === slotsToRun.length) {
+    logger.info('✨ All scheduled daily slots are already published and up to date for today. (Run with FORCE_RUN=true to regenerate).');
+    process.exit(0);
   }
 
   process.exit(0);
