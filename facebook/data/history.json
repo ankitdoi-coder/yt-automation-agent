@@ -16,7 +16,8 @@
     "norm_01",
     "norm_08",
     "norm_04",
-    "norm_09"
+    "norm_09",
+    "norm_06"
   ],
   "uploads": [
     {
@@ -149,6 +150,14 @@
       "fbVideoId": "2190370281549463",
       "uploadedAt": "2026-10-19T17:37:34.366Z",
       "answer": "अंधेरा (Darkness)! 🌑✨"
+    },
+    {
+      "id": "norm_06",
+      "category": "smart_normal",
+      "title": "आगे भगवान ने, पीछे इंसान ने!",
+      "fbVideoId": "1571105644817515",
+      "uploadedAt": "2026-10-19T20:20:56.277Z",
+      "answer": "बैलगाड़ी! (बैल + गाड़ी) 🐂🛞"
     }
   ]
 }

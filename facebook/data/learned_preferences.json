@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-19T17:37:50.998Z",
+  "updatedAt": "2026-10-19T20:21:08.671Z",
   "recommendedTimerSeconds": 4,
   "topHookStyle": "Tricky Double-Meaning with Clean Twist",
   "preferredThemes": [
@@ -11,26 +11,31 @@
   ],
   "highRetentionPacing": true,
   "autoCallToAction": "👉 कमेंट में बताओ आपका दिमाग पहले कहां गया था! 👇😂",
-  "viralOutliersCount": 4,
+  "viralOutliersCount": 9,
   "viralOutliers": [
     {
       "title": "पानी पीते ही मर जाती है!",
       "plays": 3,
-      "multiple": 3
+      "multiple": 6
     },
     {
       "title": "अंधेरे में घुसाया, दर्द हुआ, खून निकला!",
       "plays": 2,
-      "multiple": 2
+      "multiple": 4
     },
     {
       "title": "डालने पर कड़क, निकालने पर ढीला!",
       "plays": 3,
-      "multiple": 3
+      "multiple": 6
     },
     {
       "title": "सोने की है पर सुनार के पास नहीं!",
       "plays": 2,
+      "multiple": 4
+    },
+    {
+      "title": "ऐसी कौन सी चीज़ है?",
+      "plays": 1,
       "multiple": 2
     }
   ]
