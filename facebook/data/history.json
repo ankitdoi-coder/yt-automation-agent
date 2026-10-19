@@ -14,7 +14,8 @@
     "dm_01",
     "norm_02",
     "norm_01",
-    "norm_08"
+    "norm_08",
+    "norm_04"
   ],
   "uploads": [
     {
@@ -131,6 +132,14 @@
       "fbVideoId": "1153724347223693",
       "uploadedAt": "2026-10-19T09:09:27.365Z",
       "answer": "जलती हुई मोमबत्ती (Candle)! 🕯️"
+    },
+    {
+      "id": "norm_04",
+      "category": "smart_normal",
+      "title": "चीज़ आपकी, इस्तेमाल दूसरे करते हैं!",
+      "fbVideoId": "1611463376863430",
+      "uploadedAt": "2026-10-19T14:52:18.978Z",
+      "answer": "आपका नाम (Your Name)! 📛😂"
     }
   ]
 }
