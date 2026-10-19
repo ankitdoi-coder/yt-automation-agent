@@ -219,8 +219,8 @@ function isCorruptedDevanagari(text = '') {
 
   // 2. High ratio of bare single Devanagari consonants (matra-stripped words like 'ठ ठर फरवर')
   const words = str.split(/\s+/).filter(Boolean);
-  const bareConsonants = words.filter(w => /^[\u0905-\u0939]$/.test(w)).length;
-  if (words.length >= 2 && (bareConsonants / words.length) >= 0.3) {
+  const bareConsonants = words.filter(w => /^[\u0905-\u0939]$/.test(w) && w !== 'व' && w !== 'न').length;
+  if (words.length >= 3 && bareConsonants >= 2 && (bareConsonants / words.length) >= 0.3) {
     return true;
   }
 

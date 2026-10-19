@@ -467,6 +467,22 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
       question = devanagariToStandardDigits(question);
       question = hindiWordsToNumbers(question);
 
+      // Auto-expand brief telegraphic noun phrases into complete grammatical Hindi questions
+      const hasDevanagari = /[\u0900-\u097F]/.test(question);
+      if (hasDevanagari && question.length >= 6 && question.length < 25 && !/[?]$/.test(question) && !/(?:क्या|कौन|किसे|किसको|कितन|कहाँ|कहा जाता)/i.test(question)) {
+        if (/(?:मान|संख्या|अनुपात|मात्रा|काल|अवधि|समय|तापमान|भार|वजन|प्रतिशत|उम्र|आयु)/i.test(question)) {
+          question = `${question} कितना होता है?`;
+        } else if (/(?:अंग|ग्रंथि|हार्मोन|तत्व|धातु|विटामिन|ग्रह|नदी|पार्क|राजधानी|शहर|देश|किला|मंदिर|पुस्तक|नृत्य)/i.test(question)) {
+          question = `${question} कौन सा है?`;
+        } else if (/(?:खोज|आविष्कार|संस्थापक|रचयिता|लेखक|निर्माता|जनक)/i.test(question)) {
+          question = `${question} किसने किया था?`;
+        } else if (/(?:कहा जाता|उपनाम|नाम)/i.test(question)) {
+          question = `${question} किसे कहा जाता है?`;
+        } else {
+          question = `${question} क्या है?`;
+        }
+      }
+
       const options = (Array.isArray(raw.options) ? raw.options : [])
         .map(option => {
           let opt = cleanAnswerText(String(option || ''));
@@ -476,7 +492,7 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
         })
         .filter(Boolean);
 
-      if (!question || options.length !== 4) continue;
+      if (!question || question.trim().length < 10 || options.length !== 4) continue;
 
       // Reject questions with duplicate options
       const uniqueOptions = new Set(options.map(opt => opt.toLowerCase().trim()));
@@ -565,6 +581,7 @@ ${existing}
 13. Strict JSON: every string in "options" and "question" must be enclosed in double quotes. Do NOT use unescaped double quotes inside question, options, or explanation text; use single quotes ('...') for any terms or titles inside sentences (e.g. 'मास्टर ग्रंथि', 'विटामिन C').
 14. ZERO REPETITION & NO CLICHES: Never ask beginner cliches (e.g. counting bones in human body "मानव शरीर में हड्डियां", simple national symbols, simple capitals). Every question must be a fresh, competitive-exam level question (SSC CGL / UPSC / Railway NTPC standard) covering diverse specialized sub-domains.
 15. SYLLABUS-BACKED SCIENCE & STATIC GK FOCUS: For General Science topics, prioritize high-yield exam concepts: cell biology (माइटोकॉन्ड्रिया, राइबोसोम, लाइसोसोम), vitamins & chemical names (एस्कॉर्बिक एसिड, रेटिनॉल), human anatomy & organs (हृदय, वृक्क, यकृत, इंसुलिन), acid/base & pH values (रक्त का pH, अम्लीय वर्षा), physics SI units (पास्कल, जूल, वाट) and inventions. For Static GK, prioritize Books & Authors, National Parks with states, Folk Dances with festivals, and Dams with river projects.
+16. COMPLETE SENTENCE QUESTIONS: Every question must be a complete, grammatically sound question (at least 5 to 15 words, e.g. 'मानव शरीर में रक्त का सामान्य pH मान कितना होता है?', 'कोशिका की आत्मघाती थैली किसे कहा जाता है?'). NEVER write telegraphic 1-3 word phrases (e.g. do NOT write 'लार का pH' or 'मास्टर ग्रंथि').
 Return only the valid JSON, no markdown outside, no commentary.`;
   }
 
@@ -656,6 +673,53 @@ Return only the valid JSON, no markdown outside, no commentary.`;
     } catch (error) {
       this.logger.warn(`Quiz answer verification skipped: ${error.message}`);
     }
+
+    // Self-healing sanitation pass: Ensure every question is valid, non-empty, and has complete text
+    const sanitizedQuestions = [];
+    const finalSeen = new Set();
+    for (const q of questions) {
+      if (!q || !q.question) continue;
+      let text = String(q.question).trim();
+      // Auto-expand brief noun phrase if needed
+      const hasDevanagari = /[\u0900-\u097F]/.test(text);
+      if (hasDevanagari && text.length >= 6 && text.length < 25 && !/[?]$/.test(text) && !/(?:क्या|कौन|किसे|किसको|कितन|कहाँ|कहा जाता)/i.test(text)) {
+        if (/(?:मान|संख्या|अनुपात|मात्रा|काल|अवधि|समय|तापमान|भार|वजन|प्रतिशत|उम्र|आयु)/i.test(text)) {
+          text = `${text} कितना होता है?`;
+        } else if (/(?:अंग|ग्रंथि|हार्मोन|तत्व|धातु|विटामिन|ग्रह|नदी|पार्क|राजधानी|शहर|देश|किला|मंदिर|पुस्तक|नृत्य)/i.test(text)) {
+          text = `${text} कौन सा है?`;
+        } else if (/(?:खोज|आविष्कार|संस्थापक|रचयिता|लेखक|निर्माता|जनक)/i.test(text)) {
+          text = `${text} किसने किया था?`;
+        } else if (/(?:कहा जाता|उपनाम|नाम)/i.test(text)) {
+          text = `${text} किसे कहा जाता है?`;
+        } else {
+          text = `${text} क्या है?`;
+        }
+      }
+      if (text.length < 10) continue;
+      if (!Array.isArray(q.options) || q.options.length !== 4) continue;
+      if (new Set(q.options.map(o => String(o || '').toLowerCase().trim())).size !== 4) continue;
+      if (!Number.isInteger(q.answerIndex) || q.answerIndex < 0 || q.answerIndex > 3) continue;
+
+      const key = this.quizDuplicateKey(text);
+      if (finalSeen.has(key)) continue;
+      finalSeen.add(key);
+
+      sanitizedQuestions.push({
+        ...q,
+        question: text
+      });
+    }
+
+    if (sanitizedQuestions.length < minimum) {
+      const error = new Error(`Quiz generation produced only ${sanitizedQuestions.length}/${requestedTotal} valid questions (minimum ${minimum})`);
+      error.code = 'SCRIPT_QUALITY_REJECTED';
+      error.violations = [`Only ${sanitizedQuestions.length} unique valid questions for a requested ${requestedTotal}`];
+      throw error;
+    }
+
+    questions.length = 0;
+    questions.push(...sanitizedQuestions);
+    questions.forEach((question, index) => { question.number = index + 1; });
 
     // Record questions to persistent storage so they are never repeated across videos
     try {
@@ -815,8 +879,9 @@ ${flaggedItems}`;
       const target = questions.find(question => question.number === Number(replacement.number));
       if (!target) continue;
       const uniqueOpts = new Set(replacement.options.map(o => o.toLowerCase().trim()));
-      if (uniqueOpts.size !== 4) continue;
-      target.question = replacement.question;
+      if (replacement.question && String(replacement.question).trim().length >= 10) {
+        target.question = replacement.question;
+      }
       target.options = replacement.options;
       target.answerIndex = replacement.answerIndex;
       if (replacement.explanation) target.explanation = replacement.explanation;
@@ -864,39 +929,77 @@ ${flaggedItems}`;
 
   validateQuizQuality(script, strategy) {
     const violations = [];
-    const questions = script.quiz?.questions || [];
+    let questions = script.quiz?.questions || [];
     const requested = Number(script.quiz?.requestedQuestions || questions.length);
     const minimum = Math.min(requested, Math.max(3, Math.floor(requested * 0.8)));
+
+    const validQuestions = [];
+    const seen = new Set();
+    const droppedLabels = [];
+
+    questions.forEach(question => {
+      const label = `Q${question.number || (validQuestions.length + 1)}`;
+      const text = String(question.question || '').trim();
+      const hasShortText = text.length < 10;
+      const hasWrongOptions = !Array.isArray(question.options) || question.options.length !== 4;
+      const hasDupOptions = !hasWrongOptions && new Set(question.options.map(o => String(o || '').toLowerCase().trim())).size !== 4;
+      const hasEmptyOption = !hasWrongOptions && question.options.some(o => !o || String(o).trim().length < 1);
+      const hasBadAnswer = !Number.isInteger(question.answerIndex) || question.answerIndex < 0 || question.answerIndex > 3;
+      const key = this.quizDuplicateKey(text);
+      const isDup = seen.has(key);
+
+      if (hasShortText || hasWrongOptions || hasDupOptions || hasEmptyOption || hasBadAnswer || isDup) {
+        droppedLabels.push(`${label} (${hasShortText ? 'short text' : hasWrongOptions ? 'wrong option count' : hasDupOptions ? 'duplicate options' : hasEmptyOption ? 'empty option' : hasBadAnswer ? 'bad answer' : 'duplicate'})`);
+        return;
+      }
+
+      seen.add(key);
+      validQuestions.push(question);
+    });
+
+    if (droppedLabels.length > 0) {
+      if (validQuestions.length >= minimum) {
+        this.logger.warn(`Auto-pruned ${droppedLabels.length} defective question(s): ${droppedLabels.join(', ')}. Remaining valid questions: ${validQuestions.length}/${requested}`);
+        validQuestions.forEach((q, idx) => { q.number = idx + 1; });
+        if (script.quiz) {
+          script.quiz.questions = validQuestions;
+          script.quiz.totalQuestions = validQuestions.length;
+        }
+        questions = validQuestions;
+
+        // Re-sync titles and script text
+        if (script.title && /top\s*\d+/i.test(script.title)) {
+          script.title = script.title.replace(/top\s*\d+/i, `Top ${validQuestions.length}`);
+        }
+        if (script.quiz?.headerLabel && /top\s*\d+/i.test(script.quiz.headerLabel)) {
+          script.quiz.headerLabel = script.quiz.headerLabel.replace(/top\s*\d+/i, `Top ${validQuestions.length}`);
+        }
+        if (script.quiz?.thumbnailLabel && /top\s*\d+/i.test(script.quiz.thumbnailLabel)) {
+          script.quiz.thumbnailLabel = script.quiz.thumbnailLabel.replace(/top\s*\d+/i, `TOP ${validQuestions.length}`);
+        }
+
+        try {
+          const { formatStrictQuizScript, formatShortQuizScript, introNarration } = require('../utils/quiz-narration');
+          const isShort = script.isShort;
+          const language = script.quiz?.language || 'hi';
+          const subjectHindi = script.quiz?.subjectHindi || 'सामान्य ज्ञान';
+          const introText = isShort ? '' : introNarration(subjectHindi, validQuestions.length, language);
+          const fullScript = isShort
+            ? formatShortQuizScript(validQuestions, language)
+            : formatStrictQuizScript(validQuestions, language, { introText, subject: subjectHindi });
+          script.fullScript = fullScript;
+          if (script.quiz) script.quiz.textScript = fullScript;
+        } catch (formatErr) {
+          this.logger.warn(`Could not reformat narration script after pruning: ${formatErr.message}`);
+        }
+      } else {
+        violations.push(`Too many defective questions discarded (${droppedLabels.length}). Only ${validQuestions.length} valid questions remain (minimum ${minimum})`);
+      }
+    }
 
     if (questions.length < minimum) {
       violations.push(`Only ${questions.length} unique valid questions for a requested ${requested}`);
     }
-
-    const seen = new Set();
-    questions.forEach(question => {
-      const label = `Q${question.number}`;
-      if (!question.question || question.question.length < 15) {
-        violations.push(`${label} question text is too short`);
-      }
-      if (!Array.isArray(question.options) || question.options.length !== 4) {
-        violations.push(`${label} does not have exactly 4 options`);
-      } else {
-        if (new Set(question.options.map(option => option.toLowerCase())).size !== 4) {
-          violations.push(`${label} has duplicate options`);
-        }
-        if (question.options.some(option => !option || option.length < 1)) {
-          violations.push(`${label} has an empty option`);
-        }
-      }
-      if (!Number.isInteger(question.answerIndex) || question.answerIndex < 0 || question.answerIndex > 3) {
-        violations.push(`${label} has no valid answer`);
-      }
-      const key = this.quizDuplicateKey(question.question);
-      if (seen.has(key)) {
-        violations.push(`${label} duplicates an earlier question`);
-      }
-      seen.add(key);
-    });
 
     // Language consistency: a Hindi quiz must actually be in Devanagari.
     const corpus = questions.map(question => `${question.question} ${(question.options || []).join(' ')}`).join(' ');
