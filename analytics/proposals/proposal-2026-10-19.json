@@ -1,0 +1,13 @@
+{
+  "timestamp": "2026-10-19T10:10:59.440Z",
+  "date": "2026-10-19",
+  "isRegressionRevert": false,
+  "totalProposalsGenerated": 0,
+  "proposalsApproved": 0,
+  "proposals": [],
+  "exploreExploitDistribution": {
+    "exploit": 0.7,
+    "explore": 0.3
+  },
+  "applied": false
+}
