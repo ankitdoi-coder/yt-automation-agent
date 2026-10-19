@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-18T19:21:16.668Z",
+  "updatedAt": "2026-10-19T05:30:10.235Z",
   "recommendedTimerSeconds": 4,
   "topHookStyle": "Tricky Double-Meaning with Clean Twist",
   "preferredThemes": [
@@ -11,17 +11,6 @@
   ],
   "highRetentionPacing": true,
   "autoCallToAction": "👉 कमेंट में बताओ आपका दिमाग पहले कहां गया था! 👇😂",
-  "viralOutliersCount": 2,
-  "viralOutliers": [
-    {
-      "title": "पानी पीते ही मर जाती है!",
-      "plays": 3,
-      "multiple": 3
-    },
-    {
-      "title": "डालने पर कड़क, निकालने पर ढीला!",
-      "plays": 3,
-      "multiple": 3
-    }
-  ]
+  "viralOutliersCount": 0,
+  "viralOutliers": []
 }

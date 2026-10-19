@@ -10,7 +10,10 @@
     "norm_03",
     "dm_10",
     "dm_08",
-    "dm_04"
+    "dm_04",
+    "dm_01",
+    "norm_02",
+    "norm_01"
   ],
   "uploads": [
     {
@@ -95,6 +98,30 @@
       "fbVideoId": "1100286759382938",
       "uploadedAt": "2026-10-18T19:21:02.220Z",
       "answer": "साइकिल का पैडल! 🚲😂"
+    },
+    {
+      "id": "dm_01",
+      "category": "double_meaning",
+      "title": "अंधेरे में घुसाया, दर्द हुआ, खून निकला!",
+      "fbVideoId": "2109976303725820",
+      "uploadedAt": "2026-10-19T05:29:19.881Z",
+      "answer": "कान छिदवाना! (Ear Piercing) 👂✨"
+    },
+    {
+      "id": "norm_02",
+      "category": "smart_normal",
+      "title": "जितना खींचो उतना छोटा!",
+      "fbVideoId": "1873201587031235",
+      "uploadedAt": "2026-10-19T05:29:39.890Z",
+      "answer": "बीड़ी या सिगरेट! 🚬😂"
+    },
+    {
+      "id": "norm_01",
+      "category": "smart_normal",
+      "title": "सोने की है पर सुनार के पास नहीं!",
+      "fbVideoId": "2186723685573180",
+      "uploadedAt": "2026-10-19T05:29:58.481Z",
+      "answer": "तकिया और चारपाई (Bed)! 🛏️😴"
     }
   ]
 }
