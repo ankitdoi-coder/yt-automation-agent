@@ -15,7 +15,8 @@
     "norm_02",
     "norm_01",
     "norm_08",
-    "norm_04"
+    "norm_04",
+    "norm_09"
   ],
   "uploads": [
     {
@@ -140,6 +141,14 @@
       "fbVideoId": "1611463376863430",
       "uploadedAt": "2026-10-19T14:52:18.978Z",
       "answer": "आपका नाम (Your Name)! 📛😂"
+    },
+    {
+      "id": "norm_09",
+      "category": "smart_normal",
+      "title": "जितनी ज़्यादा बढ़ती है, उतनी कम दिखती है!",
+      "fbVideoId": "2190370281549463",
+      "uploadedAt": "2026-10-19T17:37:34.366Z",
+      "answer": "अंधेरा (Darkness)! 🌑✨"
     }
   ]
 }
