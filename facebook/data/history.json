@@ -21,7 +21,8 @@
     "dm_02",
     "norm_07",
     "dm_06",
-    "dm_09"
+    "dm_09",
+    "norm_13"
   ],
   "uploads": [
     {
@@ -194,6 +195,14 @@
       "fbVideoId": "1121385957261710",
       "uploadedAt": "2026-10-20T15:44:41.851Z",
       "answer": "चैन की नींद (Deep Sleep)! 😴💤"
+    },
+    {
+      "id": "norm_13",
+      "category": "smart_normal",
+      "title": "फटने पर भी कोई आवाज़ नहीं होती!",
+      "fbVideoId": "1137657415324436",
+      "uploadedAt": "2026-10-20T18:54:04.496Z",
+      "answer": "फटा हुआ दूध (Curdled Milk)! 🥛"
     }
   ]
 }
