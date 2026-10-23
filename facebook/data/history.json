@@ -33,7 +33,8 @@
     "norm_06",
     "norm_06",
     "norm_01",
-    "dm_09"
+    "dm_09",
+    "norm_03"
   ],
   "uploads": [
     {
@@ -302,6 +303,14 @@
       "fbVideoId": "1096040606582483",
       "uploadedAt": "2026-10-23T12:46:16.519Z",
       "answer": "चैन की नींद (Deep Sleep)! 😴💤"
+    },
+    {
+      "id": "norm_03",
+      "category": "smart_normal",
+      "title": "पानी पीते ही मर जाती है!",
+      "fbVideoId": "1884541289650498",
+      "uploadedAt": "2026-10-23T15:48:50.261Z",
+      "answer": "प्यास (Thirst) या आग! 💧🔥"
     }
   ]
 }
