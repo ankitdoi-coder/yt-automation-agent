@@ -34,7 +34,8 @@
     "norm_06",
     "norm_01",
     "dm_09",
-    "norm_03"
+    "norm_03",
+    "norm_01"
   ],
   "uploads": [
     {
@@ -311,6 +312,14 @@
       "fbVideoId": "1884541289650498",
       "uploadedAt": "2026-10-23T15:48:50.261Z",
       "answer": "प्यास (Thirst) या आग! 💧🔥"
+    },
+    {
+      "id": "norm_01",
+      "category": "smart_normal",
+      "title": "सोने की है पर सुनार के पास नहीं!",
+      "fbVideoId": "1108105991925321",
+      "uploadedAt": "2026-10-23T19:19:03.517Z",
+      "answer": "तकिया और चारपाई (Bed)! 🛏️😴"
     }
   ]
 }
