@@ -36,7 +36,8 @@
     "dm_09",
     "norm_03",
     "norm_01",
-    "norm_08"
+    "norm_08",
+    "norm_02"
   ],
   "uploads": [
     {
@@ -329,6 +330,14 @@
       "fbVideoId": "1471519364833900",
       "uploadedAt": "2026-10-23T20:16:18.014Z",
       "answer": "जलती हुई मोमबत्ती (Candle)! 🕯️"
+    },
+    {
+      "id": "norm_02",
+      "category": "smart_normal",
+      "title": "जितना खींचो उतना छोटा!",
+      "fbVideoId": "4266707406805900",
+      "uploadedAt": "2026-10-24T08:18:04.171Z",
+      "answer": "बीड़ी या सिगरेट! 🚬😂"
     }
   ]
 }
