@@ -38,7 +38,8 @@
     "norm_01",
     "norm_08",
     "norm_02",
-    "norm_03"
+    "norm_03",
+    "norm_02"
   ],
   "uploads": [
     {
@@ -347,6 +348,14 @@
       "fbVideoId": "943685848507574",
       "uploadedAt": "2026-10-24T12:09:28.590Z",
       "answer": "प्यास (Thirst) या आग! 💧🔥"
+    },
+    {
+      "id": "norm_02",
+      "category": "smart_normal",
+      "title": "जितना खींचो उतना छोटा!",
+      "fbVideoId": "1113234411315847",
+      "uploadedAt": "2026-10-24T14:42:44.124Z",
+      "answer": "बीड़ी या सिगरेट! 🚬😂"
     }
   ]
 }
