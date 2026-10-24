@@ -40,7 +40,8 @@
     "norm_02",
     "norm_03",
     "norm_02",
-    "norm_03"
+    "norm_03",
+    "dm_05"
   ],
   "uploads": [
     {
@@ -365,6 +366,14 @@
       "fbVideoId": "2073807519928638",
       "uploadedAt": "2026-10-24T17:49:15.294Z",
       "answer": "प्यास (Thirst) या आग! 💧🔥"
+    },
+    {
+      "id": "dm_05",
+      "category": "double_meaning",
+      "title": "अंगुली से पकड़कर मुंह में डालो!",
+      "fbVideoId": "1412808980484195",
+      "uploadedAt": "2026-10-24T19:20:52.096Z",
+      "answer": "टूथब्रश (Toothbrush)! 🪥✨"
     }
   ]
 }
