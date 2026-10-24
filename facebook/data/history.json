@@ -37,7 +37,8 @@
     "norm_03",
     "norm_01",
     "norm_08",
-    "norm_02"
+    "norm_02",
+    "norm_03"
   ],
   "uploads": [
     {
@@ -338,6 +339,14 @@
       "fbVideoId": "4266707406805900",
       "uploadedAt": "2026-10-24T08:18:04.171Z",
       "answer": "बीड़ी या सिगरेट! 🚬😂"
+    },
+    {
+      "id": "norm_03",
+      "category": "smart_normal",
+      "title": "पानी पीते ही मर जाती है!",
+      "fbVideoId": "943685848507574",
+      "uploadedAt": "2026-10-24T12:09:28.590Z",
+      "answer": "प्यास (Thirst) या आग! 💧🔥"
     }
   ]
 }
