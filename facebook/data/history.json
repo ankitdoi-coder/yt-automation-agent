@@ -43,7 +43,8 @@
     "norm_03",
     "dm_05",
     "norm_08",
-    "norm_13"
+    "norm_13",
+    "dm_03"
   ],
   "uploads": [
     {
@@ -392,6 +393,14 @@
       "fbVideoId": "1151690180871445",
       "uploadedAt": "2026-10-25T12:41:59.451Z",
       "answer": "फटा हुआ दूध (Curdled Milk)! 🥛"
+    },
+    {
+      "id": "dm_03",
+      "category": "double_meaning",
+      "title": "हाथ में पकड़कर हिलाओ तो पानी निकलता है!",
+      "fbVideoId": "1452655396962379",
+      "uploadedAt": "2026-10-25T15:00:07.433Z",
+      "answer": "गांव का हैंडपंप (Handpump)! 🚰😂"
     }
   ]
 }
