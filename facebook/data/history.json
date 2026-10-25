@@ -42,7 +42,8 @@
     "norm_02",
     "norm_03",
     "dm_05",
-    "norm_08"
+    "norm_08",
+    "norm_13"
   ],
   "uploads": [
     {
@@ -383,6 +384,14 @@
       "fbVideoId": "1434664725478379",
       "uploadedAt": "2026-10-25T08:36:40.595Z",
       "answer": "जलती हुई मोमबत्ती (Candle)! 🕯️"
+    },
+    {
+      "id": "norm_13",
+      "category": "smart_normal",
+      "title": "फटने पर भी कोई आवाज़ नहीं होती!",
+      "fbVideoId": "1151690180871445",
+      "uploadedAt": "2026-10-25T12:41:59.451Z",
+      "answer": "फटा हुआ दूध (Curdled Milk)! 🥛"
     }
   ]
 }
