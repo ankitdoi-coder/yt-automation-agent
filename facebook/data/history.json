@@ -41,7 +41,8 @@
     "norm_03",
     "norm_02",
     "norm_03",
-    "dm_05"
+    "dm_05",
+    "norm_08"
   ],
   "uploads": [
     {
@@ -374,6 +375,14 @@
       "fbVideoId": "1412808980484195",
       "uploadedAt": "2026-10-24T19:20:52.096Z",
       "answer": "टूथब्रश (Toothbrush)! 🪥✨"
+    },
+    {
+      "id": "norm_08",
+      "category": "smart_normal",
+      "title": "दिन में सोती है, रात में रोती है!",
+      "fbVideoId": "1434664725478379",
+      "uploadedAt": "2026-10-25T08:36:40.595Z",
+      "answer": "जलती हुई मोमबत्ती (Candle)! 🕯️"
     }
   ]
 }
