@@ -47,7 +47,8 @@
     "dm_03",
     "norm_01",
     "dm_07",
-    "dm_01"
+    "dm_01",
+    "norm_08"
   ],
   "uploads": [
     {
@@ -428,6 +429,14 @@
       "fbVideoId": "1637263438098642",
       "uploadedAt": "2026-10-26T05:07:58.927Z",
       "answer": "कान छिदवाना! (Ear Piercing) 👂✨"
+    },
+    {
+      "id": "norm_08",
+      "category": "smart_normal",
+      "title": "दिन में सोती है, रात में रोती है!",
+      "fbVideoId": "4759880727602712",
+      "uploadedAt": "2026-10-26T09:12:15.517Z",
+      "answer": "जलती हुई मोमबत्ती (Candle)! 🕯️"
     }
   ]
 }
