@@ -54,7 +54,8 @@
     "dm_02",
     "dm_06",
     "dm_10",
-    "dm_01"
+    "dm_01",
+    "norm_10"
   ],
   "uploads": [
     {
@@ -491,6 +492,14 @@
       "fbVideoId": "3341746162693540",
       "uploadedAt": "2026-10-27T13:29:29.096Z",
       "answer": "कान छिदवाना! (Ear Piercing) 👂✨"
+    },
+    {
+      "id": "norm_10",
+      "category": "smart_normal",
+      "title": "समुद्र में पैदा होती है, घर में रहती है!",
+      "fbVideoId": "1466751412032528",
+      "uploadedAt": "2026-10-27T16:56:43.984Z",
+      "answer": "नमक (Salt)! 🧂😋"
     }
   ]
 }
