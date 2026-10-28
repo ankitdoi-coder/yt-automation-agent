@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-10-28T10:46:04.700Z",
+  "date": "2026-10-28",
+  "isRegressionRevert": true,
+  "totalProposalsGenerated": 2,
+  "proposalsApproved": 1,
+  "proposals": [
+    {
+      "key": "shorts.titleStyle",
+      "currentValue": "dynamic_curiosity_hook",
+      "proposedValue": "curiosity_lucent",
+      "hypothesis": "Revert to known-good baseline (curiosity_lucent) following 86% velocity slump.",
+      "expectedEffect": "Stabilize Shorts feed velocity and restore baseline reach.",
+      "confidence": "High (Known Baseline)",
+      "rollbackValue": "dynamic_curiosity_hook"
+    }
+  ],
+  "exploreExploitDistribution": {
+    "exploit": 0.7,
+    "explore": 0.3
+  },
+  "applied": false
+}
