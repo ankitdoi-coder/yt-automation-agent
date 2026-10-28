@@ -59,7 +59,8 @@
     "dm_05",
     "norm_06",
     "norm_09",
-    "norm_09"
+    "norm_09",
+    "norm_03"
   ],
   "uploads": [
     {
@@ -536,6 +537,14 @@
       "fbVideoId": "1085930754345785",
       "uploadedAt": "2026-10-28T14:17:22.292Z",
       "answer": "अंधेरा (Darkness)! 🌑✨"
+    },
+    {
+      "id": "norm_03",
+      "category": "smart_normal",
+      "title": "पानी पीते ही मर जाती है!",
+      "fbVideoId": "1461624882773655",
+      "uploadedAt": "2026-10-28T17:14:21.311Z",
+      "answer": "प्यास (Thirst) या आग! 💧🔥"
     }
   ]
 }
