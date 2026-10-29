@@ -63,7 +63,8 @@
     "norm_03",
     "dm_06",
     "norm_01",
-    "dm_05"
+    "dm_05",
+    "dm_08"
   ],
   "uploads": [
     {
@@ -572,6 +573,14 @@
       "fbVideoId": "1003304889452902",
       "uploadedAt": "2026-10-29T10:16:27.410Z",
       "answer": "टूथब्रश (Toothbrush)! 🪥✨"
+    },
+    {
+      "id": "dm_08",
+      "category": "double_meaning",
+      "title": "जितना ठोको उतना अंदर जाता है!",
+      "fbVideoId": "2197482214182587",
+      "uploadedAt": "2026-10-29T14:35:06.498Z",
+      "answer": "दीवार में कील (Nail)! 🔨📌"
     }
   ]
 }
