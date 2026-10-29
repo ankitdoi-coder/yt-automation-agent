@@ -62,7 +62,8 @@
     "norm_09",
     "norm_03",
     "dm_06",
-    "norm_01"
+    "norm_01",
+    "dm_05"
   ],
   "uploads": [
     {
@@ -563,6 +564,14 @@
       "fbVideoId": "1453980233357721",
       "uploadedAt": "2026-10-28T21:34:44.652Z",
       "answer": "तकिया और चारपाई (Bed)! 🛏️😴"
+    },
+    {
+      "id": "dm_05",
+      "category": "double_meaning",
+      "title": "अंगुली से पकड़कर मुंह में डालो!",
+      "fbVideoId": "1003304889452902",
+      "uploadedAt": "2026-10-29T10:16:27.410Z",
+      "answer": "टूथब्रश (Toothbrush)! 🪥✨"
     }
   ]
 }
