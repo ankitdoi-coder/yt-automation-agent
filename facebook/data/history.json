@@ -71,7 +71,8 @@
     "dm_07",
     "norm_10",
     "norm_12",
-    "norm_10"
+    "norm_10",
+    "norm_03"
   ],
   "uploads": [
     {
@@ -644,6 +645,14 @@
       "fbVideoId": "1781248996539980",
       "uploadedAt": "2026-10-30T19:50:32.248Z",
       "answer": "नमक (Salt)! 🧂😋"
+    },
+    {
+      "id": "norm_03",
+      "category": "smart_normal",
+      "title": "पानी पीते ही मर जाती है!",
+      "fbVideoId": "3487449214767904",
+      "uploadedAt": "2026-10-30T21:25:08.121Z",
+      "answer": "प्यास (Thirst) या आग! 💧🔥"
     }
   ]
 }
