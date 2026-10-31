@@ -1,0 +1,591 @@
+{
+  "analyzedAt": "2026-10-31T10:32:59.879Z",
+  "channel": {
+    "channelId": "UCjh63suNzws9XB2sF1xKzyw",
+    "title": "ExamIQ",
+    "subscriberCount": 7,
+    "viewCount": 3095,
+    "videoCount": 98
+  },
+  "formatSummary": {
+    "shorts": {
+      "all": {
+        "count": 31,
+        "medianViews": 6,
+        "p75Views": 13,
+        "medianAVD": 13,
+        "medianAPV": 36.8,
+        "totalViews": 311
+      },
+      "mature": {
+        "count": 24,
+        "medianViews": 7,
+        "p75Views": 13,
+        "medianAVD": 13,
+        "medianAPV": 36.3,
+        "totalViews": 207
+      }
+    },
+    "longs": {
+      "all": {
+        "count": 19,
+        "medianViews": 2,
+        "p75Views": 4,
+        "medianAVD": 21,
+        "medianAPV": 2,
+        "totalViews": 61
+      },
+      "mature": {
+        "count": 15,
+        "medianViews": 4,
+        "p75Views": 5,
+        "medianAVD": 21,
+        "medianAPV": 2,
+        "totalViews": 59
+      }
+    }
+  },
+  "hypotheses": {
+    "titleStyle": {
+      "variantA": {
+        "name": "curiosity_lucent",
+        "sampleSize": 3,
+        "median": 7,
+        "lowerBound": 7,
+        "upperBound": 13,
+        "confidence": 0.9
+      },
+      "variantB": {
+        "name": "exam_targeted",
+        "sampleSize": 0,
+        "median": 0,
+        "lowerBound": 0,
+        "upperBound": 0,
+        "confidence": 0.9
+      },
+      "isConclusive": false,
+      "winner": null,
+      "reason": "Inconclusive: insufficient sample size (n=3 vs n=0, minimum required is 5)"
+    },
+    "shortsDuration": {
+      "variantA": {
+        "name": "45-60s",
+        "sampleSize": 0,
+        "median": 0,
+        "lowerBound": 0,
+        "upperBound": 0,
+        "confidence": 0.9
+      },
+      "variantB": {
+        "name": "<45s",
+        "sampleSize": 31,
+        "median": 6,
+        "lowerBound": 4,
+        "upperBound": 7,
+        "confidence": 0.9
+      },
+      "isConclusive": false,
+      "winner": null,
+      "reason": "Inconclusive: insufficient sample size (n=0 vs n=31, minimum required is 5)"
+    }
+  },
+  "topicPerformance": [
+    {
+      "topic": "General Science",
+      "count": 20,
+      "shortsCount": 14,
+      "longsCount": 6,
+      "medianViews": 3.5,
+      "totalViews": 130
+    },
+    {
+      "topic": "History",
+      "count": 10,
+      "shortsCount": 3,
+      "longsCount": 7,
+      "medianViews": 2,
+      "totalViews": 100
+    },
+    {
+      "topic": "Static GK",
+      "count": 10,
+      "shortsCount": 8,
+      "longsCount": 2,
+      "medianViews": 7,
+      "totalViews": 95
+    },
+    {
+      "topic": "Geography",
+      "count": 5,
+      "shortsCount": 3,
+      "longsCount": 2,
+      "medianViews": 4,
+      "totalViews": 28
+    },
+    {
+      "topic": "Constitution",
+      "count": 4,
+      "shortsCount": 2,
+      "longsCount": 2,
+      "medianViews": 2,
+      "totalViews": 12
+    },
+    {
+      "topic": "Devotional",
+      "count": 1,
+      "shortsCount": 1,
+      "longsCount": 0,
+      "medianViews": 7,
+      "totalViews": 7
+    }
+  ],
+  "regressionAlert": {
+    "isDetected": true,
+    "dropPercent": 71,
+    "recent3AvgViews": 25,
+    "prior14AvgViews": 87,
+    "correlatedCommits": [
+      {
+        "hash": "8d92ec9",
+        "message": "chore(facebook): update reels upload history and learned analytics [skip ci]"
+      },
+      {
+        "hash": "dcf7c27",
+        "message": "chore(facebook): update reels upload history and learned analytics [skip ci]"
+      },
+      {
+        "hash": "62b118e",
+        "message": "chore(facebook): update reels upload history and learned analytics [skip ci]"
+      },
+      {
+        "hash": "e417bdd",
+        "message": "chore(facebook): update reels upload history and learned analytics [skip ci]"
+      },
+      {
+        "hash": "fa90a48",
+        "message": "chore(facebook): update reels upload history and learned analytics [skip ci]"
+      }
+    ],
+    "recommendedAction": "Propose revert to last known-good configuration"
+  },
+  "audienceHealth": {
+    "age65Share": 25.8,
+    "age18To34Share": 36.5,
+    "isTargetAspirantDominant": true,
+    "diagnosis": "Alert: Senior audience (65+) remains high (>20%). Devotional / non-exam topics should remain retired to let YouTube lookalike graph re-center on aspirants."
+  },
+  "qualityAudit": {
+    "inspectedCount": 10,
+    "issueCount": 4,
+    "issues": [
+      {
+        "videoId": "vhjToB26m9Q",
+        "issue": "Title too long (>95 chars)",
+        "title": "SSC GD 2026 | Static GK महामैराथन: भारत के राष्ट्रीय उद्यान, प्रसिद्ध लोक नृत्य, प्रमुख नदियां व ब"
+      },
+      {
+        "videoId": "1vqCkP07kXg",
+        "issue": "Title too long (>95 chars)",
+        "title": "SSC CGL & Railway | भारतीय इतिहास के महत्वपूर्ण युद्ध, संधियां और राष्ट्रीय आंदोलन क्विज Top 50 अत"
+      },
+      {
+        "videoId": "cZfncSGyH4I",
+        "issue": "Title too long (>95 chars)",
+        "title": "Railway NTPC & Group D | जीव विज्ञान (Biology) महा-अभ्यास: कोशिका से मानव शरीर तक 50 अति महत्वपूर्"
+      },
+      {
+        "videoId": "e7ry37W0DiY",
+        "issue": "Title too long (>95 chars)",
+        "title": "SSC CGL & Railway | आधुनिक भारत का इतिहास एवं 1857 की क्रांति Top 50 अति महत्वपूर्ण प्रश्न | Previ"
+      }
+    ]
+  },
+  "top5Videos": [
+    {
+      "id": "1z_JwIZj6NA",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 भारतीय इतिहास GK #shorts | ExamIQ",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 भारतीय इतिहास GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. स्वतंत्र भारत के प्रथम भारतीय गवर्नर जनरल निम्नलिखित में से कौन थेQ2. भारत की प्रथम महिला मुख्यमंत्री बनने का गौरव किस राजनेता को प्राप्त हुआ थाQ3. अंतरिक्ष में जाने वाली प्रथम भारतीय मूल की महिला अंतरिक्ष यात्री निम्नलिखित में से कौन थींQ4. माउंट एवरेस्ट फतह करने वाली दुनिया की और भारत की प्रथम महिला पर्वतारोहण कौन थींQ5. भारत के सर्वोच्च न्यायालय में प्रथम महिला न्यायाधीश के रूप में किसे नियुक्त किया गया था💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-29T16:00:34.000Z",
+      "ageHours": 42.5,
+      "isMature": false,
+      "durationSec": 41,
+      "isShort": true,
+      "views": 76,
+      "publicViews": 76,
+      "watchMinutes": 0,
+      "avdSec": 0,
+      "apvPct": 0,
+      "likes": 2,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "ExamIQ",
+        "GK Shorts",
+        "General Knowledge Quiz",
+        "RRB NTPC GK",
+        "SSC CGL GK",
+        "Shorts",
+        "UPSC Prelims",
+        "competitive exams",
+        "education",
+        "general knowledge",
+        "gk in hindi",
+        "gk mcq",
+        "gk questions",
+        "gk questions and answers",
+        "gk quiz",
+        "lucent gk",
+        "railway gk",
+        "samanya gyan",
+        "ssc gk",
+        "static gk",
+        "study tips",
+        "upsc gk",
+        "भारत में प्रथम (पुरुष एवं महिला): 5 अति-महत्वपूर्ण प्रश्नोत्तरी"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "History",
+      "pubHourIst": 21
+    },
+    {
+      "id": "vjIFSUbjCKY",
+      "title": "Top 30 जीव विज्ञान Science GK Questions | General Science Question |Science Question answer",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 जीव विज्ञान GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. किस विटामिन को 'साइनोकोबालामिन' कहा जाता है, जिसमें कोबाल्ट धातु पाई जाती हैQ2. बच्चों में रिकेट्स और वयस्कों में ऑस्टियोमलेशिया रोग किस विटामिन की कमी के कारण होता हैQ3. मसूड़ों से खून आना और स्कर्वी रोग किस विटामिन की कमी का मुख्य लक्षण हैQ4. मानव शरीर में रक्त का थक्का बनाने के लिए कौन सा विटामिन अनिवार्य होता हैQ5. 'पेलाग्रा' रोग मुख्य रूप से किस विटामिन की दीर्घकालिक कमी से उत्पन्न होता है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-20T04:00:30.000Z",
+      "ageHours": 270.5,
+      "isMature": true,
+      "durationSec": 38,
+      "isShort": true,
+      "views": 39,
+      "publicViews": 39,
+      "watchMinutes": 3,
+      "avdSec": 13,
+      "apvPct": 35.8,
+      "likes": 1,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "उनके रासायनिक नाम और कमी से होने वाले रोग: top 5 science gk ExamIQ general knowledge"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "General Science",
+      "pubHourIst": 9
+    },
+    {
+      "id": "4_rG7jWhWT4",
+      "title": "Top 150 gk question and answer | gk questions | gk in hindi |general knowledge questions and answers",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 Static GK GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. स्वतंत्र भारत के प्रथम गवर्नर जनरल निम्नलिखित में से कौन थेQ2. भारत की प्रथम महिला प्रधानमंत्री बनने वाली प्रसिद्ध राजनेता कौन थींQ3. अंतरिक्ष में जाने वाले प्रथम भारतीय नागरिक निम्नलिखित में से कौन हैंQ4. भारत के प्रथम मुख्य चुनाव आयुक्त के रूप में किसने कार्यभार संभाला थाQ5. नोबेल पुरस्कार प्राप्त करने वाले प्रथम भारतीय वैज्ञानिक कौन थे💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-22T05:50:55.000Z",
+      "ageHours": 220.7,
+      "isMature": true,
+      "durationSec": 42,
+      "isShort": true,
+      "views": 22,
+      "publicViews": 22,
+      "watchMinutes": 0,
+      "avdSec": 6,
+      "apvPct": 14.3,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "ExamIQ",
+        "GK Shorts",
+        "General Knowledge Quiz",
+        "RRB NTPC GK",
+        "SSC CGL GK",
+        "Shorts",
+        "UPSC Prelims",
+        "competitive exams",
+        "education",
+        "general knowledge",
+        "gk in hindi",
+        "gk mcq",
+        "gk questions",
+        "gk questions and answers",
+        "gk quiz",
+        "lucent gk",
+        "railway gk",
+        "samanya gyan",
+        "ssc gk",
+        "static gk",
+        "study tips",
+        "upsc gk",
+        "भारत में प्रथम (पुरुष व महिला): बार-बार पूछे जाने वाले top 5 static gk प्रश्न"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "Static GK",
+      "pubHourIst": 10
+    },
+    {
+      "id": "1h0u3URQKIg",
+      "title": "😱 जीव विज्ञान GK #shorts | ExamIQ",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 जीव विज्ञान GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. मानव शरीर में रक्त का सामान्य pH मान कितना होता हैQ2. लाल चींटी के डंक में मुख्य रूप से कौन सा अम्ल उपस्थित होता हैQ3. अम्ल और क्षार की पहचान के लिए उपयोग किया जाने वाला 'लिटमस विलयन' किससे प्राप्त होता हैQ4. मानव आमाशय में भोजन के पाचन के लिए कौन सा अम्ल स्रावित होता हैQ5. सामान्यतः अम्लीय वर्षा (Acid Rain) का pH मान कितने से कम होता है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-24T04:00:39.000Z",
+      "ageHours": 174.5,
+      "isMature": true,
+      "durationSec": 39,
+      "isShort": true,
+      "views": 21,
+      "publicViews": 21,
+      "watchMinutes": 1,
+      "avdSec": 10,
+      "apvPct": 27,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "क्षार और ph मान के 5 महत्वपूर्ण प्रश्न ExamIQ general knowledge"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "General Science",
+      "pubHourIst": 9
+    },
+    {
+      "id": "XXBAXLgLjLM",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 पुस्तकें व लेखक GK #shorts | ExamIQ",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 पुस्तकें व लेखक GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. प्राचीन भारतीय इतिहास के प्रसिद्ध नाटक 'स्वप्नवासवदत्ता' के रचनाकार निम्नलिखित में से कौन हैंQ2. प्रसिद्ध अर्थशास्त्र ग्रंथ 'अष्टाध्यायी' के रचनाकार आचार्य पाणिनी का संबंध मुख्य रूप से किस क्षेत्र से थाQ3. मुगल सम्राट अकबर के नवरत्नों में शामिल उनके दरबारी इतिहासकार अबुल फजल द्वारा रचित प्रसिद्ध ऐतिहासिक ग्रंथ का क्या नाम हैQ4. भारतीय स्वतंत्रता संग्राम के दौरान प्रसिद्ध क्रांतिकारी सचिन्द्रनाथ सान्याल द्वारा लिखित कौन सी पुस्तक क्रांतिकारियों की बाइबल मानी जाती थीQ5. प्राचीन भारतीय चिकित्सा विज्ञान पर आधारित प्रसिद्ध ग्रंथ 'चरक संहिता' के मूल रचनाकार महर्षि चरक किस कुषाण शासक के दरबार से संबंधित थे💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-25T16:00:04.000Z",
+      "ageHours": 138.5,
+      "isMature": true,
+      "durationSec": 41,
+      "isShort": true,
+      "views": 15,
+      "publicViews": 16,
+      "watchMinutes": 2,
+      "avdSec": 12,
+      "apvPct": 29.6,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "ExamIQ",
+        "GK Shorts",
+        "General Knowledge Quiz",
+        "RRB NTPC GK",
+        "SSC CGL GK",
+        "Shorts",
+        "UPSC Prelims",
+        "competitive exams",
+        "education",
+        "general knowledge",
+        "gk in hindi",
+        "gk mcq",
+        "gk questions",
+        "gk questions and answers",
+        "gk quiz",
+        "lucent gk",
+        "railway gk",
+        "samanya gyan",
+        "ssc gk",
+        "static gk",
+        "study tips",
+        "upsc gk",
+        "प्रमुख पुस्तकें और लेखक (books and authors): top 5 most repeated static gk"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "Static GK",
+      "pubHourIst": 21
+    }
+  ],
+  "bottom5Videos": [
+    {
+      "id": "fLG057gP06I",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 भारतीय इतिहास GK #shorts | ExamIQ",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 भारतीय इतिहास GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. मौर्य साम्राज्य के संस्थापक चंद्रगुप्त मौर्य ने अपने जीवन के अंतिम समय में किस धर्म की दीक्षा ली थीQ2. गुप्त वंश के किस शासक को उसकी सैन्य सफलताओं के कारण 'भारत का नेपोलियन' कहा जाता हैQ3. सम्राट अशोक के किस शिलालेख में कलिंग युद्ध का वर्णन और उनके हृदय परिवर्तन का स्पष्ट उल्लेख मिलता हैQ4. गुप्त वंश के किस शासक ने महाधिराज की उपाधि धारण की थी और गुप्त संवत की शुरुआत की थीQ5. मौर्य प्रशासन में राजस्व संग्रहण और कोषागार की देखभाल करने वाले प्रमुख अधिकारी को क्या कहा जाता था💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-31T02:28:23.000Z",
+      "ageHours": 8.1,
+      "isMature": false,
+      "durationSec": 41,
+      "isShort": true,
+      "views": 0,
+      "publicViews": 0,
+      "watchMinutes": 0,
+      "avdSec": 0,
+      "apvPct": 0,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "ExamIQ",
+        "GK Shorts",
+        "General Knowledge Quiz",
+        "RRB NTPC GK",
+        "SSC CGL GK",
+        "Shorts",
+        "UPSC Prelims",
+        "competitive exams",
+        "education",
+        "general knowledge",
+        "gk in hindi",
+        "gk mcq",
+        "gk questions",
+        "gk questions and answers",
+        "gk quiz",
+        "lucent gk",
+        "railway gk",
+        "samanya gyan",
+        "ssc gk",
+        "static gk",
+        "study tips",
+        "upsc gk",
+        "गुप्त वंश व मौर्य साम्राज्य: भारतीय इतिहास के 5 महत्वपूर्ण सवाल"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "History",
+      "pubHourIst": 7
+    },
+    {
+      "id": "vhjToB26m9Q",
+      "title": "SSC GD 2026 | Static GK महामैराथन: भारत के राष्ट्रीय उद्यान, प्रसिद्ध लोक नृत्य, प्रमुख नदियां व ब",
+      "description": "SSC GD 2026 | Static GK महामैराथन: भारत के राष्ट्रीय उद्यान, प्रसिद्ध लोक नृत्य, प्रमुख नदियां व ब🎯 SSC GD 2026 | Static GK महामैराथन: भारत के राष्ट्रीय उद्यान, प्रसिद्ध लोक नृत्य, प्रमुख नदियां व बइस विशेष वीडियो क्लास में ExamIQ द्वारा स्टेटिक जीके और विज्ञान के पिछले 15 वर्षों में बार-बार पूछे गए सबसे महत्वपूर्ण और संभावित प्रश्न उत्तर (Top PYQs) व्याख्या सहित शामिल किए गए हैं।📌 यह क्लास विशेष रूप से SSC CGL, SSC CHSL, SSC GD 2026, Railway RRB NTPC, Group D, RPF, UP Police, Bihar Police, Delhi Police, State PCS और सभी केंद्र व राज्य स्तरीय प्रतियोगी परीक्षाओं के संपूर्ण रिवीजन के लिए अति महत्वपूर्ण है।💡 सभी प्रश्न नए परीक्षा पैटर्न पर आधारित हैं। परीक्षा से पहले इन प्रश्नों को अच्छी तरह रट लें और अपनी तैयारी को मजबूत करें।🎯 Target Exams: SSC CGL, CHSL, GD 2026, Railway NTPC, Group D, State Police & All Competitive Exams📘 Complete High-Yield Exam Preparation Series by ExamIQ🔔 सब्सक्राइब करें और बेल आइकन दबाएं ताकि कोई भी क्लास मिस न हो!💬 आज के 50 प्रश्नों में आपका स्कोर कितना रहा? कमेंट करके जरूर बताएं! 🏆📚 Official Educational References & Study Links:• NCERT Official Portal: https://ncert.nic.in• Legislative Department (Constitution of India): https://legislative.gov.in• Staff Selection Commission (SSC): https://ssc.gov.in• Railway Recruitment Control Board (RRB): https://indianrailways.gov.in⏱️ TIMESTAMPS:00:00 Intro00:04 Q1: भारत का सबसे बड़ा राष्ट्रीय उद्यान 'हेमिस राष्ट्रीय उद्यान'…00:12 Q2: भारत का सबसे ऊंचा बांध 'टिहरी बांध' किस नदी पर निर्मित किया…00:20 Q3: प्रसिद्ध लोक नाट्य और नृत्य शैली 'यक्षगान' का संबंध मुख्य र…00:28 Q4: पश्चिम की ओर बहने वाली प्रमुख 'नर्मदा नदी' का उद्गम किस पहा…00:36 Q5: विश्व का एकमात्र तैरता हुआ राष्ट्रीय उद्यान 'केबुल लामजाओ'…00:44 Q6: भारत का सबसे लंबा बांध 'हीराकुंड बांध' किस नदी पर बनाया गया…00:52 Q7: फसलों की कटाई और वसंत ऋतु के स्वागत में किया जाने वाला प्रस…01:00 Q8: दक्षिण भारत की सबसे लंबी नदी 'गोदावरी' का उद्गम स्थल महाराष…01:08 Q9: वर्ष 1936 में स्थापित भारत का पहला राष्ट्रीय उद्यान कौन-सा…01:16 Q10: असम का प्रसिद्ध वन्यजीव अभयारण्य 'काजीरंगा राष्ट्रीय उद्यान…01:24 Q11: गुजरात के गिर जंगलों में पाए जाने वाले 'एशियाई शेर' का प्रा…01:32 Q12: केरल राज्य का सबसे प्रसिद्ध पारंपरिक और शास्त्रीय नृत्य नाट…01:40 Q13: गुजरात का प्रसिद्ध पारंपरिक लोक नृत्य 'गरबा' मुख्य रूप से क…01:48 Q14: प्रसिद्ध 'सरदार सरोवर बांध' का निर्माण गुजरात में नर्मदा नद…01:56 Q15: झारखंड और पश्चिम बंगाल की सीमा के पास दामोदर नदी पर निर्मित…02:04 Q16: बिहार का शोक कही जाने वाली 'कोसी नदी' अपना रास्ता बदलने के…02:12 Q17: उत्तराखंड के गढ़वाल हिमालय क्षेत्र में अलकनंदा नदी पर स्थित…02:20 Q18: कर्नाटक का विश्व प्रसिद्ध पारंपरिक लोक नृत्य 'यक्षगान' किस…02:28 Q19: कोशिका का ऊर्जा ग्रह यानी पावर हाउस किसे कहा जाता है02:36 Q20: विटामिन सी का रासायनिक नाम निम्नलिखित में से क्या है02:44 Q21: मानव शरीर की सबसे बड़ी ग्रंथि निम्नलिखित में से कौन-सी है02:52 Q22: प्रसिद्ध शास्त्रीय नृत्य शैली 'भरतनाट्यम' की उत्पत्ति भारत…03:00 Q23: असम का प्रसिद्ध लोक नृत्य 'बिहू' वर्ष में कितनी बार मनाया ज…03:08 Q24: भारत में श्वेत क्रांति (ऑपरेशन फ्लड) के जनक के रूप में किसे…03:16 Q25: संसार का सबसे बड़ा मरुस्थल 'सहारा मरुस्थल' किस महाद्वीप में…03:24 Q26: दांतों के इनेमल का मुख्य रासायनिक घटक निम्नलिखित में से कौन…03:32 Q27: निम्नलिखित में से कौन-सा प्रसिद्ध लोक नृत्य मुख्य रूप से गो…03:40 Q28: प्रसिद्ध 'भाखड़ा नंगल बांध' किस नदी पर निर्मित किया गया है…03:48 Q29: केरल राज्य में स्थित 'पेरियार राष्ट्रीय उद्यान' मुख्य रूप स…03:56 Q30: तमिलनाडु राज्य का सबसे लोकप्रिय पारंपरिक शास्त्रीय नृत्य रू…04:04 Q31: नागार्जुन सागर बांध आंध्र प्रदेश और तेलंगाना की सीमा पर किस…04:12 Q32: राजस्थान राज्य का प्रसिद्ध लोक नृत्य कौन-सा है जिसे सपेरा स…04:20 Q33: भारत का प्रसिद्ध 'जिम कार्बेट राष्ट्रीय उद्यान' किस राज्य म…04:28 Q34: उड़ीसा राज्य की महानदी पर निर्मित 'हीराकुंड बांध' विश्व के…04:36 Q35: पंजाब का प्रसिद्ध पारंपरिक लोक नृत्य निम्नलिखित में से कौन-…04:44 Q36: सतलुज नदी पर निर्मित प्रसिद्ध 'भाखड़ा नंगल बांध' किन 2 राज्…04:52 Q37: कोशिका के किस अंगक को 'प्रोटीन की फैक्ट्री' के नाम से जाना…05:00 Q38: महाराष्ट्र का सबसे लोकप्रिय पारंपरिक लोक नृत्य कौन-सा है जो…05:08 Q39: गंगा नदी की सबसे बड़ी सहायक नदी का नाम क्या है जो उत्तर प्र…05:16 Q40: कर्नाटक राज्य में स्थित 'बांदीपुर राष्ट्रीय उद्यान' की स्था…05:24 Q41: दामोदर नदी घाटी परियोजना के तहत झारखंड राज्य में निर्मित प्…05:32 Q42: मानव शरीर की मास्टर ग्रंथि के रूप में किस अंतःस्रावी ग्रंथि…05:40 Q43: कोशिका की आत्मघाती थैली के रूप में किस कोशिकांग को जाना जात…05:48 Q44: दाती और मसूड़ों की मजबूती के लिए कौन-सा विटामिन आवश्यक होता…05:56 Q45: अंतरराष्ट्रीय स्तर पर शांति और अहिंसा के प्रसार के लिए नोबे…06:04 Q46: भारत के संविधान का कौन-सा अनुच्छेद निर्वाचन आयोग के गठन और…06:12 Q47: निम्नलिखित में से कौन-सी नदी अरब सागर में अपना जल गिराती है06:20 Q48: मध्य प्रदेश में स्थित 'कान्हा किसलय राष्ट्रीय उद्यान' मुख्य…06:28 Q49: कर्नाटक में कावेरी नदी पर निर्मित प्रसिद्ध 'कृष्णराज सागर ब…06:36 Q50: उत्तर प्रदेश के बुंदेलखंड क्षेत्र में फसलों की कटाई के समय…cover topic in",
+      "publishedAt": "2026-10-31T02:27:16.000Z",
+      "ageHours": 8.1,
+      "isMature": false,
+      "durationSec": 1084,
+      "isShort": false,
+      "views": 0,
+      "publicViews": 0,
+      "watchMinutes": 0,
+      "avdSec": 0,
+      "apvPct": 0,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "प्रमुख नदियां व बांध (Top 2026 educational learning study tips gk general knowledge",
+        "प्रसिद्ध लोक नृत्य"
+      ],
+      "titleStyle": "exam_targeted",
+      "durationBucket": ">10m",
+      "topicCluster": "Static GK",
+      "pubHourIst": 7
+    },
+    {
+      "id": "1vqCkP07kXg",
+      "title": "SSC CGL & Railway | भारतीय इतिहास के महत्वपूर्ण युद्ध, संधियां और राष्ट्रीय आंदोलन क्विज Top 50 अत",
+      "description": "SSC CGL & Railway | भारतीय इतिहास के महत्वपूर्ण युद्ध, संधियां और राष्ट्रीय आंदोलन क्विज Top 50 अत🎯 SSC CGL & Railway | भारतीय इतिहास के महत्वपूर्ण युद्ध, संधियां और राष्ट्रीय आंदोलन क्विज Top 50 अतइस विशेष वीडियो क्लास में ExamIQ द्वारा भारतीय इतिहास के पिछले 15 वर्षों में बार-बार पूछे गए सबसे महत्वपूर्ण और संभावित प्रश्न उत्तर (Top PYQs) व्याख्या सहित शामिल किए गए हैं।📌 यह क्लास विशेष रूप से SSC CGL, SSC CHSL, SSC GD 2026, Railway RRB NTPC, Group D, RPF, UP Police, Bihar Police, Delhi Police, State PCS और सभी केंद्र व राज्य स्तरीय प्रतियोगी परीक्षाओं के संपूर्ण रिवीजन के लिए अति महत्वपूर्ण है।💡 सभी प्रश्न नए परीक्षा पैटर्न पर आधारित हैं। परीक्षा से पहले इन प्रश्नों को अच्छी तरह रट लें और अपनी तैयारी को मजबूत करें।🎯 Target Exams: SSC CGL, CHSL, GD 2026, Railway NTPC, Group D, State Police & All Competitive Exams📘 Complete High-Yield Exam Preparation Series by ExamIQ🔔 सब्सक्राइब करें और बेल आइकन दबाएं ताकि कोई भी क्लास मिस न हो!💬 आज के 50 प्रश्नों में आपका स्कोर कितना रहा? कमेंट करके जरूर बताएं! 🏆📚 Official Educational References & Study Links:• NCERT Official Portal: https://ncert.nic.in• Legislative Department (Constitution of India): https://legislative.gov.in• Staff Selection Commission (SSC): https://ssc.gov.in• Railway Recruitment Control Board (RRB): https://indianrailways.gov.in⏱️ TIMESTAMPS:00:00 Intro00:04 Q1: स्वतंत्रता सेनानी मंगल पांडे किस छावनी से संबंधित थे जिन्हो…00:12 Q2: पानीपत के प्रथम युद्ध में बाबर ने इब्राहिम लोदी को किस वर्ष…00:20 Q3: प्लासी का ऐतिहासिक युद्ध किस वर्ष अंग्रेजों और बंगाल के नवा…00:28 Q4: बक्सर के युद्ध के पश्चात अंग्रेजों ने बंगाल, बिहार और उड़ीस…00:36 Q5: भारतीय राष्ट्रीय कांग्रेस की स्थापना किस वर्ष और किसके द्वा…00:44 Q6: बंगाल का विभाजन किस वर्ष और किस वायसराय के कार्यकाल में प्र…00:52 Q7: महात्मा गांधी ने दक्षिण अफ्रीका से भारत किस वर्ष स्थायी रूप…01:00 Q8: जलियांवाला बाग हत्याकांड अमृतसर में किस तिथि को घटित हुआ था01:08 Q9: चौरी चौरा की हिंसक घटना के कारण महात्मा गांधी ने किस असहयोग…01:16 Q10: भारत छोड़ो आंदोलन की शुरुआत महात्मा गांधी द्वारा किस वर्ष म…01:24 Q11: तराइन के द्वितीय युद्ध में मुहम्मद गोरी ने किस शासक को पराज…01:32 Q12: पानीपत के द्वितीय युद्ध में मुगल सेना का नेतृत्व किसने किया…01:40 Q13: हल्दीघाटी का प्रसिद्ध युद्ध किस वर्ष लड़ा गया था01:48 Q14: वास्कोडिगामा भारत के किस बंदरगाह पर सबसे पहले पहुंचा था01:56 Q15: स्वतंत्रता सेनानी मंगल सिंह किस छाती से संबंधित 1857 की क्र…02:04 Q16: कांग्रेस के किस अधिवेशन में पूर्ण स्वराज की मांग औपचारिक रू…02:12 Q17: सविनय अवज्ञा आंदोलन की शुरुआत महात्मा गांधी द्वारा किस प्रस…02:20 Q18: सुभाष चंद्र बोस ने फॉरवर्ड ब्लॉक की स्थापना किस वर्ष की थी02:28 Q19: कैबिनेट मिशन योजना भारत किस वर्ष आई थी02:36 Q20: आज़ाद हिंद फौज के सैनिकों पर लाल किले में ऐतिहासिक मुकदमा क…02:44 Q21: पानीपत के तृतीय युद्ध में मराठा सेना का नेतृत्व किसने किया…02:52 Q22: बक्सर के युद्ध में अंग्रेजी सेना का नेतृत्व किसने किया था ज…03:00 Q23: स्वतंत्रता सेनानी मंगल पांडे किस छाती से संबंधित थे जिन्हों…03:08 Q24: राजा राममोहन राय द्वारा वर्ष 1828 में किस सुधार संगठन की स्…03:16 Q25: स्वामी दयानंद सरस्वती द्वारा 'सत्यार्थ प्रकाश' पुस्तक की रच…03:24 Q26: खानवा का प्रसिद्ध युद्ध किस वर्ष मुगल शासक बाबर और मेवाड़ क…03:32 Q27: स्वामी विवेकानंद द्वारा रामकृष्ण मिशन की स्थापना किस वर्ष क…03:40 Q28: वर्ष 1925 के कानपुर अधिवेशन में भारतीय राष्ट्रीय कांग्रेस क…03:48 Q29: वर्ष 1905 के बंगाल विभाजन के निर्णय की घोषणा किस ब्रिटिश वा…03:56 Q30: स्वतंत्र भारत के प्रथम भारतीय गवर्नर-जनरल के रूप में किसने…04:04 Q31: वर्ष 1928 में बारडोली सत्याग्रह का नेतृत्व मुख्य रूप से किस…04:12 Q32: सीमा गांधी या 'फ्रंटियर गांधी' के नाम से किसे जाना जाता है…04:20 Q33: चन्द्रगुप्त मौर्य के दरबार में यूनानी राजदूत के रूप में किस…04:28 Q34: दिल्ली सल्तनत के किस शासक ने बाजार नियंत्रण प्रणाली और मूल्…04:36 Q35: मुगल सम्राट अकबर द्वारा किस वर्ष 'दीवान-ए-इलाही' या 'दीन-ए-…04:44 Q36: वर्ष 1916 के प्रसिद्ध लखनऊ अधिवेशन में कांग्रेस के दोनों दल…04:52 Q37: भारतीय राष्ट्रीय कांग्रेस के पहले ब्रिटिश अध्यक्ष के रूप मे…05:00 Q38: वर्ष 1939 में त्रिपुरी संकट के बाद सुभाष चंद्र बोस के इस्ती…05:08 Q39: बंगाल में ब्रिटिश शासन के दौरान 'स्थाई बंदोबस्त' (Permanent…05:16 Q40: स्वतंत्रता आंदोलन के दौरान 'वेल्लोर विद्रोह' किस वर्ष घटित…05:24 Q41: वर्ष 1927 में साइमन कमीशन के गठन का मुख्य उद्देश्य भारत के…05:32 Q42: स्वतंत्र भारत के प्रथम विधि मंत्री (Law Minister) के रूप मे…05:40 Q43: मानव शरीर में यूरिया का निर्माण मुख्य रूप से किस अंग में हो…05:48 Q44: भारतीय राष्ट्रीय कांग्रेस के किस अधिवेशन में मौलिक अधिकारों…05:56 Q45: किस गुप्त शासक को उसकी सैन्य सफलताओं के कारण 'भारत का नेपोल…06:04 Q46: वर्ष 1916 में होम रूल लीग आंदोलन की शुरुआत मुख्य रूप से किस…06:12 Q47: विटामिन B12 का रासायनिक नाम क्या है जिसमें कोबाल्ट धातु पाई…06:20 Q48: दिल्ली सल्तनत के किस सुल्तान ने अपनी राजधानी दिल्ली से बदलक…06:28 Q49: स्वतंत्र भारत के प्रथम मंत्रिमंडल में वित्त मंत्री के रूप म…06:36 Q50: वर्ष 1911 में आयोजित दिल्ली दरबार के समय भारत का वायسराय नि…cover topic in this videoyour queries 👇",
+      "publishedAt": "2026-10-30T13:30:32.000Z",
+      "ageHours": 21,
+      "isMature": false,
+      "durationSec": 1213,
+      "isShort": false,
+      "views": 0,
+      "publicViews": 0,
+      "watchMinutes": 0,
+      "avdSec": 0,
+      "apvPct": 0,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "ऐतिहासिक संधियां और राष्ट्रीय आंदोलन (महा-मैराथन क्विज)",
+        "ऐतिहासिक संधियां और राष्ट्रीय आंदोलन (महा-मैराथन क्विज) 2026 भारतीय इतिहास के 50 महत्वपूर्ण युद्ध"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": ">10m",
+      "topicCluster": "History",
+      "pubHourIst": 18
+    },
+    {
+      "id": "JWXKXK2Qb7I",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 जीव विज्ञान GK #shorts | ExamIQ",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 जीव विज्ञान GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. मानव शरीर की किस कोशिका अंगक को 'कोशिका का पावर हाउस' कहा जाता हैQ2. विटामिन C का रासायनिक नाम निम्नलिखित में से क्या हैQ3. स्वस्थ मनुष्य के रक्त का सामान्य pH मान कितना होता हैQ4. मानव शरीर की सबसे बड़ी ग्रंथि कौन सी हैQ5. विटामिन D की कमी से बच्चों में कौन सा रोग उत्पन्न होता है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-28T04:00:23.000Z",
+      "ageHours": 78.5,
+      "isMature": true,
+      "durationSec": 32,
+      "isShort": true,
+      "views": 0,
+      "publicViews": 0,
+      "watchMinutes": 0,
+      "avdSec": 0,
+      "apvPct": 0,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "ExamIQ",
+        "GK Shorts",
+        "General Knowledge Quiz",
+        "RRB NTPC GK",
+        "SSC CGL GK",
+        "Shorts",
+        "UPSC Prelims",
+        "competitive exams",
+        "education",
+        "general knowledge",
+        "gk in hindi",
+        "gk mcq",
+        "gk questions",
+        "gk questions and answers",
+        "gk quiz",
+        "lucent gk",
+        "railway gk",
+        "samanya gyan",
+        "ssc gk",
+        "static gk",
+        "study tips",
+        "upsc gk",
+        "जीव विज्ञान (biology) के 5 अति महत्वपूर्ण प्रश्न: मानव शरीर व विटामिन"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "General Science",
+      "pubHourIst": 9
+    },
+    {
+      "id": "WK5Rn8WwAYE",
+      "title": "Top 30 Science GK Questions | General Science Question |Science Question answer| Science GK Question",
+      "description": "🎯 क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 संविधान GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. भारतीय संविधान के किस अनुच्छेद के अंतर्गत सर्वोच्च न्यायालय को मौलिक अधिकारों के संरक्षण के लिए रिट जारी करने की शक्ति प्राप्त हैQ2. भारतीय संविधान के किस अनुच्छेद में प्राण और दैहिक स्वतंत्रता के संरक्षण का अधिकार प्रदान किया गया हैQ3. भारतीय संविधान के किस अनुच्छेद में पूरे देश के लिए 'समान नागरिक संहिता' (Uniform Civil Code) लागू करने का प्रावधान हैQ4. भारतीय संविधान के किस अनुच्छेद के तहत देश में निर्वाचन आयोग के गठन का प्रावधान किया गया हैQ5. भारतीय संविधान के किस अनुच्छेद में संसद को संविधान में संशोधन करने की शक्ति प्रदान की गई है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
+      "publishedAt": "2026-10-21T03:31:35.000Z",
+      "ageHours": 247,
+      "isMature": true,
+      "durationSec": 41,
+      "isShort": true,
+      "views": 0,
+      "publicViews": 0,
+      "watchMinutes": 0,
+      "avdSec": 0,
+      "apvPct": 0,
+      "likes": 0,
+      "comments": 0,
+      "subsGained": 0,
+      "tags": [
+        "ExamIQ",
+        "GK Shorts",
+        "General Knowledge Quiz",
+        "RRB NTPC GK",
+        "SSC CGL GK",
+        "Shorts",
+        "UPSC Prelims",
+        "competitive exams",
+        "education",
+        "general knowledge",
+        "gk in hindi",
+        "gk mcq",
+        "gk questions",
+        "gk questions and answers",
+        "gk quiz",
+        "lucent gk",
+        "railway gk",
+        "samanya gyan",
+        "ssc gk",
+        "static gk",
+        "study tips",
+        "upsc gk",
+        "भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: प्रतियोगी परीक्षाओं में बार-बार पूछे जाने वाले प्रश्न"
+      ],
+      "titleStyle": "standard",
+      "durationBucket": "<45s",
+      "topicCluster": "Constitution",
+      "pubHourIst": 8
+    }
+  ]
+}
