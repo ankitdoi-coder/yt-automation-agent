@@ -74,7 +74,8 @@
     "norm_10",
     "norm_03",
     "norm_07",
-    "dm_05"
+    "dm_05",
+    "norm_11"
   ],
   "uploads": [
     {
@@ -671,6 +672,14 @@
       "fbVideoId": "1775619093737774",
       "uploadedAt": "2026-10-31T13:47:58.731Z",
       "answer": "टूथब्रश (Toothbrush)! 🪥✨"
+    },
+    {
+      "id": "norm_11",
+      "category": "smart_normal",
+      "title": "ऊपर भी जाता है, नीचे भी आता है!",
+      "fbVideoId": "1822757985518854",
+      "uploadedAt": "2026-10-31T16:13:16.183Z",
+      "answer": "सीढ़ियां (Stairs)! 🪜🏢"
     }
   ]
 }
