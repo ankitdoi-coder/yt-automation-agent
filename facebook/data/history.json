@@ -75,7 +75,8 @@
     "norm_03",
     "norm_07",
     "dm_05",
-    "norm_11"
+    "norm_11",
+    "norm_02"
   ],
   "uploads": [
     {
@@ -680,6 +681,14 @@
       "fbVideoId": "1822757985518854",
       "uploadedAt": "2026-10-31T16:13:16.183Z",
       "answer": "सीढ़ियां (Stairs)! 🪜🏢"
+    },
+    {
+      "id": "norm_02",
+      "category": "smart_normal",
+      "title": "जितना खींचो उतना छोटा!",
+      "fbVideoId": "986046277901508",
+      "uploadedAt": "2026-10-31T19:04:36.939Z",
+      "answer": "बीड़ी या सिगरेट! 🚬😂"
     }
   ]
 }
