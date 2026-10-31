@@ -73,7 +73,8 @@
     "norm_12",
     "norm_10",
     "norm_03",
-    "norm_07"
+    "norm_07",
+    "dm_05"
   ],
   "uploads": [
     {
@@ -662,6 +663,14 @@
       "fbVideoId": "1175006278529267",
       "uploadedAt": "2026-10-31T09:50:58.014Z",
       "answer": "दाढ़ी और मूँछ! 🧔😂"
+    },
+    {
+      "id": "dm_05",
+      "category": "double_meaning",
+      "title": "अंगुली से पकड़कर मुंह में डालो!",
+      "fbVideoId": "1775619093737774",
+      "uploadedAt": "2026-10-31T13:47:58.731Z",
+      "answer": "टूथब्रश (Toothbrush)! 🪥✨"
     }
   ]
 }
