@@ -83,7 +83,8 @@
     "norm_02",
     "dm_04",
     "norm_01",
-    "stat_notes_01"
+    "stat_notes_01",
+    "gk_sci_03"
   ],
   "uploads": [
     {
@@ -753,6 +754,15 @@
       "fbVideoId": "1652099403066841",
       "uploadedAt": "2026-11-02T06:54:44.309Z",
       "answer": "A) लाल किला (Red Fort, Delhi)"
+    },
+    {
+      "id": "gk_sci_03",
+      "category": "general_science",
+      "topic": "रसायन विज्ञान (Chemistry)",
+      "title": "लाफिंग गैस का रासायनिक नाम",
+      "fbVideoId": "1128898996262667",
+      "uploadedAt": "2026-11-02T11:29:37.051Z",
+      "answer": "B) नाइट्रस ऑक्साइड (N2O)"
     }
   ]
 }
