@@ -258,6 +258,22 @@ class PublishingSchedulingAgent {
     if (metadata.thumbnail && (metadata.thumbnail.path || metadata.thumbnail.originalPath)) {
       await this.uploadThumbnail(videoId, metadata.thumbnail.path, metadata.thumbnail.originalPath);
     }
+
+    // Post engagement challenge comment to drive YouTube Shorts comment velocity
+    try {
+      await this.postEngagementComment(videoId, safeMetadata);
+    } catch (commentErr) {
+      this.logger.warn(`Could not post engagement comment for ${videoId}: ${commentErr.message}`);
+    }
+
+    // Cross-post vertical video / short to Facebook Page Reels
+    if (process.env.FB_PAGE_ID && process.env.FB_PAGE_ACCESS_TOKEN && metadata.video && metadata.video.path) {
+      try {
+        await this.crossPostToFacebook(metadata.video.path, safeMetadata);
+      } catch (fbErr) {
+        this.logger.warn(`Could not cross-post to Facebook: ${fbErr.message}`);
+      }
+    }
     
     // Upload captions
     if (metadata.captions && metadata.captions.path) {
@@ -748,6 +764,47 @@ class PublishingSchedulingAgent {
     this.publishQueue = this.publishQueue.filter(item => item.id !== entry.id);
     await this.syncShortStatus(entry, 'rendered');
     return entry;
+  }
+  async postEngagementComment(videoId, safeMetadata = {}) {
+    if (!this.youtube || !videoId) return;
+    try {
+      const commentText = '🎯 आज के टेस्ट में आपका स्कोर कितना रहा? 5 में से अपना स्कोर कमेंट करके बताएं! 🏆\n🔔 रोज़ाना नए GK Tests के लिए ExamIQ Bharat को Subscribe करें!';
+      await this.youtube.commentThreads.insert({
+        part: 'snippet',
+        requestBody: {
+          snippet: {
+            videoId,
+            topLevelComment: {
+              snippet: {
+                textOriginal: commentText
+              }
+            }
+          }
+        }
+      });
+      this.logger.success(`✅ Pinned engagement comment posted for video: ${videoId}`);
+    } catch (err) {
+      this.logger.warn(`Failed to post engagement comment: ${err.message}`);
+    }
+  }
+  async crossPostToFacebook(videoPath, safeMetadata = {}) {
+    if (!fsSync.existsSync(videoPath)) return null;
+    const { FacebookUploader } = require('../facebook/fb-uploader');
+    const uploader = new FacebookUploader();
+    const title = safeMetadata.title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat';
+    const description = [
+      title,
+      '',
+      '🎯 आज के टेस्ट में आपका स्कोर कितना रहा? 5 में से अपना स्कोर कमेंट करके बताएं! 🏆',
+      '🔔 रोज़ाना नए GK Tests और परीक्षा तैयारी के लिए Exam IQ Bharat को Follow करें!',
+      '',
+      '#ExamIQ #GKQuiz #GeneralKnowledge #StaticGK #GKInHindi #SSC #Railway #Reels #FacebookReels #Trending'
+    ].join('\n');
+
+    this.logger.info(`Cross-posting video to Facebook Page (${uploader.pageId})...`);
+    const fbRes = await uploader.uploadVideo(videoPath, { title, description });
+    this.logger.success(`✅ Video cross-posted to Facebook Reels: ${fbRes.url}`);
+    return fbRes;
   }
 }
 

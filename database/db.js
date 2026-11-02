@@ -675,7 +675,7 @@ class Database {
       ['notification_enabled', 'true', 'Enable system notifications'],
       ['approval_required', 'true', 'Require human approval before scheduling generated content'],
       ['automation_paused', 'false', 'Pause generation and publishing automation'],
-      ['channel_timezone', 'America/Chicago', 'Timezone used to present channel schedules'],
+      ['channel_timezone', 'Asia/Kolkata', 'Timezone used to present channel schedules'],
       ['max_daily_posts', '1', 'Maximum posts per day'],
       ['content_buffer_days', '3', 'Days of content to keep in buffer'],
       ['video_provider', 'slideshow', 'Video provider: slideshow, auto, seedance, minimax_h3, google_omni, kling, or wan'],
@@ -708,7 +708,7 @@ class Database {
         'Subscribe for more useful videos.',
         '[]',
         'Clean, high-contrast, and readable',
-        process.env.CHANNEL_TIMEZONE || 'America/Chicago'
+        process.env.CHANNEL_TIMEZONE || 'Asia/Kolkata'
       ]
     );
   }

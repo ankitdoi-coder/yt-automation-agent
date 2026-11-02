@@ -25,6 +25,6 @@
   "cadence": {
     "maxShortsPerDay": 2,
     "maxLongVideosPerDay": 1,
-    "minHoursBetweenUploads": 4
+    "minHoursBetweenUploads": 6
   }
 }

@@ -171,9 +171,9 @@ class FacebookAnalyticsAgent {
 
   computeAdaptations(performanceList) {
     // Default base preferences
-    let topHookStyle = 'Tricky Double-Meaning with Clean Twist';
-    let recommendedTimerSeconds = 5;
-    let preferredThemes = ['Electric Violet', 'Cyber Teal', 'Midnight Navy', 'Ruby Crimson', 'Royal Purple'];
+    let topHookStyle = 'High-Yield Exam GK, Geopolitics & Math Quiz';
+    let recommendedTimerSeconds = 3;
+    let preferredThemes = ['Clean Educational White'];
     const viralOutliers = [];
 
     if (performanceList.length > 0) {
@@ -181,17 +181,17 @@ class FacebookAnalyticsAgent {
       const totalWatch = performanceList.reduce((acc, p) => acc + p.avgWatchTimeMs, 0);
       const avgMs = totalWatch / performanceList.length;
 
-      // If watch time is under 10s, shorten timer to 4s for faster punchline delivery
+      // If watch time is under 10s, shorten timer to 3s for fast retention
       if (avgMs > 0 && avgMs < 10000) {
-        recommendedTimerSeconds = 4;
+        recommendedTimerSeconds = 3;
       } else if (avgMs >= 15000) {
-        recommendedTimerSeconds = 5;
+        recommendedTimerSeconds = 4;
       }
 
       // If comment engagement is high, prioritize comment-triggering hooks
       const totalComments = performanceList.reduce((acc, p) => acc + p.comments, 0);
       if (totalComments > 10) {
-        topHookStyle = 'High-Curiosity Riddle (Comment Magnet)';
+        topHookStyle = 'High-Curiosity Exam & Geopolitics (Comment Magnet)';
       }
 
       // Calculate Page Median & Outliers
@@ -217,7 +217,7 @@ class FacebookAnalyticsAgent {
       topHookStyle,
       preferredThemes,
       highRetentionPacing: true,
-      autoCallToAction: '👉 कमेंट में बताओ आपका दिमाग पहले कहां गया था! 👇😂',
+      autoCallToAction: '👉 अपना जवाब कमेंट करें और Exam IQ Bharat को Follow करें! 🏆🔔',
       viralOutliersCount: viralOutliers.length,
       viralOutliers: viralOutliers.slice(0, 5)
     };

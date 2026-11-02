@@ -115,20 +115,12 @@ function buildUniversalViralDescription({
     ? `\n\n⏱️ TIMESTAMPS:\n${chapters.map(ch => `${ch.time} ${ch.title}`).join('\n')}`
     : '';
 
-  const prefix = `${titleHeader}\n\n${nlpHook}${ctaBlock}${studyResources}${timestampsBlock}\n\n${VIRAL_BULLET_QUERIES}\n\n`;
-  const suffix = `\n\n${hashtagsBlock}`;
+  const cleanHashtags = isShort
+    ? `#Shorts #GKQuiz #LucentGK #GeneralKnowledge #ExamIQ`
+    : `#GeneralKnowledge #LucentGK #SSCGD #RailwayNTPC #ExamIQ`;
 
-  // YouTube allows max 5000 characters. Keep safety buffer at 4950 chars.
-  const availableForKeywords = Math.max(200, 4950 - prefix.length - suffix.length);
-
-  let trimmedKeywords = VIRAL_KEYWORD_PARAGRAPH.slice(0, availableForKeywords);
-  const lastCommaIndex = trimmedKeywords.lastIndexOf(',');
-  if (lastCommaIndex > 200 && trimmedKeywords.length < VIRAL_KEYWORD_PARAGRAPH.length) {
-    trimmedKeywords = trimmedKeywords.slice(0, lastCommaIndex);
-  }
-
-  const finalDescription = `${prefix}${trimmedKeywords}${suffix}`.trim();
-  return finalDescription.slice(0, 4950);
+  const finalDescription = `${titleHeader}\n\n${nlpHook}${ctaBlock}${studyResources}${timestampsBlock}\n\n${cleanHashtags}`.trim();
+  return finalDescription;
 }
 
 function buildLongVideoDescription(opts = {}) {

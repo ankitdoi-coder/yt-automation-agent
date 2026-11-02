@@ -11,11 +11,14 @@ const logger = new Logger('DailyRunner');
 // 2. Slot 2 (02:00 PM IST) - Afternoon Study Masterclass (Long Video 1, 50 Questions)
 // 3. Slot 3 (07:00 PM IST) - Evening Prime Exam Class (Long Video 2, 50 Questions)
 // 4. Slot 4 (09:30 PM IST) - Bedtime Rapid Scroll (Shorts, 9:16 Vertical)
+// High-Retention Focused Daily Schedule for Algorithmic Growth:
+// 2 High-Yield Vertical Shorts daily (Morning commute 08:30 IST & Prime study 19:30 IST)
+// 20-min Long videos are paused from daily automation to protect channel Domain Quality Score
 const SCHEDULE_SLOTS = [
   {
     id: 'slot1',
     name: 'Morning Rapid Revision (Shorts 1, 9:16 Vertical)',
-    timeIST: '09:30',
+    timeIST: '08:30',
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
@@ -23,26 +26,8 @@ const SCHEDULE_SLOTS = [
   },
   {
     id: 'slot2',
-    name: 'Afternoon Study Masterclass (Long Video 1, 50 Questions)',
-    timeIST: '14:00',
-    style: 'quiz',
-    length: 'medium',
-    contentType: 'quiz',
-    defaultTopic: 'प्राचीन एवं मध्यकालीन भारत का इतिहास: 50 सबसे महत्वपूर्ण प्रश्न | Indian History GK'
-  },
-  {
-    id: 'slot3',
-    name: 'Evening Prime Exam Class (Long Video 2, 50 Questions)',
-    timeIST: '19:00',
-    style: 'quiz',
-    length: 'medium',
-    contentType: 'quiz',
-    defaultTopic: 'सामान्य विज्ञान एवं Static GK: 50 रामबाण प्रश्न | Lucent GK Marathon'
-  },
-  {
-    id: 'slot4',
-    name: 'Bedtime Rapid Scroll (Shorts 2, 9:16 Vertical)',
-    timeIST: '21:30',
+    name: 'Evening Prime Revision (Shorts 2, 9:16 Vertical)',
+    timeIST: '19:30',
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',

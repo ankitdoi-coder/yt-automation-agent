@@ -28,18 +28,31 @@ async function postSingleReel() {
   const videoMaker = new FacebookVideoMaker();
   const uploader = new FacebookUploader();
 
-  const riddles = await vault.getBatchRiddles(1);
-  if (!riddles.length) {
-    console.log('No riddles available.');
+  const questions = await vault.getBatchQuestions(1);
+  if (!questions.length) {
+    console.log('No questions available.');
     return;
   }
 
-  const item = riddles[0];
+  const item = questions[0];
   try {
-    const videoPath = await videoMaker.createReel(item, Math.floor(Math.random() * 5));
-    const uploadRes = await uploader.uploadReel(videoPath, item);
+    const videoPath = await videoMaker.createReel(item, Math.floor(Math.random() * 3));
+    const title = `${item.title} | ${item.topic} | Exam IQ Bharat #shorts #reels`;
+    const description = [
+      `🎯 ${item.title} | ${item.topic}`,
+      '',
+      `Q. ${item.question}`,
+      ...(item.options || []).map(o => `${o.letter}) ${o.text}`),
+      '',
+      `👉 अपना उत्तर कमेंट बॉक्स में बताएं! 🏆`,
+      `🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!`,
+      '',
+      item.tags ? item.tags.join(' ') : '#ExamIQ #GKQuiz #GeneralKnowledge #StaticGK #SSC #Railway #Reels'
+    ].join('\n');
+
+    const uploadRes = await uploader.uploadVideo(videoPath, { title, description });
     vault.recordUpload(item, uploadRes);
-    console.log(`[Scheduled] ✅ Successfully published Reel: ${uploadRes.url}`);
+    console.log(`[Scheduled] ✅ Successfully published Exam GK Reel: ${uploadRes.url}`);
   } catch (err) {
     console.error('[Scheduled] ❌ Failed to post reel:', err.response?.data || err.message);
   }

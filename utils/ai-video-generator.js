@@ -2689,7 +2689,7 @@ class AIVideoGenerator {
           noImages: useCleanTemplate,
           image: imageUri,
           narrationText: qText,
-          pauseAfter: 0.3,
+          pauseAfter: 2.5,
           estimatedSpeechDuration: Math.max(1.8, estimateSpeechDuration(qText, language)),
           narrationWords: Math.max(3, wordCount(qText))
         });
@@ -2710,7 +2710,7 @@ class AIVideoGenerator {
           noImages: useCleanTemplate,
           image: imageUri,
           narrationText: aText,
-          pauseAfter: 0.3,
+          pauseAfter: 0.8,
           estimatedSpeechDuration: Math.max(1.2, estimateSpeechDuration(aText, language)),
           narrationWords: Math.max(2, wordCount(aText))
         });
@@ -2895,11 +2895,12 @@ class AIVideoGenerator {
       let exactDurations = durations.map(d => Number(d.toFixed(3)));
       let totalDur = exactDurations.reduce((sum, d) => sum + d, 0);
 
-      // Algorithmic hard cap: YouTube Shorts MUST NOT exceed 42s for peak audience retention
+      // Maintain 100% natural voice clarity: do NOT distort speech with aggressive 1.3x-1.5x tempo.
+      // Shorts under 60s are optimal. Only apply micro-tempo (max 1.05x) if strictly exceeding 58s.
       const isShortQuiz = slides.some(s => s.kind && s.kind.startsWith('shortQuiz'));
-      if (isShortQuiz && totalDur > 42.0) {
-        const speedFactor = Math.min(1.5, Number((totalDur / 40.0).toFixed(3)));
-        this.logger.info(`Shorts audio duration (${totalDur.toFixed(2)}s) exceeds 42s; scaling tempo by ${speedFactor}x for retention`);
+      if (isShortQuiz && totalDur > 58.0) {
+        const speedFactor = Math.min(1.05, Number((totalDur / 55.0).toFixed(3)));
+        this.logger.info(`Shorts audio duration (${totalDur.toFixed(2)}s) exceeds 58s; gently scaling tempo by ${speedFactor}x for natural delivery`);
         const spedUpPath = path.join(tempDir, 'master_sped.mp3');
         await runFFmpeg([
           '-y', '-i', audioPath,
@@ -3319,6 +3320,15 @@ ${optionsHtml}
                     ${this.escapeHtml(questionText)}
                 </div>
             </div>
+
+            <!-- Timer & Action Prompt -->
+            ${!isAnswer ? `
+            <div class="timer-box-row" style="display:flex;align-items:center;justify-content:center;gap:12px;margin:18px auto 8px;width:90%;">
+                <div style="font-size:30px;font-weight:800;color:#facc15;text-shadow:0 0 12px rgba(250,204,21,0.6);letter-spacing:1px;">⏳ 3 SECONDS TO ANSWER...</div>
+            </div>` : `
+            <div class="timer-box-row" style="display:flex;align-items:center;justify-content:center;gap:12px;margin:18px auto 8px;width:90%;">
+                <div style="font-size:30px;font-weight:800;color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,0.6);letter-spacing:1px;">✅ CORRECT ANSWER!</div>
+            </div>`}
 
             <!-- 5. Four Colored Option Buttons -->
             <div class="options-container">

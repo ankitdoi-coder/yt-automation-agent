@@ -298,84 +298,115 @@ ${timestampsText}
   }
 
   buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
-    const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 5;
-    const year = new Date().getFullYear();
-    const partNumber = script.partNumber || script.quiz?.part || 1;
-    
-    // Extract micro-topic from subjectHindi, subject, questions, or topic
-    const subjectHindi = script.quiz?.subjectHindi || '';
-    const subjectEng = script.quiz?.subject || '';
-    
-    // Extract actual first question text for curiosity hook
-    const rawFirstQ = script.quiz?.questions?.[0]?.question || '';
-    const cleanFirstQ = rawFirstQ
-      .replace(/^प्रश्न\s*\d*[:\.\-]?\s*/i, '')
-      .replace(/^q\d*[:\.\-]?\s*/i, '')
-      .replace(/[\?\।\!]+$/g, '')
-      .trim();
+    // Generate clean Hindi topic-first title without spam clickbait or exam targeting clutter
+    const { topicName, englishTopic, category } = this.extractTopicAndCategory(script, strategy);
 
-    const combined = `${strategy?.topic || ''} ${script.title || ''} ${subjectHindi} ${subjectEng} ${cleanFirstQ}`.toLowerCase();
-
-    let examTag = 'SSC GD';
-    let topicName = 'सामान्य ज्ञान';
-
-    if (/bio|जीव\s*विज्ञान|मानव शरीर|विटामिन|cell|कोशिका/i.test(combined)) {
-      examTag = 'Railway NTPC';
-      topicName = 'जीव विज्ञान';
-    } else if (/रसायन|chemistry|भौतिक|physics|विज्ञान|science/i.test(combined)) {
-      examTag = 'SSC Railway';
-      topicName = 'सामान्य विज्ञान';
-    } else if (/पुस्तक|author|book|लेखक/i.test(combined)) {
-      examTag = 'SSC CGL';
-      topicName = 'पुस्तकें व लेखक';
-    } else if (/राष्ट्रीय\s*उद्यान|अभयारण्य|national\s*park/i.test(combined)) {
-      examTag = 'Railway NTPC';
-      topicName = 'राष्ट्रीय उद्यान';
-    } else if (/नृत्य|त्यौहार|dance|festival/i.test(combined)) {
-      examTag = 'SSC GD';
-      topicName = 'लोक नृत्य व कला';
-    } else if (/संविधान|polity|article|अनुच्छेद|राष्ट्रपति|संसद/i.test(combined)) {
-      examTag = 'SSC CGL';
-      topicName = 'संविधान';
-    } else if (/भूगोल|geog|नदी|पर्वत|झील|river|mountain/i.test(combined)) {
-      examTag = 'SSC GD';
-      topicName = 'भारत का भूगोल';
-    } else if (/इतिहास|history|युद्ध|मुगल|मौर्य|गुप्त|गांधी|1857/i.test(combined)) {
-      examTag = 'Railway NTPC';
-      topicName = 'भारतीय इतिहास';
-    } else if (/first|प्रथम|static|विविध/i.test(combined)) {
-      examTag = 'Police Exam';
-      topicName = 'Static GK';
-    } else if (subjectHindi && subjectHindi.length <= 15) {
-      topicName = subjectHindi;
-    }
-
-    // 1. High-CTR Dynamic Question Hook (What actually drives 10k-100k views on YouTube Shorts)
-    if (cleanFirstQ && cleanFirstQ.length >= 10 && cleanFirstQ.length <= 48) {
-      const questionHookTemplates = [
-        `99% लोग फेल ❌ ${cleanFirstQ}? 🤔 #shorts #gk`,
-        `क्या आप जानते हैं? 🇮🇳 ${cleanFirstQ}? #shorts #gk`,
-        `${cleanFirstQ}? 🤯 Top ${qCount} GK Quiz #shorts`,
-        `दम है तो उत्तर दो! 🔥 ${cleanFirstQ}? #shorts #gk`,
-        `90% लोग इस सवाल पर चकरा गए! 😱 ${cleanFirstQ}? #shorts`
-      ];
-      const qIdx = Math.abs((partNumber + cleanFirstQ.length) % questionHookTemplates.length);
-      const chosenTitle = questionHookTemplates[qIdx];
-      if (chosenTitle.length <= 80) {
-        return chosenTitle;
+    let title;
+    if (category === 'science') {
+      title = `${topicName} | General Science Question | Science Question answer | Science GK`;
+    } else if (category === 'history') {
+      title = `${topicName} | History GK Question in Hindi | Gk Question | General Knowledge`;
+    } else if (category === 'geography') {
+      title = `${topicName} | Geography GK Question | Static GK Question | GK in Hindi`;
+    } else if (category === 'polity') {
+      title = `${topicName} | Indian Polity GK | Samvidhan GK Question | General Knowledge`;
+    } else {
+      if (englishTopic) {
+        title = `${englishTopic} | ${topicName} | Static GK Question | Gk Question answer | Ssc gk`;
+      } else {
+        title = `${topicName} | Static GK Question | Gk Question answer | gk question | general knowledge`;
       }
     }
 
-    // 2. High-Curiosity Topic Hook Templates (Never repetitive, emotion-driven)
-    const curiosityTemplates = [
-      `99% लोग फेल ❌ ${topicName} के Top ${qCount} सबसे कठिन सवाल! 🤯 #shorts #gk`,
-      `दिमाग हिला देने वाले 5 GK सवाल 🧠 ${topicName} Quiz #shorts #gk`,
-      `${topicName}: परीक्षा में बार-बार पूछे जाने वाले Top ${qCount} सवाल! 🎯 #shorts #gk`,
-      `क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 ${topicName} GK #shorts`,
-      `${examTag} 2026 स्पेशल 🎯 ${topicName} Top ${qCount} MCQs #shorts #gk`
-    ];
-    const curIdx = Math.abs((partNumber * 3) % curiosityTemplates.length);
-    return curiosityTemplates[curIdx].slice(0, 85);
+    if (title.length > 98) {
+      title = title.slice(0, 95).trim();
+    }
+    return title;
+  }
+
+  extractTopicAndCategory(script, strategy) {
+    const raw = `${strategy?.topic || ''} ${script.title || ''} ${script.quiz?.subjectHindi || ''} ${script.quiz?.subject || ''}`;
+    const lower = raw.toLowerCase();
+
+    // 1. Geography / Rivers / Dams / Parks
+    if (/बाँध|बांध|नदी परियोजना|dam|river project/i.test(lower)) {
+      return { topicName: 'बाँध एवं नदी परियोजनाएँ', category: 'static' };
+    }
+    if (/किनारे बसे|city on river|शहर/i.test(lower) && /नदी|river/i.test(lower)) {
+      return { topicName: 'प्रमुख नदियों के किनारे बसे शहर', category: 'geography' };
+    }
+    if (/नदी|river/i.test(lower) && /पर्वत|mountain|झील|lake/i.test(lower)) {
+      return { topicName: 'भारत की नदियाँ और पर्वत श्रृंखलाएं', category: 'geography' };
+    }
+    if (/राष्ट्रीय\s*उद्यान|national\s*park|अभयारण्य/i.test(lower)) {
+      return { topicName: 'भारत के राष्ट्रीय उद्यान', englishTopic: 'National park of India', category: 'static' };
+    }
+    if (/पुस्तक|author|book|लेखक/i.test(lower)) {
+      return { topicName: 'प्रमुख पुस्तकें और लेखक', englishTopic: 'Books and Authors', category: 'static' };
+    }
+    if (/नृत्य|त्यौहार|dance|festival/i.test(lower)) {
+      return { topicName: 'लोक नृत्य एवं त्यौहार', category: 'static' };
+    }
+
+    // 2. History
+    if (/गुप्त|gupta/i.test(lower)) {
+      return { topicName: 'गुप्त वंश के महत्वपूर्ण प्रश्न', category: 'history' };
+    }
+    if (/मौर्य|maurya/i.test(lower)) {
+      return { topicName: 'मौर्य साम्राज्य के महत्वपूर्ण प्रश्न', category: 'history' };
+    }
+    if (/1857|क्रांति/i.test(lower)) {
+      return { topicName: '1857 की क्रांति के महत्वपूर्ण प्रश्न', category: 'history' };
+    }
+    if (/इतिहास|history|मुगल|सल्तनत/i.test(lower)) {
+      return { topicName: 'भारतीय इतिहास के महत्वपूर्ण प्रश्न', category: 'history' };
+    }
+
+    // 3. Science
+    if (/मानव शरीर|human body/i.test(lower)) {
+      return { topicName: 'मानव शरीर के महत्वपूर्ण प्रश्न', category: 'science' };
+    }
+    if (/विटामिन|vitamin/i.test(lower)) {
+      return { topicName: 'विटामिन एवं पोषण के महत्वपूर्ण प्रश्न', category: 'science' };
+    }
+    if (/bio|जीव\s*विज्ञान/i.test(lower)) {
+      return { topicName: 'जीव विज्ञान के महत्वपूर्ण प्रश्न', category: 'science' };
+    }
+    if (/रसायन|chemistry|भौतिक|physics|विज्ञान|science/i.test(lower)) {
+      return { topicName: 'सामान्य विज्ञान के महत्वपूर्ण प्रश्न', category: 'science' };
+    }
+
+    // 4. Polity / Constitution
+    if (/संविधान|polity|अनुच्छेद|article/i.test(lower)) {
+      return { topicName: 'भारतीय संविधान के महत्वपूर्ण प्रश्न', category: 'polity' };
+    }
+
+    // 5. Geography
+    if (/सौरमंडल|solar|ग्रह|planet/i.test(lower)) {
+      return { topicName: 'सौरमंडल और प्रमुख ग्रह', category: 'geography' };
+    }
+    if (/भूगोल|geography|पर्वत|दर्रे/i.test(lower)) {
+      return { topicName: 'भारत का भूगोल एवं पर्वत', category: 'geography' };
+    }
+
+    // 6. First in India
+    if (/first|प्रथम/i.test(lower)) {
+      return { topicName: 'भारत में प्रथम (महिला व पुरुष)', category: 'static' };
+    }
+
+    // Clean fallback from raw topic
+    let fallback = (strategy?.topic || script.quiz?.subjectHindi || script.title || 'सामान्य ज्ञान प्रश्नोत्तरी')
+      .replace(/^(?:top\s*\d+|भाग\s*\d+|set\s*\d+)[\s:\-_|]*/i, '')
+      .replace(/#\w+/g, '')
+      .replace(/\|.*$/g, '')
+      .replace(/[:\-–—]\s*(?:top\s*\d+|50\s*महत्वपूर्ण|5\s*महत्वपूर्ण|gk\s*shorts).*$/i, '')
+      .trim();
+
+    if (!fallback || fallback.length < 3) {
+      fallback = 'सामान्य ज्ञान के महत्वपूर्ण प्रश्न';
+    }
+
+    return { topicName: fallback, category: 'static' };
   }
 
   generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge', questions = []) {
