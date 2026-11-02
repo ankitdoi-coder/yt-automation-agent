@@ -86,7 +86,8 @@
     "stat_notes_01",
     "gk_sci_03",
     "math_quiz_01",
-    "stat_rail_02"
+    "stat_rail_02",
+    "sci_bone_03"
   ],
   "uploads": [
     {
@@ -783,6 +784,15 @@
       "fbVideoId": "1622895812867316",
       "uploadedAt": "2026-11-02T20:52:26.754Z",
       "answer": "B) हुबली (कर्नाटक - 1,507 मीटर)"
+    },
+    {
+      "id": "sci_bone_03",
+      "category": "general_science",
+      "topic": "जीव विज्ञान (Biology)",
+      "title": "मानव शरीर की सबसे मजबूत हड्डी कौन सी है?",
+      "fbVideoId": "2230394347511152",
+      "uploadedAt": "2026-11-02T22:59:33.046Z",
+      "answer": "B) फीमर (Femur - जांघ की हड्डी)"
     }
   ]
 }
