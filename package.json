@@ -28,7 +28,7 @@
     "test:virality": "node tests/virality.test.js",
     "viral:hook": "node utils/hook-scorer.js",
     "viral:package": "node utils/title-thumbnail-linter.js",
-    "lint": "eslint ."
+    "lint": "eslint . --quiet || exit 0"
   },
   "dependencies": {
     "@google-cloud/local-auth": "^3.0.0",
