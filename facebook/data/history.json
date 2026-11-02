@@ -82,7 +82,8 @@
     "norm_10",
     "norm_02",
     "dm_04",
-    "norm_01"
+    "norm_01",
+    "stat_notes_01"
   ],
   "uploads": [
     {
@@ -743,6 +744,15 @@
       "fbVideoId": "1132265542867570",
       "uploadedAt": "2026-11-01T21:02:25.685Z",
       "answer": "तकिया और चारपाई (Bed)! 🛏️😴"
+    },
+    {
+      "id": "stat_notes_01",
+      "category": "static_gk",
+      "topic": "भारतीय मुद्रा (Indian Currency)",
+      "title": "₹500 के नए नोट के पीछे किसका चित्र छपा है?",
+      "fbVideoId": "1652099403066841",
+      "uploadedAt": "2026-11-02T06:54:44.309Z",
+      "answer": "A) लाल किला (Red Fort, Delhi)"
     }
   ]
 }
