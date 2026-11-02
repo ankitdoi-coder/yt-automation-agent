@@ -2082,406 +2082,249 @@ class AIVideoGenerator {
             letter-spacing: 0.5px;
         }
 
-        /* ---------- Short Quiz (Clean Reference Match 9:16 Layout) ---------- */
+                /* ---------- Short Quiz (Competitor Clean White-Background Style 9:16) ---------- */
         .slide.quiz-short.clean {
-            background: radial-gradient(circle at 50% 18%, #102a6b 0%, #081742 45%, #040a1e 100%);
-            padding: 40px 44px 30px;
+            background: #ffffff;
+            color: #111111;
+            padding: 96px 48px 80px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             overflow: hidden;
+            position: relative;
+            font-family: 'Nirmala UI', 'Noto Sans Devanagari', 'Segoe UI', Arial, sans-serif;
         }
 
-        /* Ambient background decorative SVG elements */
-        .bg-decor {
+        /* Subtle center circular watermark */
+        .watermark-bg {
             position: absolute;
-            inset: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 640px;
+            height: 640px;
+            border-radius: 50%;
+            border: 5px dashed #cbd5e1;
+            opacity: 0.16;
             pointer-events: none;
-            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             z-index: 1;
         }
+        .watermark-inner {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .watermark-cap {
+            font-size: 110px;
+            margin-bottom: 6px;
+        }
+        .watermark-name {
+            font-size: 52px;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .watermark-tag {
+            font-size: 22px;
+            font-weight: 800;
+            color: #64748b;
+            letter-spacing: 4px;
+            margin-top: 8px;
+        }
 
-        .clean-content-layer {
+        .quiz-clean-container {
             position: relative;
             z-index: 2;
             width: 100%;
             height: 100%;
             display: flex;
             flex-direction: column;
-            justify-content: space-between;
+            justify-content: flex-start;
         }
 
-        /* 1. Top Header */
-        .top-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .header-brand-group {
-            display: flex;
-            align-items: center;
-            gap: 22px;
-        }
-        .header-logo-img {
-            width: 136px;
-            height: 136px;
-            border-radius: 50%;
-            border: 4px solid #facc15;
-            box-shadow: 0 0 28px rgba(250, 204, 21, 0.75);
-            background: #000;
-            object-fit: cover;
-        }
-        .header-brand-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1;
-        }
-        .brand-examiq {
-            font-size: 68px;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: -1px;
-            text-shadow: 0 4px 14px rgba(0,0,0,0.9);
-        }
-        .brand-examiq .gold-iq {
-            color: #ffd700;
-            font-weight: 900;
-        }
-        .brand-bharat-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin-top: 3px;
-        }
-        .tri-flag-bar {
-            display: inline-block;
-            width: 44px;
-            height: 8px;
-            background: linear-gradient(90deg, #ff9933 33%, #ffffff 33%, #ffffff 66%, #138808 66%);
-            border-radius: 4px;
-        }
-        .brand-bharat-text {
-            font-size: 48px;
-            font-weight: 900;
-            color: #00e676;
-            letter-spacing: 0.5px;
-            text-shadow: 0 3px 12px rgba(0, 230, 118, 0.5);
-        }
-        .brand-sub1 {
-            margin-top: 8px;
-            font-size: 20px;
-            font-weight: 900;
-            letter-spacing: 2.4px;
-            color: #e2e8f0;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.8);
-        }
-        .brand-sub2 {
-            margin-top: 5px;
-            font-size: 16px;
-            font-weight: 800;
-            letter-spacing: 1.8px;
-            color: #94a3b8;
-        }
-
-        .header-slogan-box {
-            text-align: right;
-            transform: rotate(-3deg);
-        }
-        .slogan-line1 {
-            font-size: 34px;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
-        }
-        .slogan-line2 {
-            font-size: 36px;
-            font-weight: 900;
-            color: #ffd700;
-            text-shadow: 0 2px 10px rgba(255, 215, 0, 0.6);
-            margin-top: 4px;
-        }
-        .slogan-underline {
-            width: 210px;
-            height: 8px;
-            margin-left: auto;
-            margin-top: 6px;
-            background: linear-gradient(90deg, #ff9933 0%, #ffffff 50%, #138808 100%);
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.5);
-        }
-
-        /* 2. IMPORTANT QUIZ BANNER */
-        .important-quiz-bar {
-            margin: 14px auto 0;
-            width: 860px;
-            background: linear-gradient(90deg, #b91c1c 0%, #dc2626 50%, #b91c1c 100%);
-            border: 4px solid #facc15;
-            border-radius: 24px;
-            box-shadow: 0 8px 25px rgba(220, 38, 38, 0.7), 0 0 15px rgba(250, 204, 21, 0.45);
-            display: flex;
+        /* 1. Top Pill Badge: 📚 सामान्य ज्ञान 📚 */
+        .top-pill-badge {
+            background: #e4f932;
+            border: 4px solid #111111;
+            border-radius: 60px;
+            padding: 12px 48px;
+            margin: 0 auto;
+            display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 16px;
-            padding: 12px 0;
-            transform: skewX(-4deg);
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
         }
-        .banner-dart {
-            font-size: 44px;
-            transform: skewX(4deg);
+        .top-pill-badge .book-icon {
+            font-size: 46px;
         }
-        .banner-text {
+        .top-pill-badge .top-badge-text {
             font-size: 52px;
             font-weight: 900;
-            font-style: italic;
-            color: #ffffff;
-            letter-spacing: 2px;
-            text-shadow: 3px 3px 0 #7f1d1d, 0 4px 10px rgba(0,0,0,0.8);
-            transform: skewX(4deg);
+            color: #000000;
+            letter-spacing: 0.5px;
         }
 
-        /* 3. CATEGORY STRIP (NO PART PILL) */
-        .cat-part-row {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .subject-pill {
-            width: 100%;
-            background: linear-gradient(90deg, #ffd700 0%, #facc15 100%);
-            border: 4px solid #ffffff;
-            border-radius: 50px;
-            box-shadow: 0 8px 22px rgba(0,0,0,0.4);
-            padding: 12px 30px;
+        /* 2. Blue Sub-header Bar: 🤯 परीक्षा में बार बार पूछे जाने वाले सवाल 🤯 */
+        .sub-header-strip {
+            margin-top: 34px;
+            background: #1565c0;
+            border-radius: 12px;
+            padding: 16px 20px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 14px;
+            box-shadow: 0 4px 14px rgba(21, 101, 192, 0.3);
         }
-        .subject-bulb {
-            font-size: 40px;
+        .sub-header-strip .strip-emoji {
+            font-size: 44px;
         }
-        .subject-text {
-            font-size: 38px;
-            font-weight: 900;
-            color: #000000;
-            letter-spacing: 0.5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-
-        /* 4. QUESTION CARD - PROMINENT, LARGE, HIGH CTR HOOK */
-        .hero-question-card {
-            margin-top: 24px;
-            background: #ffffff;
-            border: 7px solid #facc15;
-            border-radius: 40px;
-            box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 40px rgba(250, 204, 21, 0.45);
-            padding: 34px 44px 38px;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        .card-meta-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .question-badge-pill {
-            background: linear-gradient(135deg, #ef4444, #dc2626);
+        .sub-header-strip .strip-text {
             color: #ffffff;
-            font-size: 32px;
+            font-size: 44px;
             font-weight: 900;
-            padding: 10px 30px;
-            border-radius: 16px;
-            letter-spacing: 1.2px;
-            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.45);
+            letter-spacing: 0.5px;
+            text-align: center;
         }
-        .target-gk-pill {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 30px;
-            font-weight: 900;
-            color: #0f172a;
-            letter-spacing: 0.8px;
+
+        /* 3. Question Block */
+        .question-block {
+            margin-top: 44px;
+            padding: 0 6px;
         }
-        .question-main-text {
-            font-size: 64px;
+        .question-text {
+            font-size: 60px;
             font-weight: 900;
-            line-height: 1.36;
+            font-style: italic;
+            line-height: 1.34;
             color: #000000;
             text-align: left;
             letter-spacing: -0.3px;
         }
-        .question-main-text.small {
-            font-size: 54px;
-            line-height: 1.32;
+        .question-text.small {
+            font-size: 52px;
+            line-height: 1.3;
         }
-        .question-main-text.tiny {
-            font-size: 46px;
-            line-height: 1.28;
+        .question-text.tiny {
+            font-size: 44px;
+            line-height: 1.26;
         }
 
-        /* 5. FOUR STACKED COLORED OPTION BUTTONS */
-        .options-container {
-            margin-top: 26px;
+        /* 4. Timer / Status Strip */
+        .quiz-timer-strip {
+            margin: 28px 0 14px 6px;
+            display: flex;
+            align-items: center;
+        }
+        .timer-badge {
+            font-size: 32px;
+            font-weight: 800;
+            color: #b45309;
+            background: #fef3c7;
+            padding: 6px 22px;
+            border-radius: 12px;
+            letter-spacing: 0.5px;
+        }
+        .timer-badge.correct {
+            color: #15803d;
+            background: #dcfce7;
+        }
+
+        /* 5. Clean Vertical Options List */
+        .clean-options-container {
+            margin-top: 14px;
             display: flex;
             flex-direction: column;
-            gap: 22px;
+            gap: 20px;
+            padding: 0 4px;
         }
-        .option-btn {
-            background: #ffffff;
-            border-radius: 65px;
-            padding: 16px 32px;
+        .clean-opt-item {
             display: flex;
             align-items: center;
-            gap: 28px;
-            min-height: 124px;
-            box-shadow: 0 12px 28px rgba(0,0,0,0.35);
-            transition: all 0.25s ease;
-        }
-        .opt-letter {
-            width: 86px;
-            height: 86px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #ffffff;
-            font-size: 48px;
+            gap: 20px;
+            padding: 14px 28px;
+            border-radius: 22px;
+            font-size: 56px;
             font-weight: 900;
-            flex-shrink: 0;
-            box-shadow: 0 6px 14px rgba(0,0,0,0.3);
-        }
-        .opt-text {
-            font-size: 52px;
-            font-weight: 800;
-            line-height: 1.25;
+            font-style: italic;
             color: #000000;
+            min-height: 90px;
+            line-height: 1.25;
+            transition: all 0.2s ease;
+        }
+        .clean-opt-item .opt-prefix {
+            font-weight: 900;
+            font-style: italic;
+            font-size: 58px;
+            color: #111111;
+            flex-shrink: 0;
+        }
+        .clean-opt-item .opt-content {
+            font-weight: 900;
+            font-style: italic;
+            color: #111111;
             flex: 1;
         }
 
-        /* Color schemes matching reference */
-        .option-btn.opt-a {
-            border: 5px solid #0284c7;
+        /* Correct Answer Reveal Highlight (Competitor Soft Red Pill) */
+        .clean-opt-item.correct-reveal {
+            background: #fee2e2 !important;
+            border: 4.5px solid #ef4444 !important;
+            box-shadow: 0 4px 18px rgba(239, 68, 68, 0.25) !important;
         }
-        .option-btn.opt-a .opt-letter {
-            background: linear-gradient(135deg, #0284c7, #0369a1);
-        }
-
-        .option-btn.opt-b {
-            border: 5px solid #dc2626;
-        }
-        .option-btn.opt-b .opt-letter {
-            background: linear-gradient(135deg, #dc2626, #b91c1c);
+        .clean-opt-item.correct-reveal .opt-prefix,
+        .clean-opt-item.correct-reveal .opt-content {
+            color: #b91c1c !important;
         }
 
-        .option-btn.opt-c {
-            border: 5px solid #16a34a;
-        }
-        .option-btn.opt-c .opt-letter {
-            background: linear-gradient(135deg, #16a34a, #15803d);
+        /* Dim other options slightly on answer reveal */
+        .clean-opt-item.other-opt {
+            opacity: 0.85;
         }
 
-        .option-btn.opt-d {
-            border: 5px solid #ea580c;
-        }
-        .option-btn.opt-d .opt-letter {
-            background: linear-gradient(135deg, #ea580c, #c2410c);
-        }
-
-        /* Answer Reveal State */
-        .option-btn.correct {
-            background: linear-gradient(90deg, #15803d 0%, #16a34a 100%) !important;
-            border-color: #facc15 !important;
-            border-width: 5px !important;
-            box-shadow: 0 14px 40px rgba(22, 163, 74, 0.75), 0 0 25px rgba(250, 204, 21, 0.6) !important;
-            transform: scale(1.02);
-        }
-        .option-btn.correct .opt-letter {
-            background: #ffffff !important;
-            color: #15803d !important;
-            font-weight: 900 !important;
-        }
-        .option-btn.correct .opt-text {
-            color: #ffffff !important;
-            font-weight: 900 !important;
-        }
-        .option-btn.dim {
-            opacity: 0.35 !important;
-        }
-
-        /* 6. BOTTOM FOOTER (SUBSCRIBE & LIKE SHARE) */
-        .footer-action-area {
+        /* 6. Bottom Split Footer */
+        .bottom-split-footer {
             margin-top: auto;
+            margin-bottom: 50px;
             display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 18px;
-            padding-bottom: 12px;
-        }
-        .subscribe-pill-btn {
-            width: 680px;
+            align-items: stretch;
             height: 98px;
-            background: linear-gradient(180deg, #dc2626 0%, #b91c1c 100%);
-            border: 4px solid #ffffff;
-            border-radius: 60px;
-            box-shadow: 0 12px 30px rgba(220, 38, 38, 0.65), 0 0 15px rgba(255, 255, 255, 0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 22px;
-            position: relative;
+            border-radius: 14px;
+            overflow: hidden;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
-        .yt-icon-box {
-            width: 52px;
-            height: 38px;
-            background: #ffffff;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #dc2626;
-            font-size: 24px;
-            padding-left: 3px;
-        }
-        .sub-bold-text {
+        .split-channel-box {
+            background: #facc15;
+            color: #000000;
             font-size: 46px;
             font-weight: 900;
-            color: #ffffff;
-            letter-spacing: 2px;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.5);
-        }
-        .bell-icon {
-            font-size: 42px;
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-        }
-        .hand-pointer {
-            position: absolute;
-            right: 250px;
-            bottom: -32px;
-            font-size: 58px;
-            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.7));
-            transform: rotate(-10deg);
-        }
-
-        .like-share-sub-bar {
-            background: linear-gradient(90deg, #facc15 0%, #fde047 50%, #facc15 100%);
-            border-radius: 30px;
-            padding: 12px 52px;
-            color: #000000;
-            font-size: 32px;
-            font-weight: 900;
-            letter-spacing: 3px;
-            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
             display: flex;
             align-items: center;
-            gap: 16px;
+            justify-content: center;
+            padding: 0 36px;
+            flex: 1.15;
+            clip-path: polygon(0 0, 100% 0, 91% 100%, 0 100%);
         }
-    </style>
+        .split-subscribe-box {
+            background: #dc2626;
+            color: #ffffff;
+            font-size: 44px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 36px 0 24px;
+            flex: 1;
+            margin-left: -18px;
+        }
+</style>
 </head>
 <body>
     ${slidesHtml}
@@ -2557,7 +2400,7 @@ class AIVideoGenerator {
   buildQuizSlideData(script) {
     const quiz = script.quiz || {};
     const questions = quiz.questions || [];
-    const channel = script.metadata?.strategy?.channelName || script.metadata?.strategy?.channel || '';
+    const channel = script.metadata?.strategy?.channelName || script.metadata?.strategy?.channel || process.env.CHANNEL_NAME || 'ExamIQ Bharat';
     const language = quiz.language === 'en' ? 'en' : 'hi';
     const subject = quiz.subject || 'General Knowledge';
     let subjectHindi = quiz.subjectHindi || quiz.subject || '';
@@ -3199,157 +3042,94 @@ ${optionsHtml}
     </div>`;
   }
 
-  // 9:16 Vertical Short Quiz Clean Structured Typography template (Without Images) (1080x1920)
+    // 9:16 Vertical Short Quiz Clean Structured Typography template (Without Images) (1080x1920)
   renderShortQuizCleanSlideHtml(slide) {
     const question = slide.question || {};
     const isAnswer = slide.kind === 'shortQuizCleanAnswer' || slide.kind === 'shortQuizAnswer';
     const active = slide.index === 1 ? ' active' : '';
     const answerIndex = Number.isInteger(question.answerIndex) ? question.answerIndex : -1;
-    const subjectHindi = slide.subjectHindi || 'सामान्य ज्ञान (GK)';
+    const subjectHindi = slide.subjectHindi || 'सामान्य ज्ञान';
+    const channelName = slide.channel || process.env.CHANNEL_NAME || 'ExamIQ Bharat';
+
+    const qNum = question.number || question.id || (slide.index ? Math.ceil(slide.index / 2) : 1);
+    const questionText = question.question || '';
+    let qTextClass = '';
+    if (questionText.length > 130) qTextClass = 'tiny';
+    else if (questionText.length > 85) qTextClass = 'small';
 
     const optionsHtml = (question.options || []).map((option, index) => {
       const optLetter = LETTERS[index] || 'A';
-      const optClassLetter = optLetter.toLowerCase();
-      const classes = ['option-btn', `opt-${optClassLetter}`];
-      if (isAnswer && index === answerIndex) classes.push('correct');
-      if (isAnswer && index !== answerIndex) classes.push('dim');
-      const checkMark = (isAnswer && index === answerIndex) ? ' ✓' : '';
-      return `                <div class="${classes.join(' ')}">
-                    <div class="opt-letter">${optLetter}</div>
-                    <div class="opt-text">${this.escapeHtml(option)}${checkMark}</div>
+      const isCorrect = isAnswer && index === answerIndex;
+      const rowClasses = ['clean-opt-item'];
+      if (isCorrect) rowClasses.push('correct-reveal');
+      else if (isAnswer) rowClasses.push('other-opt');
+
+      return `                <div class="${rowClasses.join(' ')}">
+                    <span class="opt-prefix">${optLetter})</span>
+                    <span class="opt-content">${this.escapeHtml(option)}</span>
                 </div>`;
     }).join('\n');
 
-    const logoHtml = slide.channelLogo
-      ? `<img src="${slide.channelLogo}" class="header-logo-img" alt="ExamIQ Logo" />`
-      : `<div class="header-logo-img" style="display:flex;align-items:center;justify-content:center;font-size:60px;">🎓</div>`;
-
-    const questionText = question.question || '';
-    let qTextClass = '';
-    if (questionText.length > 135) qTextClass = 'tiny';
-    else if (questionText.length > 95) qTextClass = 'small';
-
     return `
     <div class="slide quiz-short clean${active}">
-        <!-- Ambient thematic SVGs -->
-        <svg class="bg-decor" viewBox="0 0 1080 1920" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <!-- India map silhouette top-left -->
-            <path d="M40 240 C80 220, 160 230, 200 280 C250 330, 230 380, 270 420 C300 440, 280 500, 240 540 C190 600, 140 620, 80 570 C40 510, 20 420, 30 350 Z" stroke="#00e5ff" stroke-width="2.5" fill="url(#mapGrad)" opacity="0.18"/>
-            <!-- Parliament building dome top-right -->
-            <path d="M800 460 L1050 460 L1050 390 C1050 330, 800 330, 800 390 Z" stroke="#ffd700" stroke-width="3" fill="none" opacity="0.22"/>
-            <path d="M925 330 L925 285 M925 285 L955 296 L925 307" stroke="#ff9933" stroke-width="3" fill="#ff9933" opacity="0.35"/>
-            <!-- Book neon icon middle-left -->
-            <g transform="translate(35, 1080)" stroke="#00e5ff" stroke-width="3" fill="none" opacity="0.32">
-                <path d="M10 20 C35 10, 60 20, 60 20 L60 80 C60 80, 35 70, 10 80 Z"/>
-                <path d="M110 20 C85 10, 60 20, 60 20 L60 80 C60 80, 85 70, 110 80 Z"/>
-                <line x1="60" y1="20" x2="60" y2="80"/>
-            </g>
-            <!-- Pillar icon middle-right -->
-            <g transform="translate(930, 1100)" stroke="#00e5ff" stroke-width="3" fill="none" opacity="0.32">
-                <rect x="10" y="10" width="70" height="12" rx="3"/>
-                <line x1="24" y1="22" x2="24" y2="85"/>
-                <line x1="45" y1="22" x2="45" y2="85"/>
-                <line x1="66" y1="22" x2="66" y2="85"/>
-                <rect x="10" y="85" width="70" height="12" rx="3"/>
-            </g>
-            <!-- Ancient Monument silhouette bottom-left -->
-            <g transform="translate(35, 1380)" fill="#f59e0b" opacity="0.18">
-                <rect x="10" y="160" width="200" height="45" rx="4"/>
-                <rect x="25" y="115" width="170" height="45" rx="4"/>
-                <rect x="50" y="70" width="120" height="45" rx="4"/>
-                <rect x="80" y="25" width="60" height="45" rx="4"/>
-            </g>
-            <!-- Buddha statue silhouette bottom-right -->
-            <g transform="translate(840, 1340)" stroke="#38bdf8" stroke-width="3" fill="none" opacity="0.25">
-                <circle cx="105" cy="55" r="32"/>
-                <path d="M75 85 C55 115, 45 170, 45 210 L165 210 C165 170, 155 115, 135 85 Z"/>
-                <path d="M30 210 C45 235, 165 235, 180 210 Z"/>
-            </g>
-            <defs>
-                <linearGradient id="mapGrad" x1="0" y1="0" x2="1" y2="1">
-                    <stop offset="0%" stop-color="#0284c7" stop-opacity="0.35"/>
-                    <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
-                </linearGradient>
-            </defs>
-        </svg>
+        <!-- Subtle center circular watermark -->
+        <div class="watermark-bg">
+            <div class="watermark-inner">
+                <div class="watermark-cap">🎓</div>
+                <div class="watermark-name">${this.escapeHtml(channelName)}</div>
+                <div class="watermark-tag">LEARN • PRACTICE • SCORE</div>
+            </div>
+        </div>
 
-        <div class="clean-content-layer">
-            <!-- 1. Top Header -->
-            <div class="top-header">
-                <div class="header-brand-group">
-                    ${logoHtml}
-                    <div class="header-brand-text">
-                        <div class="brand-examiq">Exam<span class="gold-iq">IQ</span></div>
-                        <div class="brand-bharat-row">
-                            <span class="tri-flag-bar"></span>
-                            <span class="brand-bharat-text">Bharat</span>
-                            <span class="tri-flag-bar"></span>
-                        </div>
-                        <div class="brand-sub1">GK | REASONING | MATHS</div>
-                        <div class="brand-sub2">FOR GOVERNMENT EXAMS</div>
-                    </div>
-                </div>
-                <div class="header-slogan-box">
-                    <div class="slogan-line1">सही तैयारी</div>
-                    <div class="slogan-line2">सफलता की गारंटी</div>
-                    <div class="slogan-underline"></div>
+        <div class="quiz-clean-container">
+            <!-- 1. Top Pill Badge: 📚 सामान्य ज्ञान 📚 -->
+            <div class="top-pill-badge">
+                <span class="book-icon">📚</span>
+                <span class="top-badge-text">${this.escapeHtml(subjectHindi)}</span>
+                <span class="book-icon">📚</span>
+            </div>
+
+            <!-- 2. Blue Sub-header Bar: 🤯 परीक्षा में बार बार पूछे जाने वाले सवाल 🤯 -->
+            <div class="sub-header-strip">
+                <span class="strip-emoji">🤯</span>
+                <span class="strip-text">परीक्षा में बार बार पूछे जाने वाले सवाल</span>
+                <span class="strip-emoji">🤯</span>
+            </div>
+
+            <!-- 3. Question Block -->
+            <div class="question-block">
+                <div class="question-text ${qTextClass}">
+                    ${qNum}. ${this.escapeHtml(questionText)}
                 </div>
             </div>
 
-            <!-- 2. Important Quiz Banner -->
-            <div class="important-quiz-bar">
-                <span class="banner-dart">🎯</span>
-                <span class="banner-text">IMPORTANT QUIZ</span>
-            </div>
-
-            <!-- 3. Category Strip -->
-            <div class="cat-part-row">
-                <div class="subject-pill">
-                    <span class="subject-bulb">💡</span>
-                    <span class="subject-text">${this.escapeHtml(subjectHindi)}</span>
-                </div>
-            </div>
-
-            <!-- 4. Hero Question Card -->
-            <div class="hero-question-card">
-                <div class="card-meta-top">
-                    <div class="question-badge-pill">QUESTION ${question.number || 1}</div>
-                    <div class="target-gk-pill">🎯 TARGET GK</div>
-                </div>
-                <div class="question-main-text ${qTextClass}">
-                    ${this.escapeHtml(questionText)}
-                </div>
-            </div>
-
-            <!-- Timer & Action Prompt -->
+            <!-- 4. Timer / Status Strip -->
             ${!isAnswer ? `
-            <div class="timer-box-row" style="display:flex;align-items:center;justify-content:center;gap:12px;margin:18px auto 8px;width:90%;">
-                <div style="font-size:30px;font-weight:800;color:#facc15;text-shadow:0 0 12px rgba(250,204,21,0.6);letter-spacing:1px;">⏳ 3 SECONDS TO ANSWER...</div>
+            <div class="quiz-timer-strip answering">
+                <span class="timer-badge">⏳ सोचिए... (3s)</span>
             </div>` : `
-            <div class="timer-box-row" style="display:flex;align-items:center;justify-content:center;gap:12px;margin:18px auto 8px;width:90%;">
-                <div style="font-size:30px;font-weight:800;color:#4ade80;text-shadow:0 0 12px rgba(74,222,128,0.6);letter-spacing:1px;">✅ CORRECT ANSWER!</div>
+            <div class="quiz-timer-strip revealed">
+                <span class="timer-badge correct">✅ सही उत्तर</span>
             </div>`}
 
-            <!-- 5. Four Colored Option Buttons -->
-            <div class="options-container">
+            <!-- 5. Vertical Options List: A) ... B) ... C) ... -->
+            <div class="clean-options-container">
 ${optionsHtml}
             </div>
 
-            <!-- 6. Footer CTA Area -->
-            <div class="footer-action-area">
-                <div class="subscribe-pill-btn">
-                    <div class="yt-icon-box">▶</div>
-                    <div class="sub-bold-text">SUBSCRIBE</div>
-                    <div class="bell-icon">🔔</div>
-                    <div class="hand-pointer">👆</div>
+            <!-- 6. Bottom Split Footer: [ Yellow: ChannelName ] [ Red: को Subscribe करें ] -->
+            <div class="bottom-split-footer">
+                <div class="split-channel-box">
+                    <span>${this.escapeHtml(channelName)}</span>
                 </div>
-                <div class="like-share-sub-bar">
-                    LIKE &nbsp;|&nbsp; SHARE &nbsp;|&nbsp; SUBSCRIBE
+                <div class="split-subscribe-box">
+                    <span>को Subscribe करें</span>
                 </div>
             </div>
         </div>
     </div>`;
   }
+
 
   calculateScriptDuration(script) {
     // Estimate duration based on word count (average 150 words per minute)

@@ -14,7 +14,9 @@ module.exports = [
       'data/captions/**',
       'data/scripts/**',
       'data/videos/**',
-      'data/thumbnails/**'
+      'data/thumbnails/**',
+      'facebook/temp/**',
+      'facebook/output/**'
     ]
   },
   js.configs.recommended,
@@ -58,7 +60,9 @@ module.exports = [
         caughtErrors: 'none'
       }],
       'no-useless-escape': 'off',
-      'no-empty': 'off'
+      'no-empty': 'off',
+      'no-redeclare': 'off',
+      'no-undef': 'warn'
     }
   }
 ];

@@ -5,7 +5,7 @@
 require('dotenv').config();
 const fs = require('fs');
 const axios = require('axios');
-const FormData = require('form-data');
+const NodeFormData = require('form-data');
 const { lintTitleAndThumbnail } = require('../utils/title-thumbnail-linter');
 
 class FacebookUploader {
@@ -35,7 +35,7 @@ class FacebookUploader {
 
     console.log(`[FacebookUploader] Uploading video to Facebook Page (${this.pageId})...`);
 
-    const form = new FormData();
+    const form = new NodeFormData();
     form.append('access_token', this.accessToken);
     form.append('title', cleanTitle);
     form.append('description', cleanCaption);
@@ -80,7 +80,7 @@ class FacebookUploader {
 
     console.log(`[FacebookUploader] Uploading photo to Facebook Page (${this.pageId})...`);
 
-    const form = new FormData();
+    const form = new NodeFormData();
     form.append('access_token', this.accessToken);
     form.append('caption', cleanCaption);
     form.append('source', fs.createReadStream(imagePath));
@@ -141,7 +141,7 @@ class FacebookUploader {
 
     console.log(`[FacebookUploader] Uploading to Facebook Page (${this.pageId})...`);
 
-    const form = new FormData();
+    const form = new NodeFormData();
     form.append('access_token', this.accessToken);
     form.append('title', title);
     form.append('description', caption);

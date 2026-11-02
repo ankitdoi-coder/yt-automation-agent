@@ -237,7 +237,7 @@ class FacebookVideoMaker {
   /**
    * Generates a complete 9:16 vertical Reel MP4 matching the educational format
    */
-  async createReel(item, index = 0) {
+  async createReel(item, _index = 0) {
     const timerText = '⏳ सोचो! 3.. 2.. 1.. 🎯';
 
     const timestamp = Date.now();
