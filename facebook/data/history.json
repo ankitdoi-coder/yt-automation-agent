@@ -85,7 +85,8 @@
     "norm_01",
     "stat_notes_01",
     "gk_sci_03",
-    "math_quiz_01"
+    "math_quiz_01",
+    "stat_rail_02"
   ],
   "uploads": [
     {
@@ -773,6 +774,15 @@
       "fbVideoId": "1781192739660310",
       "uploadedAt": "2026-11-02T17:20:08.008Z",
       "answer": "B) 10"
+    },
+    {
+      "id": "stat_rail_02",
+      "category": "static_gk",
+      "topic": "भारतीय रेलवे (Indian Infrastructure)",
+      "title": "दुनिया का सबसे लंबा रेलवे प्लेटफॉर्म कौन सा है?",
+      "fbVideoId": "1622895812867316",
+      "uploadedAt": "2026-11-02T20:52:26.754Z",
+      "answer": "B) हुबली (कर्नाटक - 1,507 मीटर)"
     }
   ]
 }
