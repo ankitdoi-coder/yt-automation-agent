@@ -84,7 +84,8 @@
     "dm_04",
     "norm_01",
     "stat_notes_01",
-    "gk_sci_03"
+    "gk_sci_03",
+    "math_quiz_01"
   ],
   "uploads": [
     {
@@ -763,6 +764,15 @@
       "fbVideoId": "1128898996262667",
       "uploadedAt": "2026-11-02T11:29:37.051Z",
       "answer": "B) नाइट्रस ऑक्साइड (N2O)"
+    },
+    {
+      "id": "math_quiz_01",
+      "category": "math_quiz",
+      "topic": "गणित पहेली (Math IQ Quiz)",
+      "title": "100 का 20% का 50% कितना होगा?",
+      "fbVideoId": "1781192739660310",
+      "uploadedAt": "2026-11-02T17:20:08.008Z",
+      "answer": "B) 10"
     }
   ]
 }
