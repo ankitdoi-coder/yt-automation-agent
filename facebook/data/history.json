@@ -91,7 +91,8 @@
     "math_quiz_02",
     "geo_military_02",
     "gk_sci_02",
-    "gk_sci_laser"
+    "gk_sci_laser",
+    "stat_isro_03"
   ],
   "uploads": [
     {
@@ -833,6 +834,15 @@
       "fbVideoId": "1742821730536242",
       "uploadedAt": "2026-11-03T18:32:19.240Z",
       "answer": "B) थियोडोर मेमन (Theodore Maiman)"
+    },
+    {
+      "id": "stat_isro_03",
+      "category": "static_gk",
+      "topic": "भारतीय अंतरिक्ष (Space Science)",
+      "title": "ISRO का मुख्यालय कहाँ स्थित है?",
+      "fbVideoId": "2305455383628930",
+      "uploadedAt": "2026-11-03T20:46:25.379Z",
+      "answer": "B) बेंगलुरु (Bengaluru)"
     }
   ]
 }
