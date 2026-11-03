@@ -89,7 +89,8 @@
     "stat_rail_02",
     "sci_bone_03",
     "math_quiz_02",
-    "geo_military_02"
+    "geo_military_02",
+    "gk_sci_02"
   ],
   "uploads": [
     {
@@ -813,6 +814,15 @@
       "fbVideoId": "963437069774353",
       "uploadedAt": "2026-11-03T11:08:26.256Z",
       "answer": "C) अमेरिका (USA)"
+    },
+    {
+      "id": "gk_sci_02",
+      "category": "general_science",
+      "topic": "भौतिक विज्ञान (Physics)",
+      "title": "सूर्य का प्रकाश पृथ्वी तक पहुँचने का समय",
+      "fbVideoId": "2237316536818570",
+      "uploadedAt": "2026-11-03T15:25:20.387Z",
+      "answer": "B) 8 मिनट 20 सेकंड (लगभग 500 सेकंड)"
     }
   ]
 }
