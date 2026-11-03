@@ -88,7 +88,8 @@
     "math_quiz_01",
     "stat_rail_02",
     "sci_bone_03",
-    "math_quiz_02"
+    "math_quiz_02",
+    "geo_military_02"
   ],
   "uploads": [
     {
@@ -803,6 +804,15 @@
       "fbVideoId": "29129617503324950",
       "uploadedAt": "2026-11-02T23:50:55.527Z",
       "answer": "B) 25"
+    },
+    {
+      "id": "geo_military_02",
+      "category": "geopolitics",
+      "topic": "ग्लोबल डिफेंस (Military Power)",
+      "title": "दुनिया की सबसे शक्तिशाली सेना किस देश की है?",
+      "fbVideoId": "963437069774353",
+      "uploadedAt": "2026-11-03T11:08:26.256Z",
+      "answer": "C) अमेरिका (USA)"
     }
   ]
 }
