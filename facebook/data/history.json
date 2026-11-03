@@ -92,7 +92,8 @@
     "geo_military_02",
     "gk_sci_02",
     "gk_sci_laser",
-    "stat_isro_03"
+    "stat_isro_03",
+    "geo_nuke_01"
   ],
   "uploads": [
     {
@@ -843,6 +844,15 @@
       "fbVideoId": "2305455383628930",
       "uploadedAt": "2026-11-03T20:46:25.379Z",
       "answer": "B) बेंगलुरु (Bengaluru)"
+    },
+    {
+      "id": "geo_nuke_01",
+      "category": "geopolitics",
+      "topic": "भू-राजनीति (Geopolitics)",
+      "title": "दुनिया में सबसे ज्यादा परमाणु हथियार किसके पास हैं?",
+      "fbVideoId": "1305657618332729",
+      "uploadedAt": "2026-11-03T22:15:33.265Z",
+      "answer": "B) रूस (लगभग 5,580 परमाणु हथियार)"
     }
   ]
 }
