@@ -90,7 +90,8 @@
     "sci_bone_03",
     "math_quiz_02",
     "geo_military_02",
-    "gk_sci_02"
+    "gk_sci_02",
+    "gk_sci_laser"
   ],
   "uploads": [
     {
@@ -823,6 +824,15 @@
       "fbVideoId": "2237316536818570",
       "uploadedAt": "2026-11-03T15:25:20.387Z",
       "answer": "B) 8 मिनट 20 सेकंड (लगभग 500 सेकंड)"
+    },
+    {
+      "id": "gk_sci_laser",
+      "category": "static_gk",
+      "topic": "सामान्य विज्ञान (General Science)",
+      "title": "लेजर का आविष्कार किसने किया?",
+      "fbVideoId": "1742821730536242",
+      "uploadedAt": "2026-11-03T18:32:19.240Z",
+      "answer": "B) थियोडोर मेमन (Theodore Maiman)"
     }
   ]
 }
