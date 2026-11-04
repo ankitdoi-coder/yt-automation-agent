@@ -94,7 +94,8 @@
     "gk_sci_laser",
     "stat_isro_03",
     "geo_nuke_01",
-    "math_quiz_03"
+    "math_quiz_03",
+    "sci_eye_02"
   ],
   "uploads": [
     {
@@ -863,6 +864,15 @@
       "fbVideoId": "1643993887417250",
       "uploadedAt": "2026-11-04T15:39:53.316Z",
       "answer": "C) 20 बार (20 Times)"
+    },
+    {
+      "id": "sci_eye_02",
+      "category": "general_science",
+      "topic": "मानव शरीर (Human Anatomy)",
+      "title": "मनुष्य की आंख कितने मेगापिक्सल की होती है?",
+      "fbVideoId": "2347780569399170",
+      "uploadedAt": "2026-11-04T18:44:52.121Z",
+      "answer": "B) 576 मेगापिक्सल (576 MP)"
     }
   ]
 }
