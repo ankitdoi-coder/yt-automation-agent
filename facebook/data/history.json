@@ -95,7 +95,8 @@
     "stat_isro_03",
     "geo_nuke_01",
     "math_quiz_03",
-    "sci_eye_02"
+    "sci_eye_02",
+    "sci_tyre_01"
   ],
   "uploads": [
     {
@@ -873,6 +874,15 @@
       "fbVideoId": "2347780569399170",
       "uploadedAt": "2026-11-04T18:44:52.121Z",
       "answer": "B) 576 मेगापिक्सल (576 MP)"
+    },
+    {
+      "id": "sci_tyre_01",
+      "category": "general_science",
+      "topic": "दैनिक विज्ञान (Everyday Science)",
+      "title": "हवाई जहाज के टायरों में कौन सी गैस भरी जाती है?",
+      "fbVideoId": "3870898436384699",
+      "uploadedAt": "2026-11-04T21:03:12.864Z",
+      "answer": "B) नाइट्रोजन (Nitrogen Gas)"
     }
   ]
 }
