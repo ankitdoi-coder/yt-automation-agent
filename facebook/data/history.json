@@ -93,7 +93,8 @@
     "gk_sci_02",
     "gk_sci_laser",
     "stat_isro_03",
-    "geo_nuke_01"
+    "geo_nuke_01",
+    "math_quiz_03"
   ],
   "uploads": [
     {
@@ -853,6 +854,15 @@
       "fbVideoId": "1305657618332729",
       "uploadedAt": "2026-11-03T22:15:33.265Z",
       "answer": "B) रूस (लगभग 5,580 परमाणु हथियार)"
+    },
+    {
+      "id": "math_quiz_03",
+      "category": "math_quiz",
+      "topic": "गणित पहेली (Logical Puzzle)",
+      "title": "1 से 100 तक '9' कितनी बार आता है?",
+      "fbVideoId": "1643993887417250",
+      "uploadedAt": "2026-11-04T15:39:53.316Z",
+      "answer": "C) 20 बार (20 Times)"
     }
   ]
 }
