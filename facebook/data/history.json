@@ -96,7 +96,8 @@
     "geo_nuke_01",
     "math_quiz_03",
     "sci_eye_02",
-    "sci_tyre_01"
+    "sci_tyre_01",
+    "stat_polity_04"
   ],
   "uploads": [
     {
@@ -883,6 +884,15 @@
       "fbVideoId": "3870898436384699",
       "uploadedAt": "2026-11-04T21:03:12.864Z",
       "answer": "B) नाइट्रोजन (Nitrogen Gas)"
+    },
+    {
+      "id": "stat_polity_04",
+      "category": "static_gk",
+      "topic": "भारतीय संविधान (Constitution)",
+      "title": "डॉ. अम्बेडकर ने किस अनुच्छेद को 'संविधान की आत्मा' कहा?",
+      "fbVideoId": "1541432564412270",
+      "uploadedAt": "2026-11-04T22:30:28.593Z",
+      "answer": "D) अनुच्छेद 32 (संवैधानिक उपचार)"
     }
   ]
 }
