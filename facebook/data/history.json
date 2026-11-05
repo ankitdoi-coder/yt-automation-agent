@@ -99,7 +99,8 @@
     "sci_tyre_01",
     "stat_polity_04",
     "gk_sci_01",
-    "math_quiz_04"
+    "math_quiz_04",
+    "geo_passport_03"
   ],
   "uploads": [
     {
@@ -913,6 +914,15 @@
       "fbVideoId": "1656209372851331",
       "uploadedAt": "2026-11-05T15:43:01.425Z",
       "answer": "B) 3 मिनट (3 Minutes)"
+    },
+    {
+      "id": "geo_passport_03",
+      "category": "geopolitics",
+      "topic": "अंतरराष्ट्रीय संबंध (Global Index)",
+      "title": "दुनिया का सबसे शक्तिशाली पासपोर्ट किस देश का है?",
+      "fbVideoId": "1153360720478546",
+      "uploadedAt": "2026-11-05T21:20:13.964Z",
+      "answer": "B) सिंगापुर (Singapore)"
     }
   ]
 }
