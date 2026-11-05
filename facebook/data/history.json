@@ -100,7 +100,8 @@
     "stat_polity_04",
     "gk_sci_01",
     "math_quiz_04",
-    "geo_passport_03"
+    "geo_passport_03",
+    "geo_gold_04"
   ],
   "uploads": [
     {
@@ -923,6 +924,15 @@
       "fbVideoId": "1153360720478546",
       "uploadedAt": "2026-11-05T21:20:13.964Z",
       "answer": "B) सिंगापुर (Singapore)"
+    },
+    {
+      "id": "geo_gold_04",
+      "category": "geopolitics",
+      "topic": "विश्व अर्थव्यवस्था (Global Economy)",
+      "title": "दुनिया में सबसे ज्यादा सोने का भंडार किस देश के पास है?",
+      "fbVideoId": "1660218432492870",
+      "uploadedAt": "2026-11-05T22:37:30.292Z",
+      "answer": "C) अमेरिका (8,133 टन सोना)"
     }
   ]
 }
