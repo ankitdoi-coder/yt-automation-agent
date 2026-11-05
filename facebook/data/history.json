@@ -97,7 +97,8 @@
     "math_quiz_03",
     "sci_eye_02",
     "sci_tyre_01",
-    "stat_polity_04"
+    "stat_polity_04",
+    "gk_sci_01"
   ],
   "uploads": [
     {
@@ -893,6 +894,15 @@
       "fbVideoId": "1541432564412270",
       "uploadedAt": "2026-11-04T22:30:28.593Z",
       "answer": "D) अनुच्छेद 32 (संवैधानिक उपचार)"
+    },
+    {
+      "id": "gk_sci_01",
+      "category": "general_science",
+      "topic": "जीव विज्ञान (Biology)",
+      "title": "कोशिका का 'पावर हाउस' (Powerhouse of Cell)",
+      "fbVideoId": "1489627956418482",
+      "uploadedAt": "2026-11-05T11:16:49.033Z",
+      "answer": "B) माइटोकॉन्ड्रिया (Mitochondria)"
     }
   ]
 }
