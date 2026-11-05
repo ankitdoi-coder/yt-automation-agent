@@ -98,7 +98,8 @@
     "sci_eye_02",
     "sci_tyre_01",
     "stat_polity_04",
-    "gk_sci_01"
+    "gk_sci_01",
+    "math_quiz_04"
   ],
   "uploads": [
     {
@@ -903,6 +904,15 @@
       "fbVideoId": "1489627956418482",
       "uploadedAt": "2026-11-05T11:16:49.033Z",
       "answer": "B) माइटोकॉन्ड्रिया (Mitochondria)"
+    },
+    {
+      "id": "math_quiz_04",
+      "category": "math_quiz",
+      "topic": "दिमागी तर्कशक्ति (Reasoning IQ)",
+      "title": "बिल्लियां, चूहे और मिनट वाली पहेली",
+      "fbVideoId": "1656209372851331",
+      "uploadedAt": "2026-11-05T15:43:01.425Z",
+      "answer": "B) 3 मिनट (3 Minutes)"
     }
   ]
 }
