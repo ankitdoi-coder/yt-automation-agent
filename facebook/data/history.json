@@ -104,7 +104,8 @@
     "geo_gold_04",
     "stat_notes_01",
     "stat_notes_01",
-    "sci_tyre_01"
+    "sci_tyre_01",
+    "gk_sci_02"
   ],
   "uploads": [
     {
@@ -963,6 +964,15 @@
       "fbVideoId": "2013307839339194",
       "uploadedAt": "2026-11-06T20:41:41.632Z",
       "answer": "B) नाइट्रोजन (Nitrogen Gas)"
+    },
+    {
+      "id": "gk_sci_02",
+      "category": "general_science",
+      "topic": "भौतिक विज्ञान (Physics)",
+      "title": "सूर्य का प्रकाश पृथ्वी तक पहुँचने का समय",
+      "fbVideoId": "1139491938528979",
+      "uploadedAt": "2026-11-06T21:59:49.851Z",
+      "answer": "B) 8 मिनट 20 सेकंड (लगभग 500 सेकंड)"
     }
   ]
 }
