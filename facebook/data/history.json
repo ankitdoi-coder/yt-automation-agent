@@ -102,6 +102,7 @@
     "math_quiz_04",
     "geo_passport_03",
     "geo_gold_04",
+    "stat_notes_01",
     "stat_notes_01"
   ],
   "uploads": [
@@ -942,6 +943,15 @@
       "title": "₹500 के नए नोट के पीछे किसका चित्र छपा है?",
       "fbVideoId": "2354596682029810",
       "uploadedAt": "2026-11-06T15:16:20.793Z",
+      "answer": "A) लाल किला (Red Fort, Delhi)"
+    },
+    {
+      "id": "stat_notes_01",
+      "category": "static_gk",
+      "topic": "भारतीय मुद्रा (Indian Currency)",
+      "title": "₹500 के नए नोट के पीछे किसका चित्र छपा है?",
+      "fbVideoId": "28928705913453673",
+      "uploadedAt": "2026-11-06T18:09:47.530Z",
       "answer": "A) लाल किला (Red Fort, Delhi)"
     }
   ]
