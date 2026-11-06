@@ -101,7 +101,8 @@
     "gk_sci_01",
     "math_quiz_04",
     "geo_passport_03",
-    "geo_gold_04"
+    "geo_gold_04",
+    "stat_notes_01"
   ],
   "uploads": [
     {
@@ -933,6 +934,15 @@
       "fbVideoId": "1660218432492870",
       "uploadedAt": "2026-11-05T22:37:30.292Z",
       "answer": "C) अमेरिका (8,133 टन सोना)"
+    },
+    {
+      "id": "stat_notes_01",
+      "category": "static_gk",
+      "topic": "भारतीय मुद्रा (Indian Currency)",
+      "title": "₹500 के नए नोट के पीछे किसका चित्र छपा है?",
+      "fbVideoId": "2354596682029810",
+      "uploadedAt": "2026-11-06T15:16:20.793Z",
+      "answer": "A) लाल किला (Red Fort, Delhi)"
     }
   ]
 }
