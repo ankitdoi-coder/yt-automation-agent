@@ -103,7 +103,8 @@
     "geo_passport_03",
     "geo_gold_04",
     "stat_notes_01",
-    "stat_notes_01"
+    "stat_notes_01",
+    "sci_tyre_01"
   ],
   "uploads": [
     {
@@ -953,6 +954,15 @@
       "fbVideoId": "28928705913453673",
       "uploadedAt": "2026-11-06T18:09:47.530Z",
       "answer": "A) लाल किला (Red Fort, Delhi)"
+    },
+    {
+      "id": "sci_tyre_01",
+      "category": "general_science",
+      "topic": "दैनिक विज्ञान (Everyday Science)",
+      "title": "हवाई जहाज के टायरों में कौन सी गैस भरी जाती है?",
+      "fbVideoId": "2013307839339194",
+      "uploadedAt": "2026-11-06T20:41:41.632Z",
+      "answer": "B) नाइट्रोजन (Nitrogen Gas)"
     }
   ]
 }
