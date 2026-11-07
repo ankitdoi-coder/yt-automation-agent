@@ -25,6 +25,7 @@
     "fb:reels": "node facebook/fb-runner.js",
     "fb:scheduler": "node facebook/fb-scheduler.js",
     "fb:analytics": "node facebook/analytics-agent.js",
+    "test:fb": "node tests/facebook.test.js",
     "test:virality": "node tests/virality.test.js",
     "viral:hook": "node utils/hook-scorer.js",
     "viral:package": "node utils/title-thumbnail-linter.js",

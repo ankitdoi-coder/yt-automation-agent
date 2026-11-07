@@ -4,10 +4,10 @@
   "comment": "Growth configuration flags for ExamIQ Bharat. Gated pipeline settings for A/B testing and algorithmic recovery.",
   "shorts": {
     "titleStyle": "dynamic_curiosity_hook",
-    "targetQuestionCount": 5,
-    "targetDurationSeconds": 42,
+    "targetQuestionCount": 3,
+    "targetDurationSeconds": 18,
     "cleanDescription": true,
-    "pacingSecondsPerQuestion": 7.5
+    "pacingSecondsPerQuestion": 4.5
   },
   "longVideos": {
     "targetQuestionCount": 20,

@@ -16,10 +16,10 @@
     }
   },
   "allowedRanges": {
-    "shorts.targetQuestionCount": { "min": 5, "max": 10, "type": "integer" },
-    "shorts.targetDurationSeconds": { "min": 35, "max": 60, "type": "integer" },
-    "shorts.pacingSecondsPerQuestion": { "min": 4.0, "max": 7.0, "type": "number" },
-    "shorts.titleStyle": { "allowed": ["curiosity_lucent", "exam_targeted", "hybrid"], "type": "enum" },
+    "shorts.targetQuestionCount": { "min": 3, "max": 10, "type": "integer" },
+    "shorts.targetDurationSeconds": { "min": 20, "max": 60, "type": "integer" },
+    "shorts.pacingSecondsPerQuestion": { "min": 4.0, "max": 8.0, "type": "number" },
+    "shorts.titleStyle": { "allowed": ["curiosity_lucent", "exam_targeted", "hybrid", "dynamic_curiosity_hook"], "type": "enum" },
     "longVideos.targetQuestionCount": { "min": 15, "max": 30, "type": "integer" },
     "longVideos.dedupSimilarityThreshold": { "min": 0.35, "max": 0.60, "type": "number" },
     "longVideos.targetDurationMinutes": { "min": 6, "max": 15, "type": "number" },

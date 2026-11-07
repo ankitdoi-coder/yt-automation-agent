@@ -78,7 +78,7 @@ class PublishingSchedulingAgent {
           video: productionData.assets.finalVideo,
           audio: productionData.assets.audio,
           captions: productionData.assets.captions,
-          privacyStatus: productionData.privacyStatus || process.env.DEFAULT_PRIVACY_STATUS || 'private',
+          privacyStatus: productionData.privacyStatus || process.env.DEFAULT_PRIVACY_STATUS || 'public',
           containsSyntheticMedia: productionData.containsSyntheticMedia === true,
           contentType: productionData.contentType || 'long_form',
           sourceProductionId: productionData.sourceProductionId || productionData.id,
@@ -206,7 +206,7 @@ class PublishingSchedulingAgent {
     const safeMetadata = validation.value;
     
     // Prepare video metadata
-    const requestedPrivacy = metadata.privacyStatus || process.env.DEFAULT_PRIVACY_STATUS || 'private';
+    const requestedPrivacy = metadata.privacyStatus || process.env.DEFAULT_PRIVACY_STATUS || 'public';
     const scheduledFor = new Date(scheduleEntry.publishTime);
     const futureSchedule = !options.publishNow && Number.isFinite(scheduledFor.getTime()) && scheduledFor.getTime() > Date.now() + 60000;
     const videoMetadata = {

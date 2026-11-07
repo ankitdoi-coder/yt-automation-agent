@@ -353,26 +353,24 @@ async function run() {
       if (agent.agents?.publishing) {
         logger.info(`Uploading to YouTube with target schedule: ${slotTiming.isoString}...`);
 
-        // If target slot is future, update scheduled time before upload so YouTube native publishAt is set
-        if (!slotTiming.isPast) {
-          const entry = await agent.db.getLatestScheduleEntry?.(productionId);
-          if (entry) {
-            entry.publishTime = slotTiming.isoString;
-            entry.metadata = {
-              ...entry.metadata,
-              privacyStatus: 'public'
+        const targetPrivacy = process.env.DEFAULT_PRIVACY_STATUS || 'public';
+        const entry = await agent.db.getLatestScheduleEntry?.(productionId);
+        if (entry) {
+          if (!slotTiming.isPast) entry.publishTime = slotTiming.isoString;
+          entry.metadata = {
+            ...entry.metadata,
+            privacyStatus: targetPrivacy
+          };
+          await agent.db.saveScheduleEntry(entry);
+        }
+        if (Array.isArray(agent.agents.publishing.publishQueue)) {
+          const queueEntry = agent.agents.publishing.publishQueue.find(e => e.productionId === productionId || e.id === productionId);
+          if (queueEntry) {
+            if (!slotTiming.isPast) queueEntry.publishTime = slotTiming.isoString;
+            queueEntry.metadata = {
+              ...queueEntry.metadata,
+              privacyStatus: targetPrivacy
             };
-            await agent.db.saveScheduleEntry(entry);
-          }
-          if (Array.isArray(agent.agents.publishing.publishQueue)) {
-            const queueEntry = agent.agents.publishing.publishQueue.find(e => e.productionId === productionId || e.id === productionId);
-            if (queueEntry) {
-              queueEntry.publishTime = slotTiming.isoString;
-              queueEntry.metadata = {
-                ...queueEntry.metadata,
-                privacyStatus: 'public'
-              };
-            }
           }
         }
 

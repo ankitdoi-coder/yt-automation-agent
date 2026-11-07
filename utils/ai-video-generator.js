@@ -1287,44 +1287,64 @@ class AIVideoGenerator {
       }).catch(() => {});
       await page.waitForTimeout(1500); // Buffer for remote font rendering and layout stabilization
 
-      // Capture ONE still per slide instead of screenshotting at 30fps —
-      // FFmpeg turns the stills into a crossfaded video in seconds.
-      const slideCount = await page.evaluate(() => document.querySelectorAll('.slide').length);
-      await fs.mkdir(slidesDir, { recursive: true });
-
-      const stills = [];
-      for (let i = 0; i < slideCount; i++) {
-        await page.evaluate((index) => {
-          document.querySelectorAll('.slide').forEach((slide, s) => {
-            const isActive = s === index;
-            slide.classList.toggle('active', isActive);
-            slide.style.opacity = isActive ? '1' : '0';
-            slide.style.visibility = isActive ? 'visible' : 'hidden';
-            slide.style.display = isActive ? '' : 'none';
-          });
-        }, i);
-
-        const stillPath = path.join(slidesDir, `slide_${String(i).padStart(3, '0')}.png`);
-        await page.screenshot({ path: stillPath });
-        stills.push(stillPath);
-      }
-
-      const videoPath = outputPath.replace('.mp4', '_visual.mp4');
       const duration = await this.resolveSlideshowDuration(script, audioPath);
       const quizDurations = script.quiz?.questions?.length
         ? await this.resolveQuizSlideDurations(slides, duration, audioPath, options)
         : null;
-      const renderOptions = quizDurations
+
+      // Capture stills per slide. Shorts quiz question slides no longer pause for 3s / countdown hold.
+      // A single still per slide is captured for the exact slide duration to ensure rapid flow and zero desync.
+      const slideCount = await page.evaluate(() => document.querySelectorAll('.slide').length);
+      await fs.mkdir(slidesDir, { recursive: true });
+
+      const stills = [];
+      const finalDurations = [];
+
+      for (let i = 0; i < slideCount; i++) {
+        const slide = slides[i] || {};
+        const isQuestion = isShort && String(slide.kind || '').toLowerCase().includes('question');
+        const slideDur = (quizDurations && Number.isFinite(quizDurations[i])) ? quizDurations[i] : (duration / Math.max(1, slideCount));
+
+        await page.evaluate((index) => {
+          document.querySelectorAll('.slide').forEach((sEl, s) => {
+            const isActive = s === index;
+            sEl.classList.toggle('active', isActive);
+            sEl.style.opacity = isActive ? '1' : '0';
+            sEl.style.visibility = isActive ? 'visible' : 'hidden';
+            sEl.style.display = isActive ? '' : 'none';
+          });
+        }, i);
+
+        // Ensure timer badge shows prompt text without obsolete 3s countdown text
+        if (isQuestion) {
+          await page.evaluate(() => {
+            const el = document.querySelector('.slide.active .timer-badge');
+            if (el && !el.classList.contains('correct') && !el.textContent.includes('कमेंट')) {
+              el.textContent = '🤔 सोचिए और उत्तर दीजिए';
+              el.style.background = '#e0f2fe';
+              el.style.color = '#0369a1';
+            }
+          });
+        }
+
+        const stillPath = path.join(slidesDir, `slide_${String(i).padStart(3, '0')}.png`);
+        await page.screenshot({ path: stillPath });
+        stills.push(stillPath);
+        if (quizDurations) {
+          finalDurations.push(slideDur);
+        }
+      }
+
+      const videoPath = outputPath.replace('.mp4', '_visual.mp4');
+      const renderDurations = quizDurations ? finalDurations : null;
+      const renderOptions = renderDurations
         ? {
-            // Quiz slides hold the screen while their own narration line is read,
-            // so their durations follow the spoken audio segments instead of an
-            // even split. Straight cuts match the reference quiz channels.
-            durations: quizDurations,
+            durations: renderDurations,
             transition: 'cut'
           }
         : {};
-      const targetDuration = quizDurations
-        ? quizDurations.reduce((sum, d) => sum + d, 0)
+      const targetDuration = renderDurations
+        ? renderDurations.reduce((sum, d) => sum + d, 0)
         : duration;
       await this.renderSlidesToVideo(stills, targetDuration, videoPath, renderOptions);
 
@@ -1367,7 +1387,7 @@ class AIVideoGenerator {
     if (useCuts) {
       // Concat demuxer: sample-accurate, frame-locked slide timing with zero cumulative drift
       const perSlideDurations = Array.isArray(options.durations) && options.durations.length === stills.length
-        ? options.durations.map(value => Math.max(1.0, Number(value) || 0))
+        ? options.durations.map(value => Math.max(0.1, Number(value) || 0))
         : stills.map(() => Math.max(2, totalDuration / stills.length));
 
       const concatListPath = path.join(path.dirname(videoPath), `stills_concat_${Date.now()}_${Math.random().toString(36).slice(2, 7)}.txt`);
@@ -2436,7 +2456,17 @@ class AIVideoGenerator {
       String(script.metadata?.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
       String(script.metadata?.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
     );
-    const activeQuestions = isShort ? questions.slice(0, 5) : questions;
+    let shortQuestionLimit = 3;
+    try {
+      const growthPath = path.resolve(__dirname, '..', 'config', 'growth.json');
+      if (require('fs').existsSync(growthPath)) {
+        const growth = JSON.parse(require('fs').readFileSync(growthPath, 'utf8'));
+        if (growth.shorts?.targetQuestionCount) {
+          shortQuestionLimit = growth.shorts.targetQuestionCount;
+        }
+      }
+    } catch (_) {}
+    const activeQuestions = isShort ? questions.slice(0, shortQuestionLimit) : questions;
     const actualCount = activeQuestions.length;
     const isExplicitVisuals = Boolean(
       script.quizVisuals ||
@@ -2453,7 +2483,7 @@ class AIVideoGenerator {
       ? (language === 'en' ? `Subscribe to ${channel}` : `${channel} को सब्सक्राइब करें`)
       : (language === 'en' ? 'Subscribe for more quizzes' : 'चैनल को सब्सक्राइब करें');
     const watermark = subjectHindi || subject || 'GK';
-    const total = isShort ? (actualCount * 2) : (1 + actualCount * 2);
+    const total = 1 + actualCount * 2;
     const slides = [];
 
     // Preload channel logo as base64 data URI if available
@@ -2466,8 +2496,31 @@ class AIVideoGenerator {
       }
     } catch (_logoErr) {}
 
-    // Title slide at video start (only for long-form quiz, not for rapid-fire Shorts)
-    if (!isShort) {
+    // First slide: Title slide for long-form, Curiosity Hook slide for Shorts (critical to stop feed swiping)
+    if (isShort) {
+      const { numberToHindiWords } = require('./quiz-narration');
+      const hookText = script.hook?.text || (language === 'hi'
+        ? `दम है तो ${numberToHindiWords(actualCount) || actualCount} में से दो सही करके दिखाओ!`
+        : `Can you get 2 out of ${actualCount} right? Let's test your knowledge!`);
+      slides.push({
+        kind: isNoImageShort ? 'shortQuizCleanHook' : 'shortQuizHook',
+        index: 1,
+        total,
+        header,
+        footer,
+        watermark,
+        channel,
+        channelLogo: channelLogoUri,
+        language,
+        subjectHindi,
+        noImages: isNoImageShort,
+        headline: hookText,
+        narrationText: hookText,
+        pauseAfter: 0.4,
+        estimatedSpeechDuration: Math.max(1.8, estimateSpeechDuration(hookText, language)),
+        narrationWords: Math.max(3, wordCount(hookText))
+      });
+    } else {
       const introText = script.hook?.text || introNarration(subjectHindi, actualCount, language);
       slides.push({
         kind: 'quizTitle',
@@ -2488,6 +2541,7 @@ class AIVideoGenerator {
     }
 
     activeQuestions.forEach((question, index) => {
+      question.number = question.number || question.id || (index + 1);
       let imageUri = null;
       if (!isNoImageShort && question.visualImage && typeof question.visualImage === 'string') {
         const isInfoOrSim = question.visualImage.endsWith('.info') || question.visualImage.includes('_sim_');
@@ -2512,12 +2566,19 @@ class AIVideoGenerator {
 
       if (isShort) {
         // Rapid-fire Short question & answer: if no real AI image was produced, use clean reference layout
+        const isLastShortQuestion = (index === activeQuestions.length - 1);
+        const { numberToHindiWords } = require('./quiz-narration');
         const useCleanTemplate = isNoImageShort || !imageUri;
         const qText = shortQuestionNarration(question, language);
-        const aText = shortAnswerNarration(question, language);
+        const aText = isLastShortQuestion
+          ? (language === 'hi'
+              ? `सवाल नंबर ${numberToHindiWords(index + 1) || (index + 1)} का जवाब कमेंट में दें!`
+              : `Give your answer for question ${index + 1} in the comments!`)
+          : shortAnswerNarration(question, language);
         slides.push({
           kind: useCleanTemplate ? 'shortQuizCleanQuestion' : 'shortQuizQuestion',
           index: slides.length + 1,
+          questionNumber: index + 1,
           total,
           header,
           footer,
@@ -2532,13 +2593,14 @@ class AIVideoGenerator {
           noImages: useCleanTemplate,
           image: imageUri,
           narrationText: qText,
-          pauseAfter: 2.5,
+          pauseAfter: 0.4,
           estimatedSpeechDuration: Math.max(1.8, estimateSpeechDuration(qText, language)),
           narrationWords: Math.max(3, wordCount(qText))
         });
         slides.push({
           kind: useCleanTemplate ? 'shortQuizCleanAnswer' : 'shortQuizAnswer',
           index: slides.length + 1,
+          questionNumber: index + 1,
           total,
           header,
           footer,
@@ -2553,6 +2615,7 @@ class AIVideoGenerator {
           noImages: useCleanTemplate,
           image: imageUri,
           narrationText: aText,
+          isCommentChallenge: isLastShortQuestion,
           pauseAfter: 0.8,
           estimatedSpeechDuration: Math.max(1.2, estimateSpeechDuration(aText, language)),
           narrationWords: Math.max(2, wordCount(aText))
@@ -2680,14 +2743,73 @@ class AIVideoGenerator {
               }
             }
 
-            // Append exact pause padding to uncompressed PCM WAV segment
-            await runFFmpeg([
-              '-y', '-i', rawWavPath,
-              '-af', `apad=pad_dur=${pause.toFixed(3)}`,
-              '-ar', '24000', '-ac', '1',
-              '-c:a', 'pcm_s16le',
-              paddedWavPath
-            ]);
+            const isQuestionSlide = String(slide.kind || '').toLowerCase().includes('question');
+            const isAnswerSlide = String(slide.kind || '').toLowerCase().includes('answer');
+
+            // Answer reveal bell chime ("Ding!") at the beginning of correct answer reveal
+            let segmentSourceWav = rawWavPath;
+            if (isAnswerSlide && !slide.isCommentChallenge) {
+              const dingWavPath = path.join(tempDir, `ding_${String(index).padStart(3, '0')}.wav`);
+              const dingedWavPath = path.join(tempDir, `dinged_${String(index).padStart(3, '0')}.wav`);
+              try {
+                await runFFmpeg([
+                  '-y', '-f', 'lavfi',
+                  '-i', 'aevalsrc=0.7*sin(2*PI*880*t)*exp(-3.5*t)+0.5*sin(2*PI*1320*t)*exp(-4*t)+0.35*sin(2*PI*1760*t)*exp(-5*t)+0.2*sin(2*PI*2640*t)*exp(-6*t):s=24000:d=1.0',
+                  '-ar', '24000', '-ac', '1',
+                  '-c:a', 'pcm_s16le',
+                  dingWavPath
+                ]);
+                await runFFmpeg([
+                  '-y', '-i', rawWavPath, '-i', dingWavPath,
+                  '-filter_complex', '[0:a]volume=1.0[v];[1:a]volume=1.10[d];[v][d]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[out]',
+                  '-map', '[out]',
+                  '-ar', '24000', '-ac', '1',
+                  '-c:a', 'pcm_s16le',
+                  dingedWavPath
+                ]);
+                segmentSourceWav = dingedWavPath;
+              } catch (_dingErr) {
+                segmentSourceWav = rawWavPath;
+              }
+            }
+
+            // Replace dead digital silence during thinking time with mechanical clock ticking
+            if (isQuestionSlide && pause >= 1.0) {
+              const tickWavPath = path.join(tempDir, `tick_${String(index).padStart(3, '0')}.wav`);
+              try {
+                await runFFmpeg([
+                  '-y', '-f', 'lavfi',
+                  '-i', `aevalsrc=0.45*sin(2*PI*1200*t)*exp(-45*mod(t\\,1)):s=24000:d=${pause.toFixed(3)}`,
+                  '-ar', '24000', '-ac', '1',
+                  '-c:a', 'pcm_s16le',
+                  tickWavPath
+                ]);
+                await runFFmpeg([
+                  '-y', '-i', segmentSourceWav, '-i', tickWavPath,
+                  '-filter_complex', '[0:a][1:a]concat=n=2:v=0:a=1[aout]',
+                  '-map', '[aout]',
+                  '-ar', '24000', '-ac', '1',
+                  '-c:a', 'pcm_s16le',
+                  paddedWavPath
+                ]);
+              } catch (_tickErr) {
+                await runFFmpeg([
+                  '-y', '-i', segmentSourceWav,
+                  '-af', `apad=pad_dur=${pause.toFixed(3)}`,
+                  '-ar', '24000', '-ac', '1',
+                  '-c:a', 'pcm_s16le',
+                  paddedWavPath
+                ]);
+              }
+            } else {
+              await runFFmpeg([
+                '-y', '-i', segmentSourceWav,
+                '-af', `apad=pad_dur=${pause.toFixed(3)}`,
+                '-ar', '24000', '-ac', '1',
+                '-c:a', 'pcm_s16le',
+                paddedWavPath
+              ]);
+            }
 
             const dur = await this.getMediaDuration(paddedWavPath);
             results[index] = { index, paddedWavPath, dur };
@@ -2727,9 +2849,38 @@ class AIVideoGenerator {
         masterWavPath
       ]);
 
+      // Mix subtle, upbeat educational quiz background music under master narration
+      let finalMasterWav = masterWavPath;
+      try {
+        const masterDur = await this.getMediaDuration(masterWavPath);
+        if (Number.isFinite(masterDur) && masterDur > 0) {
+          const bgmWavPath = path.join(tempDir, 'bgm.wav');
+          const mixedMasterPath = path.join(tempDir, 'master_mixed.wav');
+          await runFFmpeg([
+            '-y', '-f', 'lavfi',
+            '-i', `aevalsrc=0.06*sin(2*PI*(110+20*floor(mod(t*2\\,4)))*t)+0.03*sin(2*PI*(220+40*floor(mod(t*2\\,4)))*t)+0.02*sin(2*PI*440*t)*exp(-10*mod(t\\,0.5)):s=24000:d=${masterDur.toFixed(2)}`,
+            '-ar', '24000', '-ac', '1',
+            '-c:a', 'pcm_s16le',
+            bgmWavPath
+          ]);
+          await runFFmpeg([
+            '-y', '-i', masterWavPath, '-i', bgmWavPath,
+            '-filter_complex', '[0:a]volume=1.0[voice];[1:a]volume=0.22[bgm];[voice][bgm]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[out]',
+            '-map', '[out]',
+            '-ar', '24000', '-ac', '1',
+            '-c:a', 'pcm_s16le',
+            mixedMasterPath
+          ]);
+          finalMasterWav = mixedMasterPath;
+        }
+      } catch (bgmErr) {
+        this.logger.warn(`BGM synthesis skipped: ${bgmErr.message}`);
+        finalMasterWav = masterWavPath;
+      }
+
       // Encode master WAV to target MP3 container
       await runFFmpeg([
-        '-y', '-i', masterWavPath,
+        '-y', '-i', finalMasterWav,
         '-ar', '24000', '-ac', '1',
         '-c:a', 'libmp3lame', '-b:a', '192k',
         audioPath
@@ -2829,7 +2980,7 @@ class AIVideoGenerator {
   }
 
   renderSlideHtml(slide) {
-    if (slide.kind === 'shortQuizCleanQuestion' || slide.kind === 'shortQuizCleanAnswer' || (String(slide.kind || '').startsWith('shortQuiz') && slide.noImages)) {
+    if (slide.kind === 'shortQuizCleanQuestion' || slide.kind === 'shortQuizCleanAnswer' || slide.kind === 'shortQuizCleanHook' || slide.kind === 'shortQuizHook' || (String(slide.kind || '').startsWith('shortQuiz') && slide.noImages)) {
       return this.renderShortQuizCleanSlideHtml(slide);
     }
     if (String(slide.kind || '').startsWith('shortQuiz')) {
@@ -2988,10 +3139,14 @@ ${options}
 
   // 9:16 Vertical Short Quiz slide template (1080x1920)
   renderShortQuizSlideHtml(slide) {
+    if (slide.kind === 'shortQuizHook' || slide.kind === 'shortQuizCleanHook') {
+      return this.renderShortQuizCleanSlideHtml(slide);
+    }
     const question = slide.question || {};
     const isAnswer = slide.kind === 'shortQuizAnswer';
     const active = slide.index === 1 ? ' active' : '';
     const answerIndex = Number.isInteger(question.answerIndex) ? question.answerIndex : -1;
+    const qNum = slide.questionNumber || question.number || question.id || (slide.index ? Math.floor(slide.index / 2) : 1);
 
     const visualHtml = slide.image
       ? `<img src="${slide.image}" class="short-visual-pic" alt="Topic visual" />`
@@ -2999,10 +3154,11 @@ ${options}
 
     const optionsHtml = (question.options || []).map((option, index) => {
       const classes = ['short-option'];
-      if (isAnswer && index === answerIndex) classes.push('correct');
-      if (isAnswer && index !== answerIndex) classes.push('dim');
+      const isCorrect = isAnswer && !slide.isCommentChallenge && index === answerIndex;
+      if (isCorrect) classes.push('correct');
+      if (isAnswer && !slide.isCommentChallenge && index !== answerIndex) classes.push('dim');
       const letter = LETTERS[index] || 'A';
-      const checkMark = (isAnswer && index === answerIndex) ? ' ✓' : '';
+      const checkMark = isCorrect ? ' ✓' : '';
       return `        <div class="${classes.join(' ')}">
             <span class="short-option-letter">${letter}</span>
             <span class="short-option-text">${this.escapeHtml(option)}${checkMark}</span>
@@ -3023,21 +3179,21 @@ ${options}
                 ${logoHtml}
                 <div class="short-header-title">ExamIQ Bharat</div>
             </div>
-            <div class="short-header-badge">GK QUIZ</div>
+            <div class="short-header-badge">${slide.isCommentChallenge ? 'COMMENT CHALLENGE' : 'GK QUIZ'}</div>
         </div>
         <div class="short-visual-container">
             ${visualHtml}
         </div>
         <div class="short-question-card">
-            <div class="short-q-badge">Q.${question.number || 1}</div>
+            <div class="short-q-badge">Q.${qNum}</div>
             <div class="short-q-text ${qTextClass}">${this.escapeHtml(questionText)}</div>
         </div>
         <div class="short-options-list">
 ${optionsHtml}
         </div>
         <div class="short-footer-bar">
-            <div class="short-footer-tagline">⚡ RAPID FIRE QUIZ</div>
-            <div class="short-footer-sub-btn">🔔 Subscribe to ExamIQ Bharat</div>
+            <div class="short-footer-tagline">${slide.isCommentChallenge ? '💬 COMMENT YOUR ANSWER' : '⚡ RAPID FIRE QUIZ'}</div>
+            <div class="short-footer-sub-btn">${slide.isCommentChallenge ? `💬 सवाल नंबर ${qNum} का जवाब दें!` : '🔔 Subscribe to ExamIQ Bharat'}</div>
         </div>
     </div>`;
   }
@@ -3046,12 +3202,55 @@ ${optionsHtml}
   renderShortQuizCleanSlideHtml(slide) {
     const question = slide.question || {};
     const isAnswer = slide.kind === 'shortQuizCleanAnswer' || slide.kind === 'shortQuizAnswer';
+    const isHook = slide.kind === 'shortQuizCleanHook' || slide.kind === 'shortQuizHook';
     const active = slide.index === 1 ? ' active' : '';
     const answerIndex = Number.isInteger(question.answerIndex) ? question.answerIndex : -1;
     const subjectHindi = slide.subjectHindi || 'सामान्य ज्ञान';
     const channelName = slide.channel || process.env.CHANNEL_NAME || 'ExamIQ Bharat';
 
-    const qNum = question.number || question.id || (slide.index ? Math.ceil(slide.index / 2) : 1);
+    if (isHook) {
+      const hookTitle = slide.headline || slide.narrationText || 'दम है तो 3 में से 2 सही करके दिखाओ!';
+      return `
+    <div class="slide quiz-short clean${active}">
+        <div class="watermark-bg">
+            <div class="watermark-inner">
+                <div class="watermark-cap">🎓</div>
+                <div class="watermark-name">${this.escapeHtml(channelName)}</div>
+                <div class="watermark-tag">LEARN • PRACTICE • SCORE</div>
+            </div>
+        </div>
+        <div class="quiz-clean-container" style="justify-content: center; text-align: center;">
+            <div class="top-pill-badge" style="margin-bottom: 24px;">
+                <span class="book-icon">📚</span>
+                <span class="top-badge-text">${this.escapeHtml(subjectHindi)}</span>
+                <span class="book-icon">📚</span>
+            </div>
+            <div class="sub-header-strip" style="background: #dc2626; margin-bottom: 36px;">
+                <span class="strip-emoji">🔥</span>
+                <span class="strip-text">GK CHALLENGE</span>
+                <span class="strip-emoji">🔥</span>
+            </div>
+            <div style="background: #f8fafc; border: 4px solid #1e293b; border-radius: 28px; padding: 48px 36px; box-shadow: 0 16px 36px rgba(0,0,0,0.15); margin: 20px 0;">
+                <div style="font-size: 64px; font-weight: 900; line-height: 1.3; color: #0f172a;">
+                    ${this.escapeHtml(hookTitle)}
+                </div>
+            </div>
+            <div class="quiz-timer-strip" style="justify-content: center; margin: 30px 0;">
+                <span class="timer-badge" style="background: #fee2e2; color: #dc2626; font-size: 38px; padding: 12px 32px;">⚡ RAPID FIRE TEST ⚡</span>
+            </div>
+            <div class="bottom-split-footer">
+                <div class="split-channel-box">
+                    <span>${this.escapeHtml(channelName)}</span>
+                </div>
+                <div class="split-subscribe-box">
+                    <span>को Subscribe करें</span>
+                </div>
+            </div>
+        </div>
+    </div>`;
+    }
+
+    const qNum = slide.questionNumber || question.number || question.id || (slide.index ? (isHook ? 1 : Math.floor(slide.index / 2)) : 1);
     const questionText = question.question || '';
     let qTextClass = '';
     if (questionText.length > 130) qTextClass = 'tiny';
@@ -3059,10 +3258,10 @@ ${optionsHtml}
 
     const optionsHtml = (question.options || []).map((option, index) => {
       const optLetter = LETTERS[index] || 'A';
-      const isCorrect = isAnswer && index === answerIndex;
+      const isCorrect = isAnswer && !slide.isCommentChallenge && index === answerIndex;
       const rowClasses = ['clean-opt-item'];
       if (isCorrect) rowClasses.push('correct-reveal');
-      else if (isAnswer) rowClasses.push('other-opt');
+      else if (isAnswer && !slide.isCommentChallenge) rowClasses.push('other-opt');
 
       return `                <div class="${rowClasses.join(' ')}">
                     <span class="opt-prefix">${optLetter})</span>
@@ -3104,13 +3303,16 @@ ${optionsHtml}
             </div>
 
             <!-- 4. Timer / Status Strip -->
-            ${!isAnswer ? `
+            ${slide.isCommentChallenge ? `
+            <div class="quiz-timer-strip revealed">
+                <span class="timer-badge" style="background: #fef08a; color: #854d0e; font-size: 38px; font-weight: 900; border: 3px solid #eab308; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);">💬 सवाल नंबर ${qNum} का जवाब कमेंट में दें!</span>
+            </div>` : (!isAnswer ? `
             <div class="quiz-timer-strip answering">
-                <span class="timer-badge">⏳ सोचिए... (3s)</span>
+                <span class="timer-badge" style="background: #e0f2fe; color: #0369a1; font-weight: 800;">🤔 सोचिए और उत्तर दीजिए</span>
             </div>` : `
             <div class="quiz-timer-strip revealed">
                 <span class="timer-badge correct">✅ सही उत्तर</span>
-            </div>`}
+            </div>`)}
 
             <!-- 5. Vertical Options List: A) ... B) ... C) ... -->
             <div class="clean-options-container">

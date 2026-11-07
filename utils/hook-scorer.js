@@ -44,6 +44,7 @@ const FIX = {
 
 function getWords(text) {
   if (!text) return [];
+  // eslint-disable-next-line no-misleading-character-class
   const matches = text.toLowerCase().match(/[a-zA-Z0-9\u0900-\u097F'%$.]+/g);
   return matches || [];
 }

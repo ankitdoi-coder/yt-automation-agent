@@ -762,20 +762,24 @@ Return only the valid JSON, no markdown outside, no commentary.`;
       finalTitle = `Top ${actualCount} ${finalTitle}`;
     }
 
-    const introText = isShort ? '' : introNarration(subjectHindi, actualCount, language);
+    const { numberToHindiWords } = require('../utils/quiz-narration');
+    const shortHookText = language === 'hi'
+      ? `दम है तो ${numberToHindiWords(actualCount) || actualCount} में से दो सही करके दिखाओ!`
+      : `Can you get 2 out of ${actualCount} right? Let's test your knowledge!`;
+    const introText = isShort ? shortHookText : introNarration(subjectHindi, actualCount, language);
     const fullScript = isShort
-      ? formatShortQuizScript(questions, language)
+      ? formatShortQuizScript(questions, language, { hook: shortHookText })
       : formatStrictQuizScript(questions, language, { introText, subject: subjectHindi });
 
     const script = {
       title: String(finalTitle).slice(0, 100),
       isShort,
       partNumber,
-      hook: { type: isShort ? 'short_quiz' : 'quiz_intro', text: introText, duration: isShort ? '0:00' : '0:03' },
+      hook: { type: isShort ? 'short_quiz' : 'quiz_intro', text: introText, duration: isShort ? '0:02' : '0:03' },
       introduction: {
         type: isShort ? 'short_quiz' : 'quiz_intro',
         lines: introText ? [introText] : [],
-        duration: isShort ? '0:00' : '0:03'
+        duration: isShort ? '0:02' : '0:03'
       },
       mainContent: { sections: [], totalDuration: durationSeconds, type: isShort ? 'quiz_short' : 'quiz' },
       quiz: {

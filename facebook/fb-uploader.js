@@ -1,5 +1,11 @@
 /**
  * Facebook Graph API Reels & Video Uploader
+ * 
+ * Routes vertical videos directly into Meta's public Reels Discovery Feed algorithm
+ * using the official Meta Reels Publishing API:
+ *   - Step 1: Initialize session (POST /{page-id}/video_reels?upload_phase=start)
+ *   - Step 2: Binary transfer (POST {upload_url} to Meta rupload servers)
+ *   - Step 3: Finish & Publish (POST /{page-id}/video_reels?upload_phase=finish&video_state=PUBLISHED)
  */
 
 require('dotenv').config();
@@ -18,7 +24,10 @@ class FacebookUploader {
     }
   }
 
-  async uploadVideo(videoPath, { title, description } = {}) {
+  /**
+   * Publishes video directly to Meta's Reels Discovery Feed algorithm
+   */
+  async publishReel(videoPath, { title, description } = {}) {
     if (!fs.existsSync(videoPath)) {
       throw new Error(`Video file not found: ${videoPath}`);
     }
@@ -33,7 +42,158 @@ class FacebookUploader {
       '#ExamIQ #GKQuiz #GeneralKnowledge #StaticGK #GKInHindi #SSC #Railway #Reels #FacebookReels #Trending'
     ].join('\n');
 
-    console.log(`[FacebookUploader] Uploading video to Facebook Page (${this.pageId})...`);
+    const fileSize = fs.statSync(videoPath).size;
+    console.log(`[FacebookUploader] 🎬 Meta Reels Publishing API started for Page (${this.pageId})... (Size: ${(fileSize / (1024 * 1024)).toFixed(2)} MB)`);
+
+    // ========================================================
+    // Step 1: Start Session -> POST /{page-id}/video_reels
+    // ========================================================
+    console.log(`[FacebookUploader] 📡 Step 1/3: Initializing Reel session on Meta Reels endpoint...`);
+    const initRes = await axios.post(
+      `https://graph.facebook.com/v21.0/${this.pageId}/video_reels`,
+      null,
+      {
+        params: {
+          upload_phase: 'start',
+          access_token: this.accessToken,
+        },
+        timeout: 30000,
+      }
+    );
+
+    const videoId = initRes.data?.video_id;
+    if (!videoId) {
+      throw new Error(`Meta Reels API did not return video_id: ${JSON.stringify(initRes.data)}`);
+    }
+
+    const uploadUrl = initRes.data?.upload_url || `https://rupload.facebook.com/video-upload/v21.0/${videoId}`;
+    console.log(`[FacebookUploader] ✅ Session initialized! Video ID: ${videoId}`);
+
+    // ========================================================
+    // Step 2: Binary Video Transfer -> POST {upload_url}
+    // ========================================================
+    console.log(`[FacebookUploader] 📤 Step 2/3: Transferring video binary stream to Meta rupload servers...`);
+    const videoStream = fs.createReadStream(videoPath);
+    await axios.post(uploadUrl, videoStream, {
+      headers: {
+        'Authorization': `OAuth ${this.accessToken}`,
+        'offset': '0',
+        'file_size': String(fileSize),
+        'Content-Type': 'application/octet-stream',
+      },
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+      timeout: 180000,
+    });
+    console.log(`[FacebookUploader] ✅ Video binary transferred successfully!`);
+
+    // ========================================================
+    // Step 3: Finish & Publish -> POST /{page-id}/video_reels
+    // ========================================================
+    console.log(`[FacebookUploader] 🚀 Step 3/3: Publishing to Meta Reels Discovery Feed (video_state: PUBLISHED)...`);
+    const finishParams = {
+      upload_phase: 'finish',
+      access_token: this.accessToken,
+      video_id: videoId,
+      video_state: 'PUBLISHED',
+      description: cleanCaption,
+    };
+    if (cleanTitle) {
+      finishParams.title = cleanTitle;
+    }
+
+    let finishRes;
+    try {
+      finishRes = await axios.post(
+        `https://graph.facebook.com/v21.0/${this.pageId}/video_reels`,
+        null,
+        {
+          params: finishParams,
+          timeout: 60000,
+        }
+      );
+    } catch (finishErr) {
+      // In case Meta rejects the 'title' parameter in finish phase, retry with description only
+      if (finishParams.title && finishErr.response?.data?.error?.message?.toLowerCase().includes('title')) {
+        delete finishParams.title;
+        finishRes = await axios.post(
+          `https://graph.facebook.com/v21.0/${this.pageId}/video_reels`,
+          null,
+          {
+            params: finishParams,
+            timeout: 60000,
+          }
+        );
+      } else {
+        throw finishErr;
+      }
+    }
+
+    console.log(`[FacebookUploader] 🎉 Reel published to Meta Discovery Feed! Result:`, finishRes.data);
+
+    // Optional status check
+    let reelStatus = null;
+    try {
+      const statusRes = await axios.get(`https://graph.facebook.com/v21.0/${videoId}`, {
+        params: {
+          fields: 'status,published',
+          access_token: this.accessToken,
+        },
+        timeout: 10000,
+      });
+      reelStatus = statusRes.data?.status?.video_status || statusRes.data?.status || 'published';
+      console.log(`[FacebookUploader] ℹ️ Reel Meta Status: ${JSON.stringify(reelStatus)}`);
+    } catch (_) {
+      // Non-critical status probe
+    }
+
+    const reelUrl = `https://www.facebook.com/reel/${videoId}`;
+    console.log(`[FacebookUploader] 🔗 Live Reels Feed URL: ${reelUrl}`);
+
+    return {
+      success: true,
+      id: videoId,
+      videoId,
+      uploadPhase: 'finish',
+      status: reelStatus,
+      url: reelUrl,
+      pageUrl: `https://www.facebook.com/${this.pageId}`,
+      title: cleanTitle,
+      reelsFeed: true,
+      mode: 'REELS_DISCOVERY_FEED',
+    };
+  }
+
+  /**
+   * Primary upload method for Reels (routes to Meta's public Reels Discovery Feed)
+   * If caller passes { asTimeline: true }, falls back to standard page timeline upload.
+   */
+  async uploadVideo(videoPath, options = {}) {
+    if (options && options.asTimeline === true) {
+      return this.uploadTimelineVideo(videoPath, options);
+    }
+    return this.publishReel(videoPath, options);
+  }
+
+  /**
+   * Legacy Timeline Post Video Uploader (shows only to followers on page timeline)
+   */
+  async uploadTimelineVideo(videoPath, { title, description } = {}) {
+    if (!fs.existsSync(videoPath)) {
+      throw new Error(`Video file not found: ${videoPath}`);
+    }
+
+    const cleanTitle = title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat';
+    const cleanCaption = description || [
+      cleanTitle,
+      '',
+      '🎯 आज के टेस्ट में आपका स्कोर कितना रहा? 5 में से अपना स्कोर कमेंट करके बताएं! 🏆',
+      '🔔 रोज़ाना नए GK Tests और सरकारी परीक्षा तैयारी के लिए Exam IQ Bharat को Follow करें!',
+      '',
+      '#ExamIQ #GKQuiz #GeneralKnowledge #StaticGK #GKInHindi #SSC #Railway #Reels #FacebookReels #Trending'
+    ].join('\n');
+
+    console.log(`[FacebookUploader] Uploading standard timeline video to Facebook Page (${this.pageId})...`);
 
     const form = new NodeFormData();
     form.append('access_token', this.accessToken);
@@ -53,17 +213,23 @@ class FacebookUploader {
     );
 
     const videoId = response.data?.id;
-    console.log(`[FacebookUploader] ✅ Video published to Facebook Reels! Video ID: ${videoId}`);
+    console.log(`[FacebookUploader] ✅ Timeline video published! Video ID: ${videoId}`);
 
     return {
       success: true,
       id: videoId,
+      videoId,
       url: `https://www.facebook.com/reel/${videoId}`,
       pageUrl: `https://www.facebook.com/${this.pageId}`,
       title: cleanTitle,
+      reelsFeed: false,
+      mode: 'TIMELINE_POST',
     };
   }
 
+  /**
+   * Upload Photo Post (/photos)
+   */
   async uploadPhoto(imagePath, { caption } = {}) {
     if (!fs.existsSync(imagePath)) {
       throw new Error(`Image file not found: ${imagePath}`);
@@ -109,14 +275,17 @@ class FacebookUploader {
     };
   }
 
+  /**
+   * Dedicated Reels Publisher for Riddle/Question items
+   */
   async uploadReel(videoPath, riddleItem) {
     if (!fs.existsSync(videoPath)) {
       throw new Error(`Reel video file not found: ${videoPath}`);
     }
 
-    // If riddleItem doesn't have questionLines, treat as generic video metadata
+    // If riddleItem doesn't have questionLines, treat as generic metadata
     if (!riddleItem || !Array.isArray(riddleItem.questionLines)) {
-      return this.uploadVideo(videoPath, {
+      return this.publishReel(videoPath, {
         title: riddleItem?.title,
         description: riddleItem?.description || riddleItem?.caption
       });
@@ -139,34 +308,10 @@ class FacebookUploader {
       console.log(`[FacebookUploader] ✅ Packaging audit passed (${titleAudit.score}/100)`);
     }
 
-    console.log(`[FacebookUploader] Uploading to Facebook Page (${this.pageId})...`);
-
-    const form = new NodeFormData();
-    form.append('access_token', this.accessToken);
-    form.append('title', title);
-    form.append('description', caption);
-    form.append('source', fs.createReadStream(videoPath));
-
-    const response = await axios.post(
-      `https://graph-video.facebook.com/v21.0/${this.pageId}/videos`,
-      form,
-      {
-        headers: form.getHeaders(),
-        maxContentLength: Infinity,
-        maxBodyLength: Infinity,
-        timeout: 120000,
-      }
-    );
-
-    const videoId = response.data?.id;
-    console.log(`[FacebookUploader] ✅ Reel published successfully! Video ID: ${videoId}`);
+    const result = await this.publishReel(videoPath, { title, description: caption });
 
     return {
-      success: true,
-      id: videoId,
-      url: `https://www.facebook.com/reel/${videoId}`,
-      pageUrl: `https://www.facebook.com/${this.pageId}`,
-      title,
+      ...result,
       titleAudit,
     };
   }

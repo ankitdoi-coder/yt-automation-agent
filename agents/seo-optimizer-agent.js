@@ -61,7 +61,7 @@ class SEOOptimizerAgent {
 
       if (isQuizShort) {
         this.logger.info('Generating viral Short Quiz SEO metadata with high-CTR packaging and educational tags');
-        const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 5;
+        const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 3;
         const topicRaw = strategy.topic || script.title || 'General Knowledge';
         const cleanTopic = topicRaw
           .replace(/^top\s+\d+\s+/i, '')
@@ -127,8 +127,8 @@ class SEOOptimizerAgent {
         }
       }
 
-      // Ensure brand is in title if space permits (under 100 characters)
-      if (brand && !title.toLowerCase().includes(brand.toLowerCase())) {
+      // Ensure brand is in title if space permits (only for long-form videos to protect punchy Shorts titles)
+      if (!isQuizShort && brand && !title.toLowerCase().includes(brand.toLowerCase())) {
         if (title.length + brand.length + 3 <= 100) {
           title = `${title} | ${brand}`;
         }
@@ -297,102 +297,119 @@ ${timestampsText}
     return uniqueTags;
   }
 
-  buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
-    // Generate clean Hindi topic-first title without spam clickbait or exam targeting clutter
-    const { topicName, englishTopic, category } = this.extractTopicAndCategory(script, strategy);
+    buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
+    // Generate clean English title (< 50 chars) for YouTube Shorts (No Devanagari Hindi words)
+    const qCount = script?.quiz?.totalQuestions || script?.quiz?.questions?.length || strategy?.targetQuestionCount || 3;
+    const { englishTopic = 'Static GK' } = this.extractTopicAndCategory(script, strategy);
 
-    let title;
-    if (category === 'science') {
-      title = `${topicName} | General Science Question | Science Question answer | Science GK`;
-    } else if (category === 'history') {
-      title = `${topicName} | History GK Question in Hindi | Gk Question | General Knowledge`;
-    } else if (category === 'geography') {
-      title = `${topicName} | Geography GK Question | Static GK Question | GK in Hindi`;
-    } else if (category === 'polity') {
-      title = `${topicName} | Indian Polity GK | Samvidhan GK Question | General Knowledge`;
-    } else {
-      if (englishTopic) {
-        title = `${englishTopic} | ${topicName} | Static GK Question | Gk Question answer | Ssc gk`;
-      } else {
-        title = `${topicName} | Static GK Question | Gk Question answer | gk question | general knowledge`;
-      }
+    const templates = [
+      `Top ${qCount} ${englishTopic} Questions 🎯 #shorts`,
+      `${englishTopic} Questions | Top GK Quiz #shorts`,
+      `Top ${qCount} ${englishTopic} | SSC, Railway GK #shorts`,
+      `${englishTopic} Quiz | Top ${qCount} Questions 🎯 #shorts`,
+      `Top ${qCount} ${englishTopic} MCQ 2026 #shorts`
+    ];
+
+    const seed = `${strategy?.topic || ''} ${script?.title || ''} ${englishTopic}`;
+    const hash = seed.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
+    let title = templates[hash % templates.length];
+
+    if (title.length > 50) {
+      title = `${englishTopic} Quiz | Top ${qCount} Questions #shorts`;
     }
 
-    if (title.length > 98) {
-      title = title.slice(0, 95).trim();
+    if (title.length > 50) {
+      title = title.slice(0, 41).trim() + ' #shorts';
     }
+
     return title;
   }
 
-  extractTopicAndCategory(script, strategy) {
+    extractTopicAndCategory(script, strategy) {
     const raw = `${strategy?.topic || ''} ${script.title || ''} ${script.quiz?.subjectHindi || ''} ${script.quiz?.subject || ''}`;
     const lower = raw.toLowerCase();
 
     // 1. Geography / Rivers / Dams / Parks
     if (/बाँध|बांध|नदी परियोजना|dam|river project/i.test(lower)) {
-      return { topicName: 'बाँध एवं नदी परियोजनाएँ', category: 'static' };
+      return { topicName: 'बाँध एवं नदी परियोजनाएँ', englishTopic: 'Static GK', category: 'static' };
     }
     if (/किनारे बसे|city on river|शहर/i.test(lower) && /नदी|river/i.test(lower)) {
-      return { topicName: 'प्रमुख नदियों के किनारे बसे शहर', category: 'geography' };
+      return { topicName: 'प्रमुख नदियों के किनारे बसे शहर', englishTopic: 'Static GK', category: 'geography' };
     }
     if (/नदी|river/i.test(lower) && /पर्वत|mountain|झील|lake/i.test(lower)) {
-      return { topicName: 'भारत की नदियाँ और पर्वत श्रृंखलाएं', category: 'geography' };
+      return { topicName: 'भारत की नदियाँ और पर्वत श्रृंखलाएं', englishTopic: 'Geography GK', category: 'geography' };
     }
     if (/राष्ट्रीय\s*उद्यान|national\s*park|अभयारण्य/i.test(lower)) {
-      return { topicName: 'भारत के राष्ट्रीय उद्यान', englishTopic: 'National park of India', category: 'static' };
+      return { topicName: 'भारत के राष्ट्रीय उद्यान', englishTopic: 'Static GK', category: 'static' };
     }
     if (/पुस्तक|author|book|लेखक/i.test(lower)) {
-      return { topicName: 'प्रमुख पुस्तकें और लेखक', englishTopic: 'Books and Authors', category: 'static' };
+      return { topicName: 'प्रमुख पुस्तकें और लेखक', englishTopic: 'Static GK', category: 'static' };
     }
     if (/नृत्य|त्यौहार|dance|festival/i.test(lower)) {
-      return { topicName: 'लोक नृत्य एवं त्यौहार', category: 'static' };
+      return { topicName: 'लोक नृत्य एवं त्यौहार', englishTopic: 'Static GK', category: 'static' };
     }
 
     // 2. History
     if (/गुप्त|gupta/i.test(lower)) {
-      return { topicName: 'गुप्त वंश के महत्वपूर्ण प्रश्न', category: 'history' };
+      return { topicName: 'गुप्त वंश के महत्वपूर्ण प्रश्न', englishTopic: 'Indian History GK', category: 'history' };
     }
     if (/मौर्य|maurya/i.test(lower)) {
-      return { topicName: 'मौर्य साम्राज्य के महत्वपूर्ण प्रश्न', category: 'history' };
+      return { topicName: 'मौर्य साम्राज्य के महत्वपूर्ण प्रश्न', englishTopic: 'Indian History GK', category: 'history' };
     }
     if (/1857|क्रांति/i.test(lower)) {
-      return { topicName: '1857 की क्रांति के महत्वपूर्ण प्रश्न', category: 'history' };
+      return { topicName: '1857 की क्रांति के महत्वपूर्ण प्रश्न', englishTopic: 'Indian History GK', category: 'history' };
     }
     if (/इतिहास|history|मुगल|सल्तनत/i.test(lower)) {
-      return { topicName: 'भारतीय इतिहास के महत्वपूर्ण प्रश्न', category: 'history' };
+      return { topicName: 'भारतीय इतिहास के महत्वपूर्ण प्रश्न', englishTopic: 'Indian History GK', category: 'history' };
     }
 
     // 3. Science
     if (/मानव शरीर|human body/i.test(lower)) {
-      return { topicName: 'मानव शरीर के महत्वपूर्ण प्रश्न', category: 'science' };
+      return { topicName: 'मानव शरीर के महत्वपूर्ण प्रश्न', englishTopic: 'General Science', category: 'science' };
     }
     if (/विटामिन|vitamin/i.test(lower)) {
-      return { topicName: 'विटामिन एवं पोषण के महत्वपूर्ण प्रश्न', category: 'science' };
+      return { topicName: 'विटामिन एवं पोषण के महत्वपूर्ण प्रश्न', englishTopic: 'General Science', category: 'science' };
     }
     if (/bio|जीव\s*विज्ञान/i.test(lower)) {
-      return { topicName: 'जीव विज्ञान के महत्वपूर्ण प्रश्न', category: 'science' };
+      return { topicName: 'जीव विज्ञान के महत्वपूर्ण प्रश्न', englishTopic: 'General Science', category: 'science' };
     }
     if (/रसायन|chemistry|भौतिक|physics|विज्ञान|science/i.test(lower)) {
-      return { topicName: 'सामान्य विज्ञान के महत्वपूर्ण प्रश्न', category: 'science' };
+      return { topicName: 'सामान्य विज्ञान के महत्वपूर्ण प्रश्न', englishTopic: 'General Science', category: 'science' };
     }
 
     // 4. Polity / Constitution
     if (/संविधान|polity|अनुच्छेद|article/i.test(lower)) {
-      return { topicName: 'भारतीय संविधान के महत्वपूर्ण प्रश्न', category: 'polity' };
+      return { topicName: 'भारतीय संविधान के महत्वपूर्ण प्रश्न', englishTopic: 'Indian Polity GK', category: 'polity' };
     }
 
     // 5. Geography
     if (/सौरमंडल|solar|ग्रह|planet/i.test(lower)) {
-      return { topicName: 'सौरमंडल और प्रमुख ग्रह', category: 'geography' };
+      return { topicName: 'सौरमंडल और प्रमुख ग्रह', englishTopic: 'Geography GK', category: 'geography' };
     }
     if (/भूगोल|geography|पर्वत|दर्रे/i.test(lower)) {
-      return { topicName: 'भारत का भूगोल एवं पर्वत', category: 'geography' };
+      return { topicName: 'भारत का भूगोल एवं पर्वत', englishTopic: 'Geography GK', category: 'geography' };
     }
 
-    // 6. First in India
+    // 6. First in India, Computer, Sports, Economics
     if (/first|प्रथम/i.test(lower)) {
-      return { topicName: 'भारत में प्रथम (महिला व पुरुष)', category: 'static' };
+      return { topicName: 'भारत में प्रथम (महिला व पुरुष)', englishTopic: 'Static GK', category: 'static' };
     }
+    if (/computer|कंप्यूटर/i.test(lower)) {
+      return { topicName: 'कंप्यूटर सामान्य ज्ञान', englishTopic: 'Computer GK', category: 'computer' };
+    }
+    if (/economics|अर्थशास्त्र|economy/i.test(lower)) {
+      return { topicName: 'भारतीय अर्थव्यवस्था', englishTopic: 'Economics GK', category: 'economics' };
+    }
+    if (/sports|खेल|olympic|cricket/i.test(lower)) {
+      return { topicName: 'खेलकूद सामान्य ज्ञान', englishTopic: 'Sports GK', category: 'sports' };
+    }
+
+    // Check script subject
+    const subject = String(script.quiz?.subject || '').trim();
+    if (/science/i.test(subject)) return { topicName: 'सामान्य विज्ञान के महत्वपूर्ण प्रश्न', englishTopic: 'General Science', category: 'science' };
+    if (/history/i.test(subject)) return { topicName: 'भारतीय इतिहास के महत्वपूर्ण प्रश्न', englishTopic: 'Indian History GK', category: 'history' };
+    if (/polity/i.test(subject)) return { topicName: 'भारतीय संविधान के महत्वपूर्ण प्रश्न', englishTopic: 'Indian Polity GK', category: 'polity' };
+    if (/geography/i.test(subject)) return { topicName: 'भारत का भूगोल एवं पर्वत', englishTopic: 'Geography GK', category: 'geography' };
 
     // Clean fallback from raw topic
     let fallback = (strategy?.topic || script.quiz?.subjectHindi || script.title || 'सामान्य ज्ञान प्रश्नोत्तरी')
@@ -406,7 +423,19 @@ ${timestampsText}
       fallback = 'सामान्य ज्ञान के महत्वपूर्ण प्रश्न';
     }
 
-    return { topicName: fallback, category: 'static' };
+    // If strategy topic is provided in clean English (no Devanagari)
+    if (strategy?.topic && /^[a-zA-Z0-9\s,&'-]+$/.test(strategy.topic.trim()) && !/[\u0900-\u097F]/.test(strategy.topic)) {
+      const cleanEnglish = strategy.topic
+        .replace(/^(?:top\s*\d+|part\s*\d+|set\s*\d+)[\s:\-_|]*/i, '')
+        .replace(/#\w+/g, '')
+        .replace(/\|.*$/g, '')
+        .trim();
+      if (cleanEnglish && cleanEnglish.length >= 3 && cleanEnglish.length <= 25) {
+        return { topicName: fallback, englishTopic: cleanEnglish, category: 'general' };
+      }
+    }
+
+    return { topicName: fallback, englishTopic: 'Static GK', category: 'static' };
   }
 
   generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge', questions = []) {

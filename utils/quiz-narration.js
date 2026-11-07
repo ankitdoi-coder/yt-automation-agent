@@ -473,22 +473,32 @@ function shortAnswerNarration(question = {}, language = 'hi') {
 
 function formatShortQuizScript(questions = [], language = 'hi', options = {}) {
   const lines = [];
-  const count = questions.length || 5;
-  const countWords = language === 'hi' ? numberToHindiWords(count) : count;
+  const count = questions.length || 3;
+  const countWords = language === 'hi' ? (numberToHindiWords(count) || String(count)) : count;
 
-  // 1. High-retention opening hook (First 2-3 seconds)
+  // 1. High-retention opening curiosity hook (First 2 seconds)
   const hook = options.hook || (language === 'hi'
-    ? `क्या आप इन ${countWords} महत्वपूर्ण प्रश्नों के सही उत्तर जानते हैं? चलिए देखते हैं!`
-    : `Can you score ${count} out of ${count} in this rapid fire exam quiz? Let's test your knowledge!`);
+    ? `दम है तो ${countWords} में से दो सही करके दिखाओ!`
+    : `Can you get 2 out of ${count} right? Let's test your knowledge!`);
   lines.push(hook);
   lines.push('');
 
   // 2. Question & Answer cycles
-  for (const q of questions) {
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    const isLast = i === questions.length - 1;
     const qText = shortQuestionNarration(q, language);
-    const aText = shortAnswerNarration(q, language);
     if (qText) lines.push(qText);
-    if (aText) lines.push(aText);
+    if (isLast) {
+      // Last question challenges audience to comment: "सवाल नंबर 3 का जवाब कमेंट में दें!"
+      const challenge = language === 'hi'
+        ? `सवाल नंबर ${numberToHindiWords(i + 1) || (i + 1)} का जवाब कमेंट में दें!`
+        : `Give your answer for question ${i + 1} in the comments!`;
+      lines.push(challenge);
+    } else {
+      const aText = shortAnswerNarration(q, language);
+      if (aText) lines.push(aText);
+    }
     lines.push('');
   }
 

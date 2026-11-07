@@ -16,6 +16,7 @@ const path = require('path');
 const axios = require('axios');
 const sharp = require('sharp');
 const { runFFmpeg, getMediaDuration } = require('../utils/ffmpeg');
+const { ensureAudioAssets } = require('./audio-effects');
 
 class FacebookVideoMaker {
   constructor() {
@@ -32,6 +33,14 @@ class FacebookVideoMaker {
         this.logoBase64 = fs.readFileSync(logoPath).toString('base64');
       }
     } catch (_) {}
+
+    // Ensure retention audio assets (suspense BGM, countdown tick-tock SFX, reveal chime)
+    try {
+      this.audioAssets = ensureAudioAssets();
+    } catch (err) {
+      console.warn(`[VideoMaker] Audio assets initialization warning: ${err.message}`);
+      this.audioAssets = null;
+    }
   }
 
   getLearnedPrefs() {
@@ -281,27 +290,84 @@ class FacebookVideoMaker {
       const d2 = await getMediaDuration(timerAudio);
       const d3 = await getMediaDuration(ansAudio);
 
-      console.log(`[VideoMaker] Rendering FFmpeg segments (${(d1 + d2 + d3).toFixed(1)}s total)...`);
-      await runFFmpeg([
-        '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
-        '-i', qAudio, '-c:v', 'libx264', '-tune', 'stillimage',
-        '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p',
-        '-shortest', seg1
-      ]);
+      console.log(`[VideoMaker] Rendering FFmpeg segments with suspense BGM & tick-tock SFX (${(d1 + d2 + d3).toFixed(1)}s total)...`);
 
-      await runFFmpeg([
-        '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
-        '-i', timerAudio, '-c:v', 'libx264', '-tune', 'stillimage',
-        '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p',
-        '-shortest', seg2
-      ]);
+      // Segment 1: Question + subtle quiz suspense BGM
+      if (this.audioAssets?.bgmPath && fs.existsSync(this.audioAssets.bgmPath)) {
+        await runFFmpeg([
+          '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
+          '-i', qAudio,
+          '-stream_loop', '-1', '-i', this.audioAssets.bgmPath,
+          '-filter_complex', '[2:a]volume=0.14[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]',
+          '-map', '0:v', '-map', '[aout]',
+          '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+          '-t', String(d1), seg1
+        ]);
+      } else {
+        await runFFmpeg([
+          '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
+          '-i', qAudio, '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+          '-shortest', seg1
+        ]);
+      }
 
-      await runFFmpeg([
-        '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
-        '-i', ansAudio, '-c:v', 'libx264', '-tune', 'stillimage',
-        '-c:a', 'aac', '-b:a', '192k', '-pix_fmt', 'yuv420p',
-        '-shortest', seg3
-      ]);
+      // Segment 2: Timer + countdown tick-tock SFX + suspense BGM
+      if (this.audioAssets?.tickTockPath && fs.existsSync(this.audioAssets.tickTockPath)) {
+        const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
+        const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
+        const filterStr = hasBgm
+          ? '[2:a]volume=0.45[tick];[3:a]volume=0.12[bgm];[1:a][tick][bgm]amix=inputs=3:duration=first:dropout_transition=2[aout]'
+          : '[2:a]volume=0.45[tick];[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=2[aout]';
+
+        await runFFmpeg([
+          '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
+          '-i', timerAudio,
+          '-stream_loop', '-1', '-i', this.audioAssets.tickTockPath,
+          ...extraArgs,
+          '-filter_complex', filterStr,
+          '-map', '0:v', '-map', '[aout]',
+          '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+          '-t', String(d2), seg2
+        ]);
+      } else {
+        await runFFmpeg([
+          '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
+          '-i', timerAudio, '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+          '-shortest', seg2
+        ]);
+      }
+
+      // Segment 3: Answer Reveal + chime / ding SFX + subtle ambient BGM
+      if (this.audioAssets?.chimePath && fs.existsSync(this.audioAssets.chimePath)) {
+        const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
+        const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
+        const filterStr = hasBgm
+          ? '[2:a]volume=0.38[ding];[3:a]volume=0.10[bgm];[1:a][ding][bgm]amix=inputs=3:duration=first:dropout_transition=2[aout]'
+          : '[2:a]volume=0.38[ding];[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=2[aout]';
+
+        await runFFmpeg([
+          '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
+          '-i', ansAudio,
+          '-i', this.audioAssets.chimePath,
+          ...extraArgs,
+          '-filter_complex', filterStr,
+          '-map', '0:v', '-map', '[aout]',
+          '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+          '-t', String(d3), seg3
+        ]);
+      } else {
+        await runFFmpeg([
+          '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
+          '-i', ansAudio, '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+          '-shortest', seg3
+        ]);
+      }
 
       fs.writeFileSync(concatList, `file '${seg1.replace(/\\/g, '/')}'\nfile '${seg2.replace(/\\/g, '/')}'\nfile '${seg3.replace(/\\/g, '/')}'\n`);
 
