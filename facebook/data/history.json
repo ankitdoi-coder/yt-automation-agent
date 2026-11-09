@@ -106,7 +106,8 @@
     "stat_notes_01",
     "sci_tyre_01",
     "gk_sci_02",
-    "geo_passport_03"
+    "geo_passport_03",
+    "geo_military_02"
   ],
   "uploads": [
     {
@@ -983,6 +984,15 @@
       "fbVideoId": "1437802698463377",
       "uploadedAt": "2026-11-07T10:30:33.574Z",
       "answer": "B) सिंगापुर (Singapore)"
+    },
+    {
+      "id": "geo_military_02",
+      "category": "geopolitics",
+      "topic": "ग्लोबल डिफेंस (Military Power)",
+      "title": "दुनिया की सबसे शक्तिशाली सेना किस देश की है?",
+      "fbVideoId": "1672797061304252",
+      "uploadedAt": "2026-11-09T11:54:40.961Z",
+      "answer": "C) अमेरिका (USA)"
     }
   ]
 }
