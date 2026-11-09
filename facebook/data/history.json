@@ -108,7 +108,8 @@
     "gk_sci_02",
     "geo_passport_03",
     "geo_military_02",
-    "stat_isro_03"
+    "stat_isro_03",
+    "sci_eye_02"
   ],
   "uploads": [
     {
@@ -1003,6 +1004,15 @@
       "fbVideoId": "1672675644480750",
       "uploadedAt": "2026-11-09T17:45:04.115Z",
       "answer": "B) बेंगलुरु (Bengaluru)"
+    },
+    {
+      "id": "sci_eye_02",
+      "category": "general_science",
+      "topic": "मानव शरीर (Human Anatomy)",
+      "title": "मनुष्य की आंख कितने मेगापिक्सल की होती है?",
+      "fbVideoId": "1103735162467810",
+      "uploadedAt": "2026-11-09T21:32:41.042Z",
+      "answer": "B) 576 मेगापिक्सल (576 MP)"
     }
   ]
 }
