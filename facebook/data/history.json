@@ -107,7 +107,8 @@
     "sci_tyre_01",
     "gk_sci_02",
     "geo_passport_03",
-    "geo_military_02"
+    "geo_military_02",
+    "stat_isro_03"
   ],
   "uploads": [
     {
@@ -993,6 +994,15 @@
       "fbVideoId": "1672797061304252",
       "uploadedAt": "2026-11-09T11:54:40.961Z",
       "answer": "C) अमेरिका (USA)"
+    },
+    {
+      "id": "stat_isro_03",
+      "category": "static_gk",
+      "topic": "भारतीय अंतरिक्ष (Space Science)",
+      "title": "ISRO का मुख्यालय कहाँ स्थित है?",
+      "fbVideoId": "1672675644480750",
+      "uploadedAt": "2026-11-09T17:45:04.115Z",
+      "answer": "B) बेंगलुरु (Bengaluru)"
     }
   ]
 }
