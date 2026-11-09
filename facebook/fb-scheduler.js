@@ -37,7 +37,14 @@ async function postSingleReel() {
   const item = questions[0];
   try {
     const videoPath = await videoMaker.createReel(item, Math.floor(Math.random() * 3));
-    const title = `${item.title} | ${item.topic} | Exam IQ Bharat #shorts #reels`;
+    const title = `${item.title} | ${item.topic} | Exam IQ Bharat #reels #FacebookReels`;
+    const baseTags = Array.isArray(item.tags)
+      ? [...item.tags]
+      : (typeof item.tags === 'string' ? item.tags.split(/\s+/) : ['#ExamIQ', '#GKQuiz', '#GeneralKnowledge', '#StaticGK', '#SSC', '#Railway']);
+    if (!baseTags.some(t => /#reels/i.test(t))) baseTags.push('#Reels');
+    if (!baseTags.some(t => /#facebookreels/i.test(t))) baseTags.push('#FacebookReels');
+    if (!baseTags.some(t => /#reelsviral/i.test(t))) baseTags.push('#ReelsViral');
+
     const description = [
       `🎯 ${item.title} | ${item.topic}`,
       '',
@@ -47,7 +54,7 @@ async function postSingleReel() {
       `👉 अपना उत्तर कमेंट बॉक्स में बताएं! 🏆`,
       `🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!`,
       '',
-      item.tags ? item.tags.join(' ') : '#ExamIQ #GKQuiz #GeneralKnowledge #StaticGK #SSC #Railway #Reels'
+      baseTags.join(' ')
     ].join('\n');
 
     const uploadRes = await uploader.uploadVideo(videoPath, { title, description });

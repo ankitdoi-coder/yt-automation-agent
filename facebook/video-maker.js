@@ -115,8 +115,8 @@ class FacebookVideoMaker {
 
     // Multi-line question wrapping
     const questionLines = item.questionLines && item.questionLines.length > 0
-      ? item.questionLines.map(l => this._escapeXml(l))
-      : [this._escapeXml(item.question || item.title)];
+      ? item.questionLines.map(l => this._escapeXml(l.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, '')))
+      : [this._escapeXml((item.question || item.title).replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, ''))];
 
     return `
     <svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
@@ -298,16 +298,16 @@ class FacebookVideoMaker {
           '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
           '-i', qAudio,
           '-stream_loop', '-1', '-i', this.audioAssets.bgmPath,
-          '-filter_complex', '[2:a]volume=0.14[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=2[aout]',
+          '-filter_complex', '[2:a]volume=0.14[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]',
           '-map', '0:v', '-map', '[aout]',
-          '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-t', String(d1), seg1
         ]);
       } else {
         await runFFmpeg([
           '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
-          '-i', qAudio, '-c:v', 'libx264', '-tune', 'stillimage',
+          '-i', qAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-shortest', seg1
         ]);
@@ -318,8 +318,8 @@ class FacebookVideoMaker {
         const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
         const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
         const filterStr = hasBgm
-          ? '[2:a]volume=0.45[tick];[3:a]volume=0.12[bgm];[1:a][tick][bgm]amix=inputs=3:duration=first:dropout_transition=2[aout]'
-          : '[2:a]volume=0.45[tick];[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=2[aout]';
+          ? '[2:a]volume=0.45[tick];[3:a]volume=0.12[bgm];[1:a][tick][bgm]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[aout]'
+          : '[2:a]volume=0.45[tick];[1:a][tick]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]';
 
         await runFFmpeg([
           '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
@@ -328,14 +328,14 @@ class FacebookVideoMaker {
           ...extraArgs,
           '-filter_complex', filterStr,
           '-map', '0:v', '-map', '[aout]',
-          '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-t', String(d2), seg2
         ]);
       } else {
         await runFFmpeg([
           '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
-          '-i', timerAudio, '-c:v', 'libx264', '-tune', 'stillimage',
+          '-i', timerAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-shortest', seg2
         ]);
@@ -346,8 +346,8 @@ class FacebookVideoMaker {
         const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
         const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
         const filterStr = hasBgm
-          ? '[2:a]volume=0.38[ding];[3:a]volume=0.10[bgm];[1:a][ding][bgm]amix=inputs=3:duration=first:dropout_transition=2[aout]'
-          : '[2:a]volume=0.38[ding];[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=2[aout]';
+          ? '[2:a]volume=0.38[ding];[3:a]volume=0.10[bgm];[1:a][ding][bgm]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[aout]'
+          : '[2:a]volume=0.38[ding];[1:a][ding]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]';
 
         await runFFmpeg([
           '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
@@ -356,14 +356,14 @@ class FacebookVideoMaker {
           ...extraArgs,
           '-filter_complex', filterStr,
           '-map', '0:v', '-map', '[aout]',
-          '-c:v', 'libx264', '-tune', 'stillimage',
+          '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-t', String(d3), seg3
         ]);
       } else {
         await runFFmpeg([
           '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
-          '-i', ansAudio, '-c:v', 'libx264', '-tune', 'stillimage',
+          '-i', ansAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-shortest', seg3
         ]);
@@ -374,7 +374,7 @@ class FacebookVideoMaker {
       console.log(`[VideoMaker] Stitching final vertical Reel MP4...`);
       await runFFmpeg([
         '-y', '-f', 'concat', '-safe', '0', '-i', concatList,
-        '-c', 'copy', finalMp4
+        '-c', 'copy', '-movflags', '+faststart', finalMp4
       ]);
 
       console.log(`[VideoMaker] Exam GK Reel generated successfully: ${path.basename(finalMp4)}`);

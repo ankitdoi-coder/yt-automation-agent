@@ -166,6 +166,7 @@ async function runTests() {
         if (url.includes('rupload.facebook.com')) {
           assert.strictEqual(config?.headers?.['offset'], '0');
           assert.strictEqual(config?.headers?.['file_size'], '1024');
+          assert.strictEqual(config?.headers?.['Content-Length'], '1024');
           assert.strictEqual(config?.headers?.['Authorization'], 'OAuth test_token_secret');
           if (data && typeof data.resume === 'function') {
             await new Promise(r => {
@@ -340,6 +341,82 @@ async function runTests() {
     const svgAns = maker._buildSVG({ item: mockItem, isAnswer: true });
     assert.ok(svgAns.includes('Correct Option B Highlighted'));
     assert.ok(svgAns.includes('💡 परीक्षा तथ्य (Exam Fact)'));
+  });
+
+  // ----------------------------------------------------
+  // Test 11: uploadReel safely handles string tags and missing questionLines
+  // ----------------------------------------------------
+  await testAsync('uploadReel safely handles string tags and non-array metadata', async () => {
+    const uploader = new FacebookUploader('test_page_100', 'test_token_secret');
+    const tempVideo = path.resolve(__dirname, '../temp/test_string_tag_vid.mp4');
+    fs.writeFileSync(tempVideo, Buffer.alloc(256, 0));
+
+    let publishedParams = null;
+    uploader.publishReel = async (_path, params) => {
+      publishedParams = params;
+      return { success: true, id: 'vid_str_123', reelsFeed: true };
+    };
+
+    try {
+      // 1. With string tags
+      await uploader.uploadReel(tempVideo, {
+        title: 'पहेली नंबर 5',
+        questionLines: ['एक ऐसा घर', 'जिसमें खिड़की न दरवाजा'],
+        tags: '#desicomedy #viralreels'
+      });
+      assert.ok(publishedParams.description.includes('#desicomedy #viralreels'));
+
+      // 2. Generic metadata without questionLines
+      await uploader.uploadReel(tempVideo, {
+        title: 'सामान्य ज्ञान टेस्ट',
+        caption: 'आज का महत्वपूर्ण सवाल #reels'
+      });
+      assert.strictEqual(publishedParams.title, 'सामान्य ज्ञान टेस्ट');
+      assert.strictEqual(publishedParams.description, 'आज का महत्वपूर्ण सवाल #reels');
+    } finally {
+      if (fs.existsSync(tempVideo)) fs.unlinkSync(tempVideo);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 12: publishReel polls until ready status
+  // ----------------------------------------------------
+  await testAsync('publishReel polls status from processing to ready', async () => {
+    const uploader = new FacebookUploader('test_page_100', 'test_token_secret');
+    const tempVideo = path.resolve(__dirname, '../temp/test_poll_vid.mp4');
+    fs.writeFileSync(tempVideo, Buffer.alloc(256, 0));
+
+    const originalPost = axios.post;
+    const originalGet = axios.get;
+    let getAttempts = 0;
+
+    try {
+      axios.post = async (url) => {
+        if (url.includes('/video_reels')) {
+          return { status: 200, data: { video_id: 'vid_poll_789' } };
+        }
+        if (url.includes('rupload.facebook.com')) {
+          return { status: 200, data: { success: true } };
+        }
+      };
+
+      axios.get = async () => {
+        getAttempts++;
+        if (getAttempts === 1) {
+          return { status: 200, data: { status: { video_status: 'processing' } } };
+        }
+        return { status: 200, data: { status: { video_status: 'ready' } } };
+      };
+
+      const res = await uploader.publishReel(tempVideo, { title: 'Poll Test' });
+      assert.strictEqual(res.success, true);
+      assert.strictEqual(res.status, 'ready');
+      assert.strictEqual(getAttempts, 2, 'Should poll twice to reach ready');
+    } finally {
+      axios.post = originalPost;
+      axios.get = originalGet;
+      if (fs.existsSync(tempVideo)) fs.unlinkSync(tempVideo);
+    }
   });
 
   console.log('\n════════════════════════════════════════════════════════════');

@@ -161,7 +161,7 @@ const EXAM_GK_QUESTIONS = [
     questionLines: [
       "1. भारतीय ₹500 के नए",
       "नोट के पीछे किसका",
-      "चित्र छपा है? 💵🇮🇳"
+      "चित्र छपा है? 💵✨"
     ],
     options: [
       { letter: "A", text: "लाल किला (Red Fort)" },
@@ -188,7 +188,7 @@ const EXAM_GK_QUESTIONS = [
     questionLines: [
       "1. दुनिया का सबसे लंबा",
       "रेलवे प्लेटफॉर्म",
-      "कौन सा है? 🚆🇮🇳"
+      "कौन सा है? 🚆✨"
     ],
     options: [
       { letter: "A", text: "गोरखपुर (उत्तर प्रदेश)" },
@@ -215,7 +215,7 @@ const EXAM_GK_QUESTIONS = [
     questionLines: [
       "1. ISRO का मुख्यालय",
       "(Headquarters) किस शहर",
-      "में स्थित है? 🚀🇮🇳"
+      "में स्थित है? 🚀✨"
     ],
     options: [
       { letter: "A", text: "नई दिल्ली" },

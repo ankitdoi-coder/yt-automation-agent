@@ -79,6 +79,7 @@ class FacebookUploader {
         'Authorization': `OAuth ${this.accessToken}`,
         'offset': '0',
         'file_size': String(fileSize),
+        'Content-Length': String(fileSize),
         'Content-Type': 'application/octet-stream',
       },
       maxContentLength: Infinity,
@@ -98,9 +99,6 @@ class FacebookUploader {
       video_state: 'PUBLISHED',
       description: cleanCaption,
     };
-    if (cleanTitle) {
-      finishParams.title = cleanTitle;
-    }
 
     let finishRes;
     try {
@@ -113,38 +111,44 @@ class FacebookUploader {
         }
       );
     } catch (finishErr) {
-      // In case Meta rejects the 'title' parameter in finish phase, retry with description only
-      if (finishParams.title && finishErr.response?.data?.error?.message?.toLowerCase().includes('title')) {
-        delete finishParams.title;
-        finishRes = await axios.post(
-          `https://graph.facebook.com/v21.0/${this.pageId}/video_reels`,
-          null,
-          {
-            params: finishParams,
-            timeout: 60000,
-          }
-        );
-      } else {
-        throw finishErr;
-      }
+      console.error(`[FacebookUploader] ❌ Step 3 publish error:`, finishErr.response?.data || finishErr.message);
+      throw finishErr;
     }
 
     console.log(`[FacebookUploader] 🎉 Reel published to Meta Discovery Feed! Result:`, finishRes.data);
 
-    // Optional status check
-    let reelStatus = null;
-    try {
-      const statusRes = await axios.get(`https://graph.facebook.com/v21.0/${videoId}`, {
-        params: {
-          fields: 'status,published',
-          access_token: this.accessToken,
-        },
-        timeout: 10000,
-      });
-      reelStatus = statusRes.data?.status?.video_status || statusRes.data?.status || 'published';
-      console.log(`[FacebookUploader] ℹ️ Reel Meta Status: ${JSON.stringify(reelStatus)}`);
-    } catch (_) {
-      // Non-critical status probe
+    // ========================================================
+    // Step 4: Transcoding & Readiness Verification
+    // ========================================================
+    let reelStatus = 'processing';
+    const pollStart = Date.now();
+    const maxPollMs = 25000;
+    while (Date.now() - pollStart < maxPollMs) {
+      try {
+        const statusRes = await axios.get(`https://graph.facebook.com/v21.0/${videoId}`, {
+          params: {
+            fields: 'status,published',
+            access_token: this.accessToken,
+          },
+          timeout: 10000,
+        });
+        const currentStatus = statusRes.data?.status?.video_status || statusRes.data?.status;
+        if (currentStatus) {
+          reelStatus = currentStatus;
+        }
+        if (reelStatus === 'ready') {
+          console.log(`[FacebookUploader] ✅ Reel transcoding complete & LIVE on Meta Reels Feed! (Status: ready)`);
+          break;
+        }
+        if (reelStatus === 'error') {
+          console.warn(`[FacebookUploader] ⚠️ Meta reported processing error: ${JSON.stringify(statusRes.data?.status)}`);
+          break;
+        }
+      } catch (_) {
+        // Non-critical probe failure
+      }
+      if (reelStatus === 'ready' || reelStatus === 'published') break;
+      await new Promise(r => setTimeout(r, 2000));
     }
 
     const reelUrl = `https://www.facebook.com/reel/${videoId}`;
@@ -297,7 +301,9 @@ class FacebookUploader {
       '',
       `👉 कमेंट में बताओ आपका दिमाग पहले कहां गया था! 👇😂`,
       '',
-      riddleItem.tags ? riddleItem.tags.join(' ') : '#reels #facebookreels #paheliyan #funny #jokes #desicomedy #viral'
+      Array.isArray(riddleItem.tags)
+        ? riddleItem.tags.join(' ')
+        : (typeof riddleItem.tags === 'string' ? riddleItem.tags : '#reels #facebookreels #paheliyan #funny #jokes #desicomedy #viral')
     ].join('\n');
 
     // Audit Packaging (Title & Hook)
