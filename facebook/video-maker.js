@@ -15,7 +15,7 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 const sharp = require('sharp');
-const { runFFmpeg, getMediaDuration } = require('../utils/ffmpeg');
+const ffmpeg = require('../utils/ffmpeg');
 const { ensureAudioAssets } = require('./audio-effects');
 
 class FacebookVideoMaker {
@@ -87,7 +87,7 @@ class FacebookVideoMaker {
       .replace(/'/g, '&apos;');
   }
 
-  _buildSVG({ item, isAnswer = false, timerText = null }) {
+  _buildSVG({ item, isAnswer = false, timerText = null, isCommentChallenge = false }) {
     const topic = this._escapeXml(item.topic || 'सामान्य ज्ञान (General Knowledge)');
     const hookBar = this._escapeXml(item.hookBar || 'परीक्षा में बार बार पूछे जाने वाले सवाल');
     const options = Array.isArray(item.options) ? item.options : [
@@ -171,7 +171,7 @@ class FacebookVideoMaker {
 
       <!-- 4. Options List (A, B, C, D) -->
       ${options.map((opt, idx) => {
-        const isThisCorrect = isAnswer && (opt.letter === correctLetter);
+        const isThisCorrect = !isCommentChallenge && isAnswer && (opt.letter === correctLetter);
         const yPos = 680 + (idx * 140);
 
         if (isThisCorrect) {
@@ -199,7 +199,7 @@ class FacebookVideoMaker {
       }).join('')}
 
       <!-- 5. Suspense Timer (during Frame 2) -->
-      ${!isAnswer && timerText ? `
+      ${!isAnswer && !isCommentChallenge && timerText ? `
         <g filter="url(#softShadow)">
           <rect x="240" y="1280" width="600" height="90" rx="45" fill="#e11d48"/>
           <text x="540" y="1338" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#FFFFFF" text-anchor="middle">
@@ -208,8 +208,25 @@ class FacebookVideoMaker {
         </g>
       ` : ''}
 
-      <!-- 6. Fact / Explanation Card (during Frame 3) -->
-      ${isAnswer ? `
+      <!-- 6. Comment Challenge Card (during Frame 3 when commentChallenge is active) -->
+      ${isCommentChallenge ? `
+        <g filter="url(#softShadow)">
+          <rect x="70" y="1240" width="940" height="290" rx="28" fill="#fff7ed" stroke="#ea580c" stroke-width="4"/>
+          <rect x="90" y="1258" width="900" height="64" rx="20" fill="#ea580c"/>
+          <text x="540" y="1302" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="32" font-weight="900" fill="#FFFFFF" text-anchor="middle">
+            💬 Comment Your Answer (कमेंट चैलेंज)
+          </text>
+          <text x="540" y="1395" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#9a3412" text-anchor="middle">
+            👉 अपना सही उत्तर कमेंट में बताएं! 🏆
+          </text>
+          <text x="540" y="1470" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="30" font-weight="bold" fill="#431407" text-anchor="middle">
+            देखते हैं कितने लोग इसका सही जवाब जानते हैं!
+          </text>
+        </g>
+      ` : ''}
+
+      <!-- 6b. Fact / Explanation Card (during Frame 3 when commentChallenge is false) -->
+      ${!isCommentChallenge && isAnswer ? `
         <g filter="url(#softShadow)">
           <rect x="70" y="1250" width="940" height="230" rx="25" fill="#f8fafc" stroke="#38bdf8" stroke-width="3"/>
           <rect x="70" y="1250" width="940" height="60" rx="25" fill="#e0f2fe"/>
@@ -246,7 +263,11 @@ class FacebookVideoMaker {
   /**
    * Generates a complete 9:16 vertical Reel MP4 matching the educational format
    */
-  async createReel(item, _index = 0) {
+  async createReel(item, options = {}) {
+    const opts = typeof options === 'number'
+      ? { index: options, commentChallenge: true }
+      : { commentChallenge: true, ...options };
+    const isCommentChallenge = opts.commentChallenge !== false;
     const timerText = '⏳ सोचो! 3.. 2.. 1.. 🎯';
 
     const timestamp = Date.now();
@@ -268,10 +289,12 @@ class FacebookVideoMaker {
     const finalMp4 = path.join(this.outputDir, `FB_REEL_${item.id}_${timestamp}.mp4`);
 
     try {
-      console.log(`[VideoMaker] Generating audio narration for: ${item.id} ("${item.title}")...`);
+      console.log(`[VideoMaker] Generating audio narration for: ${item.id} ("${item.title}") [commentChallenge: ${isCommentChallenge}]...`);
       const qNarration = item.voiceQuestion || item.question;
       const tNarration = item.voiceTimer || 'सोचने के लिए 3 सेकंड, आपका समय शुरू होता है अब!';
-      const aNarration = item.voiceAnswer || `सही जवाब है ${item.answerText}`;
+      const aNarration = isCommentChallenge
+        ? (item.voiceCommentChallenge || 'अब इस सवाल का सही जवाब आप कमेंट बॉक्स में बताइए! देखते हैं कितने लोग सही उत्तर देते हैं! और रोज़ाना नए GK टेस्ट के लिए Exam IQ Bharat को Follow करें!')
+        : (item.voiceAnswer || `सही जवाब है ${item.answerText}`);
 
       await this._getAudio(qNarration, qAudio);
       await this._getAudio(tNarration, timerAudio);
@@ -280,21 +303,21 @@ class FacebookVideoMaker {
       console.log(`[VideoMaker] Rendering educational frames matching Exam IQ layout...`);
       const svg1 = this._buildSVG({ item });
       const svg2 = this._buildSVG({ item, timerText });
-      const svg3 = this._buildSVG({ item, isAnswer: true });
+      const svg3 = this._buildSVG({ item, isAnswer: !isCommentChallenge, isCommentChallenge });
 
       await sharp(Buffer.from(svg1)).png().toFile(f1Png);
       await sharp(Buffer.from(svg2)).png().toFile(f2Png);
       await sharp(Buffer.from(svg3)).png().toFile(f3Png);
 
-      const d1 = await getMediaDuration(qAudio);
-      const d2 = await getMediaDuration(timerAudio);
-      const d3 = await getMediaDuration(ansAudio);
+      const d1 = await ffmpeg.getMediaDuration(qAudio);
+      const d2 = await ffmpeg.getMediaDuration(timerAudio);
+      const d3 = await ffmpeg.getMediaDuration(ansAudio);
 
       console.log(`[VideoMaker] Rendering FFmpeg segments with suspense BGM & tick-tock SFX (${(d1 + d2 + d3).toFixed(1)}s total)...`);
 
       // Segment 1: Question + subtle quiz suspense BGM
       if (this.audioAssets?.bgmPath && fs.existsSync(this.audioAssets.bgmPath)) {
-        await runFFmpeg([
+        await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
           '-i', qAudio,
           '-stream_loop', '-1', '-i', this.audioAssets.bgmPath,
@@ -305,7 +328,7 @@ class FacebookVideoMaker {
           '-t', String(d1), seg1
         ]);
       } else {
-        await runFFmpeg([
+        await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
           '-i', qAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
@@ -321,7 +344,7 @@ class FacebookVideoMaker {
           ? '[2:a]volume=0.45[tick];[3:a]volume=0.12[bgm];[1:a][tick][bgm]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[aout]'
           : '[2:a]volume=0.45[tick];[1:a][tick]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]';
 
-        await runFFmpeg([
+        await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
           '-i', timerAudio,
           '-stream_loop', '-1', '-i', this.audioAssets.tickTockPath,
@@ -333,7 +356,7 @@ class FacebookVideoMaker {
           '-t', String(d2), seg2
         ]);
       } else {
-        await runFFmpeg([
+        await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
           '-i', timerAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
@@ -349,7 +372,7 @@ class FacebookVideoMaker {
           ? '[2:a]volume=0.38[ding];[3:a]volume=0.10[bgm];[1:a][ding][bgm]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[aout]'
           : '[2:a]volume=0.38[ding];[1:a][ding]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]';
 
-        await runFFmpeg([
+        await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
           '-i', ansAudio,
           '-i', this.audioAssets.chimePath,
@@ -361,7 +384,7 @@ class FacebookVideoMaker {
           '-t', String(d3), seg3
         ]);
       } else {
-        await runFFmpeg([
+        await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
           '-i', ansAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
@@ -372,7 +395,7 @@ class FacebookVideoMaker {
       fs.writeFileSync(concatList, `file '${seg1.replace(/\\/g, '/')}'\nfile '${seg2.replace(/\\/g, '/')}'\nfile '${seg3.replace(/\\/g, '/')}'\n`);
 
       console.log(`[VideoMaker] Stitching final vertical Reel MP4...`);
-      await runFFmpeg([
+      await ffmpeg.runFFmpeg([
         '-y', '-f', 'concat', '-safe', '0', '-i', concatList,
         '-c', 'copy', '-movflags', '+faststart', finalMp4
       ]);

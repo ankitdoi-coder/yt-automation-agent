@@ -60,7 +60,7 @@ async function runFacebookReelsAutomation() {
       try {
         // 1. Generate Video
         const startTime = Date.now();
-        const videoPath = await videoMaker.createReel(item, i);
+        const videoPath = await videoMaker.createReel(item, { index: i, commentChallenge: true });
         const renderDuration = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`⚡ Rendered in ${renderDuration}s: ${videoPath}`);
 
@@ -80,7 +80,7 @@ async function runFacebookReelsAutomation() {
           `Q. ${item.question}`,
           ...(item.options || []).map(o => `${o.letter}) ${o.text}`),
           '',
-          `👉 अपना उत्तर कमेंट बॉक्स में बताएं! 🏆`,
+          `👉 अपना जवाब (A, B, C या D) कमेंट बॉक्स में बताएं! देखते हैं कितने लोग सही जवाब देते हैं! 🏆`,
           `🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!`,
           '',
           baseTags.join(' ')

@@ -36,7 +36,7 @@ async function postSingleReel() {
 
   const item = questions[0];
   try {
-    const videoPath = await videoMaker.createReel(item, Math.floor(Math.random() * 3));
+    const videoPath = await videoMaker.createReel(item, { index: Math.floor(Math.random() * 3), commentChallenge: true });
     const title = `${item.title} | ${item.topic} | Exam IQ Bharat #reels #FacebookReels`;
     const baseTags = Array.isArray(item.tags)
       ? [...item.tags]
@@ -51,7 +51,7 @@ async function postSingleReel() {
       `Q. ${item.question}`,
       ...(item.options || []).map(o => `${o.letter}) ${o.text}`),
       '',
-      `👉 अपना उत्तर कमेंट बॉक्स में बताएं! 🏆`,
+      `👉 अपना जवाब (A, B, C या D) कमेंट बॉक्स में बताएं! देखते हैं कितने लोग सही जवाब देते हैं! 🏆`,
       `🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!`,
       '',
       baseTags.join(' ')

@@ -341,6 +341,13 @@ async function runTests() {
     const svgAns = maker._buildSVG({ item: mockItem, isAnswer: true });
     assert.ok(svgAns.includes('Correct Option B Highlighted'));
     assert.ok(svgAns.includes('💡 परीक्षा तथ्य (Exam Fact)'));
+
+    const svgChallenge = maker._buildSVG({ item: mockItem, isCommentChallenge: true });
+    assert.ok(svgChallenge.includes('💬 Comment Your Answer (कमेंट चैलेंज)'));
+    assert.ok(svgChallenge.includes('👉 अपना सही उत्तर कमेंट में बताएं! 🏆'));
+    assert.ok(svgChallenge.includes('देखते हैं कितने लोग इसका सही जवाब जानते हैं!'));
+    assert.ok(!svgChallenge.includes('Correct Option B Highlighted'), 'Should not highlight correct option in comment challenge mode');
+    assert.ok(!svgChallenge.includes('💡 परीक्षा तथ्य'), 'Should not reveal answer/fact in comment challenge mode');
   });
 
   // ----------------------------------------------------
@@ -416,6 +423,74 @@ async function runTests() {
       axios.post = originalPost;
       axios.get = originalGet;
       if (fs.existsSync(tempVideo)) fs.unlinkSync(tempVideo);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 13: createReel defaults to Comment Challenge CTA audio & frame rendering
+  // ----------------------------------------------------
+  await testAsync('createReel defaults to Comment Challenge CTA narration without revealing answer', async () => {
+    const maker = new FacebookVideoMaker();
+    const mockItem = {
+      id: 'test_challenge_item',
+      topic: 'भू-राजनीति (Geopolitics)',
+      hookBar: 'परीक्षा में बार बार पूछे जाने वाले सवाल',
+      title: 'दुनिया में सबसे ज्यादा परमाणु हथियार किसके पास हैं?',
+      question: 'दुनिया में सबसे ज्यादा परमाणु हथियार किस देश के पास हैं?',
+      questionLines: ['दुनिया में सबसे ज्यादा', 'परमाणु हथियार किस देश के पास हैं?'],
+      options: [
+        { letter: 'A', text: 'अमेरिका (USA)' },
+        { letter: 'B', text: 'रूस (Russia)' },
+        { letter: 'C', text: 'चीन (China)' },
+        { letter: 'D', text: 'भारत (India)' },
+      ],
+      correctOption: 'B',
+      answerText: 'B) रूस (Russia)',
+      voiceQuestion: 'दुनिया में सबसे ज्यादा परमाणु हथियार किस देश के पास हैं?',
+      voiceTimer: 'सोचने के लिए 3 सेकंड!',
+      voiceAnswer: 'सही जवाब है ऑप्शन B रूस!',
+    };
+
+    const audioCalls = [];
+    maker._getAudio = async (text, outPath) => {
+      audioCalls.push({ text, outPath });
+      fs.writeFileSync(outPath, Buffer.alloc(512, 0));
+      return outPath;
+    };
+
+    const ffmpegModule = require('../utils/ffmpeg');
+    const origRunFFmpeg = ffmpegModule.runFFmpeg;
+    const origGetMediaDuration = ffmpegModule.getMediaDuration;
+
+    ffmpegModule.getMediaDuration = async () => 3.0;
+    ffmpegModule.runFFmpeg = async (args) => {
+      const lastArg = args[args.length - 1];
+      if (lastArg && typeof lastArg === 'string' && lastArg.endsWith('.mp4')) {
+        fs.writeFileSync(lastArg, Buffer.alloc(100, 0));
+      }
+    };
+
+    try {
+      // 1. Default invocation (commentChallenge: true)
+      const reelPath = await maker.createReel(mockItem);
+      assert.ok(reelPath.endsWith('.mp4'));
+      assert.strictEqual(audioCalls.length, 3);
+      assert.strictEqual(
+        audioCalls[2].text,
+        'अब इस सवाल का सही जवाब आप कमेंट बॉक्स में बताइए! देखते हैं कितने लोग सही उत्तर देते हैं! और रोज़ाना नए GK टेस्ट के लिए Exam IQ Bharat को Follow करें!'
+      );
+      if (fs.existsSync(reelPath)) fs.unlinkSync(reelPath);
+
+      // 2. Opt-out invocation (commentChallenge: false)
+      audioCalls.length = 0;
+      const optOutReelPath = await maker.createReel(mockItem, { commentChallenge: false });
+      assert.ok(optOutReelPath.endsWith('.mp4'));
+      assert.strictEqual(audioCalls.length, 3);
+      assert.strictEqual(audioCalls[2].text, 'सही जवाब है ऑप्शन B रूस!');
+      if (fs.existsSync(optOutReelPath)) fs.unlinkSync(optOutReelPath);
+    } finally {
+      ffmpegModule.runFFmpeg = origRunFFmpeg;
+      ffmpegModule.getMediaDuration = origGetMediaDuration;
     }
   });
 
