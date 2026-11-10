@@ -112,7 +112,8 @@
     "sci_eye_02",
     "stat_rail_02",
     "stat_isro_03",
-    "geo_military_02"
+    "geo_military_02",
+    "math_quiz_03"
   ],
   "uploads": [
     {
@@ -1043,6 +1044,15 @@
       "fbVideoId": "1164360752597703",
       "uploadedAt": "2026-11-10T11:28:17.525Z",
       "answer": "C) अमेरिका (USA)"
+    },
+    {
+      "id": "math_quiz_03",
+      "category": "math_quiz",
+      "topic": "गणित पहेली (Logical Puzzle)",
+      "title": "1 से 100 तक '9' कितनी बार आता है?",
+      "fbVideoId": "947968224846377",
+      "uploadedAt": "2026-11-10T15:43:59.142Z",
+      "answer": "C) 20 बार (20 Times)"
     }
   ]
 }
