@@ -114,7 +114,8 @@
     "stat_isro_03",
     "geo_military_02",
     "math_quiz_03",
-    "gk_sci_laser"
+    "gk_sci_laser",
+    "math_quiz_04"
   ],
   "uploads": [
     {
@@ -1063,6 +1064,15 @@
       "fbVideoId": "1934709647512052",
       "uploadedAt": "2026-11-10T18:45:16.590Z",
       "answer": "B) थियोडोर मेमन (Theodore Maiman)"
+    },
+    {
+      "id": "math_quiz_04",
+      "category": "math_quiz",
+      "topic": "दिमागी तर्कशक्ति (Reasoning IQ)",
+      "title": "बिल्लियां, चूहे और मिनट वाली पहेली",
+      "fbVideoId": "28728404756831135",
+      "uploadedAt": "2026-11-10T21:12:08.424Z",
+      "answer": "B) 3 मिनट (3 Minutes)"
     }
   ]
 }
