@@ -1,0 +1,23 @@
+{
+  "timestamp": "2026-11-10T12:54:04.656Z",
+  "date": "2026-11-10",
+  "isRegressionRevert": false,
+  "totalProposalsGenerated": 1,
+  "proposalsApproved": 1,
+  "proposals": [
+    {
+      "key": "shorts.targetDurationSeconds",
+      "currentValue": 18,
+      "proposedValue": 54,
+      "hypothesis": "Duration bucket 45-60s achieved significantly higher retention.",
+      "expectedEffect": "Maximized APV and loop completion rate.",
+      "confidence": "90% Bootstrap CI",
+      "rollbackValue": 18
+    }
+  ],
+  "exploreExploitDistribution": {
+    "exploit": 0.7,
+    "explore": 0.3
+  },
+  "applied": false
+}
