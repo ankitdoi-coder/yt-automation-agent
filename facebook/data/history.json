@@ -115,7 +115,8 @@
     "geo_military_02",
     "math_quiz_03",
     "gk_sci_laser",
-    "math_quiz_04"
+    "math_quiz_04",
+    "math_quiz_02"
   ],
   "uploads": [
     {
@@ -1073,6 +1074,15 @@
       "fbVideoId": "28728404756831135",
       "uploadedAt": "2026-11-10T21:12:08.424Z",
       "answer": "B) 3 मिनट (3 Minutes)"
+    },
+    {
+      "id": "math_quiz_02",
+      "category": "math_quiz",
+      "topic": "गणित पहेली (Math IQ Quiz)",
+      "title": "5 + 5 × 5 - 5 का मान क्या होगा?",
+      "fbVideoId": "2297035057760058",
+      "uploadedAt": "2026-11-10T22:15:19.943Z",
+      "answer": "B) 25"
     }
   ]
 }
