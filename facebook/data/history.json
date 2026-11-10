@@ -111,7 +111,8 @@
     "stat_isro_03",
     "sci_eye_02",
     "stat_rail_02",
-    "stat_isro_03"
+    "stat_isro_03",
+    "geo_military_02"
   ],
   "uploads": [
     {
@@ -1033,6 +1034,15 @@
       "fbVideoId": "1156925150618187",
       "uploadedAt": "2026-11-10T00:37:53.418Z",
       "answer": "B) बेंगलुरु (Bengaluru)"
+    },
+    {
+      "id": "geo_military_02",
+      "category": "geopolitics",
+      "topic": "ग्लोबल डिफेंस (Military Power)",
+      "title": "दुनिया की सबसे शक्तिशाली सेना किस देश की है?",
+      "fbVideoId": "1164360752597703",
+      "uploadedAt": "2026-11-10T11:28:17.525Z",
+      "answer": "C) अमेरिका (USA)"
     }
   ]
 }
