@@ -113,7 +113,8 @@
     "stat_rail_02",
     "stat_isro_03",
     "geo_military_02",
-    "math_quiz_03"
+    "math_quiz_03",
+    "gk_sci_laser"
   ],
   "uploads": [
     {
@@ -1053,6 +1054,15 @@
       "fbVideoId": "947968224846377",
       "uploadedAt": "2026-11-10T15:43:59.142Z",
       "answer": "C) 20 बार (20 Times)"
+    },
+    {
+      "id": "gk_sci_laser",
+      "category": "static_gk",
+      "topic": "सामान्य विज्ञान (General Science)",
+      "title": "लेजर का आविष्कार किसने किया?",
+      "fbVideoId": "1934709647512052",
+      "uploadedAt": "2026-11-10T18:45:16.590Z",
+      "answer": "B) थियोडोर मेमन (Theodore Maiman)"
     }
   ]
 }
