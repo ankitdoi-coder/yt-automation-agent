@@ -110,7 +110,8 @@
     "geo_military_02",
     "stat_isro_03",
     "sci_eye_02",
-    "stat_rail_02"
+    "stat_rail_02",
+    "stat_isro_03"
   ],
   "uploads": [
     {
@@ -1023,6 +1024,15 @@
       "fbVideoId": "2933199627064218",
       "uploadedAt": "2026-11-09T23:41:54.133Z",
       "answer": "B) हुबली (कर्नाटक - 1,507 मीटर)"
+    },
+    {
+      "id": "stat_isro_03",
+      "category": "static_gk",
+      "topic": "भारतीय अंतरिक्ष (Space Science)",
+      "title": "ISRO का मुख्यालय कहाँ स्थित है?",
+      "fbVideoId": "1156925150618187",
+      "uploadedAt": "2026-11-10T00:37:53.418Z",
+      "answer": "B) बेंगलुरु (Bengaluru)"
     }
   ]
 }
