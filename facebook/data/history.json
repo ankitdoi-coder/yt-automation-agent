@@ -116,7 +116,8 @@
     "math_quiz_03",
     "gk_sci_laser",
     "math_quiz_04",
-    "math_quiz_02"
+    "math_quiz_02",
+    "sci_tyre_01"
   ],
   "uploads": [
     {
@@ -1083,6 +1084,15 @@
       "fbVideoId": "2297035057760058",
       "uploadedAt": "2026-11-10T22:15:19.943Z",
       "answer": "B) 25"
+    },
+    {
+      "id": "sci_tyre_01",
+      "category": "general_science",
+      "topic": "दैनिक विज्ञान (Everyday Science)",
+      "title": "हवाई जहाज के टायरों में कौन सी गैस भरी जाती है?",
+      "fbVideoId": "1401973222017462",
+      "uploadedAt": "2026-11-11T11:18:06.599Z",
+      "answer": "B) नाइट्रोजन (Nitrogen Gas)"
     }
   ]
 }
