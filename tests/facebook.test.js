@@ -494,6 +494,72 @@ async function runTests() {
     }
   });
 
+
+  // ----------------------------------------------------
+  // Test 14: ContentVault has 120+ unique, balanced questions
+  // ----------------------------------------------------
+  test('ContentVault contains 100+ unique questions evenly balanced across A/B/C/D', () => {
+    const { EXAM_GK_QUESTIONS } = require('../facebook/content-vault');
+    assert.ok(EXAM_GK_QUESTIONS.length >= 100, `Expected >= 100 questions, found ${EXAM_GK_QUESTIONS.length}`);
+
+    const ids = new Set();
+    const dist = { A: 0, B: 0, C: 0, D: 0 };
+    for (const q of EXAM_GK_QUESTIONS) {
+      assert.ok(!ids.has(q.id), `Duplicate ID found: ${q.id}`);
+      ids.add(q.id);
+      assert.ok(['A', 'B', 'C', 'D'].includes(q.correctOption), `Invalid correctOption on ${q.id}`);
+      dist[q.correctOption]++;
+      assert.strictEqual(q.options.length, 4, `Expected 4 options on ${q.id}`);
+    }
+    assert.ok(dist.A >= 20 && dist.B >= 20 && dist.C >= 20 && dist.D >= 20, `Unbalanced correct options: ${JSON.stringify(dist)}`);
+  });
+
+  // ----------------------------------------------------
+  // Test 15: ContentVault 30-day anti-duplicate guard
+  // ----------------------------------------------------
+  await testAsync('ContentVault 30-day anti-duplicate guard blocks recent repeats', async () => {
+    const { ContentVault, EXAM_GK_QUESTIONS } = require('../facebook/content-vault');
+    const vault = new ContentVault();
+    const tempHistory = path.resolve(__dirname, '../temp/test_history_guard.json');
+    vault.historyFile = tempHistory;
+
+    const nowIso = new Date().toISOString();
+    const oldIso = new Date(Date.now() - 35 * 24 * 60 * 60 * 1000).toISOString();
+
+    // Mark all except the last 2 questions as uploaded recently, except q[0] which was 35 days ago
+    const uploads = EXAM_GK_QUESTIONS.slice(1, -2).map(q => ({ id: q.id, uploadedAt: nowIso }));
+    uploads.push({ id: EXAM_GK_QUESTIONS[0].id, uploadedAt: oldIso });
+
+    fs.writeFileSync(tempHistory, JSON.stringify({ uploadedIds: uploads.map(u => u.id), uploads }), 'utf8');
+
+    try {
+      const batch = await vault.getBatchQuestions(3);
+      assert.strictEqual(batch.length, 3);
+      const pickedIds = new Set(batch.map(b => b.id));
+      // Must pick the expired (>30d) question and the 2 never-uploaded questions
+      assert.ok(pickedIds.has(EXAM_GK_QUESTIONS[0].id), 'Should allow question uploaded >30 days ago');
+      assert.ok(pickedIds.has(EXAM_GK_QUESTIONS[EXAM_GK_QUESTIONS.length - 1].id), 'Should pick never-uploaded question');
+      assert.ok(pickedIds.has(EXAM_GK_QUESTIONS[EXAM_GK_QUESTIONS.length - 2].id), 'Should pick never-uploaded question');
+    } finally {
+      if (fs.existsSync(tempHistory)) fs.unlinkSync(tempHistory);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 16: Reels Bottom Safe Zone check (footer sits above bottom 350px)
+  // ----------------------------------------------------
+  test('FacebookVideoMaker footer banner stays in Reels safe zone above y=1560', () => {
+    const maker = new FacebookVideoMaker();
+    const { EXAM_GK_QUESTIONS } = require('../facebook/content-vault');
+    const svg = maker._buildSVG({ item: EXAM_GK_QUESTIONS[0], isCommentChallenge: true });
+    // Extract footer rect y and height: rect x="60" y="1430" width="510" height="105"
+    const match = svg.match(/<rect x="60" y="(\d+)" width="510" height="(\d+)"/);
+    assert.ok(match, 'Footer banner rect must exist');
+    const y = parseInt(match[1], 10);
+    const h = parseInt(match[2], 10);
+    assert.ok(y + h <= 1560, `Footer bottom edge (${y + h}) encroaches into Reels 360px bottom UI zone!`);
+  });
+
   console.log('\n════════════════════════════════════════════════════════════');
   console.log(`📊 Test Summary: Passed ${passed}/${total} tests!`);
   console.log('════════════════════════════════════════════════════════════\n');

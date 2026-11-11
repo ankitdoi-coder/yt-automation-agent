@@ -77,28 +77,22 @@ async function runDailyAnalytics() {
 }
 
 console.log('====================================================');
-console.log('🕒 FACEBOOK REELS 5-DAILY AUTOMATION & ANALYTICS CRON');
+console.log('⏸️ FACEBOOK REELS SCHEDULER (CONSERVATIVE 1-REEL/DAY MODE)');
 console.log('====================================================');
-console.log('Posting Schedules active:');
-console.log('  1. 09:00 AM IST (Morning)');
-console.log('  2. 01:00 PM IST (Lunch)');
-console.log('  3. 05:00 PM IST (Tea Time)');
-console.log('  4. 08:30 PM IST (Evening)');
-console.log('  5. 10:30 PM IST (Night)');
-console.log('Analytics Schedule active:');
-console.log('  👉 11:30 PM IST (Nightly Auto-Optimization)');
-console.log('Scheduler running... Press Ctrl+C to stop.\n');
 
-// 9:00 AM IST
-cron.schedule('0 9 * * *', () => postSingleReel());
-// 1:00 PM IST
-cron.schedule('0 13 * * *', () => postSingleReel());
-// 5:00 PM IST
-cron.schedule('0 17 * * *', () => postSingleReel());
-// 8:30 PM IST
-cron.schedule('30 20 * * *', () => postSingleReel());
-// 10:30 PM IST
-cron.schedule('30 22 * * *', () => postSingleReel());
+if (process.env.FB_SCHEDULER_ENABLED !== 'true') {
+  console.log('⚠️ Scheduler is currently PAUSED to prevent repetitive uploads until visibility check passes.');
+  console.log('👉 To re-enable daily posting (1 reel/day at 08:30 PM IST), set FB_SCHEDULER_ENABLED=true in .env');
+} else {
+  console.log('Posting Schedule active (1 High-Yield Reel Daily):');
+  console.log('  1. 08:30 PM IST (Peak Evening Family Slot)');
+  console.log('Analytics Schedule active:');
+  console.log('  👉 11:30 PM IST (Nightly Auto-Optimization)');
+  console.log('Scheduler running... Press Ctrl+C to stop.\n');
 
-// 11:30 PM IST - Daily Analytics & Adaptation
-cron.schedule('30 23 * * *', () => runDailyAnalytics());
+  // 8:30 PM IST (1 high quality reel per day to avoid Meta spam/repetitive throttling)
+  cron.schedule('30 20 * * *', () => postSingleReel());
+
+  // 11:30 PM IST - Daily Analytics & Adaptation
+  cron.schedule('30 23 * * *', () => runDailyAnalytics());
+}

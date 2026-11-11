@@ -5,18 +5,14 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  schedule:
-    # 5 Daily Slots at peak Indian engagement times:
-    # Slot 1: 03:30 UTC = 09:00 AM IST (Morning scroll)
-    - cron: '30 3 * * *'
-    # Slot 2: 07:30 UTC = 01:00 PM IST (Lunch break)
-    - cron: '30 7 * * *'
-    # Slot 3: 11:30 UTC = 05:00 PM IST (Evening tea time)
-    - cron: '30 11 * * *'
-    # Slot 4: 15:00 UTC = 08:30 PM IST (Prime family time)
-    - cron: '0 15 * * *'
-    # Slot 5: 17:00 UTC = 10:30 PM IST (Bedtime scroll)
-    - cron: '0 17 * * *'
+  # Automated schedule paused to prevent repetitive spam.
+  # Trigger on-demand via Actions -> Run workflow (workflow_dispatch):
+  # schedule:
+  #   - cron: '30 3 * * *'  # 09:00 AM IST
+  #   - cron: '30 7 * * *'  # 01:00 PM IST
+  #   - cron: '30 11 * * *' # 05:00 PM IST
+  #   - cron: '0 15 * * *'  # 08:30 PM IST
+  #   - cron: '0 17 * * *'  # 10:30 PM IST
 
   workflow_dispatch:
     inputs:

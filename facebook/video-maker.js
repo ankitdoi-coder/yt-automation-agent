@@ -146,8 +146,8 @@ class FacebookVideoMaker {
 
       <!-- 1. Top Category Pill (with Book Emojis, Image 2 style) -->
       <g filter="url(#softShadow)">
-        <rect x="170" y="85" width="740" height="90" rx="45" fill="url(#topPillGrad)" stroke="#65a30d" stroke-width="3"/>
-        <text x="540" y="145" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#0f172a" text-anchor="middle">
+        <rect x="120" y="85" width="840" height="90" rx="45" fill="url(#topPillGrad)" stroke="#65a30d" stroke-width="3"/>
+        <text x="540" y="143" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${(item.topic || '').length > 28 ? 33 : 38}" font-weight="900" fill="#0f172a" text-anchor="middle">
           📚 ${topic} 📚
         </text>
       </g>
@@ -155,7 +155,7 @@ class FacebookVideoMaker {
       <!-- 2. Blue Hook Sub-banner (with Shock Emojis, Image 2 style) -->
       <g filter="url(#softShadow)">
         <rect x="60" y="205" width="960" height="90" rx="24" fill="url(#blueHookGrad)"/>
-        <text x="540" y="263" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="bold" fill="#FFFFFF" text-anchor="middle">
+        <text x="540" y="263" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${(item.hookBar || '').length > 32 ? 33 : 38}" font-weight="bold" fill="#FFFFFF" text-anchor="middle">
           🤯 ${hookBar} 🤯
         </text>
       </g>
@@ -172,15 +172,17 @@ class FacebookVideoMaker {
       <!-- 4. Options List (A, B, C, D) -->
       ${options.map((opt, idx) => {
         const isThisCorrect = !isCommentChallenge && isAnswer && (opt.letter === correctLetter);
-        const yPos = 680 + (idx * 140);
+        const yPos = 650 + (idx * 130);
+        const optLen = String(opt.text || '').length;
+        const optFontSize = optLen > 28 ? 38 : (optLen > 21 ? 42 : 46);
 
         if (isThisCorrect) {
           // Highlighted Option Capsule (Soft Coral/Pink Pill with Red Border - Exact match to Image 2!)
           return `
           <!-- Correct Option ${opt.letter} Highlighted -->
           <g filter="url(#coralGlow)">
-            <rect x="70" y="${yPos - 55}" width="940" height="110" rx="30" fill="#fee2e2" stroke="#ef4444" stroke-width="4"/>
-            <text x="105" y="${yPos + 18}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="48" font-weight="900" fill="#b91c1c">
+            <rect x="70" y="${yPos - 52}" width="860" height="104" rx="28" fill="#fee2e2" stroke="#ef4444" stroke-width="4"/>
+            <text x="100" y="${yPos + 16}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="900" fill="#b91c1c">
               ${opt.letter}) ${this._escapeXml(opt.text)}
             </text>
           </g>
@@ -190,7 +192,7 @@ class FacebookVideoMaker {
           return `
           <!-- Option ${opt.letter} -->
           <g>
-            <text x="105" y="${yPos + 18}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="46" font-weight="bold" fill="#1e293b">
+            <text x="100" y="${yPos + 16}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="bold" fill="#1e293b">
               ${opt.letter}) ${this._escapeXml(opt.text)}
             </text>
           </g>
@@ -201,8 +203,8 @@ class FacebookVideoMaker {
       <!-- 5. Suspense Timer (during Frame 2) -->
       ${!isAnswer && !isCommentChallenge && timerText ? `
         <g filter="url(#softShadow)">
-          <rect x="240" y="1280" width="600" height="90" rx="45" fill="#e11d48"/>
-          <text x="540" y="1338" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#FFFFFF" text-anchor="middle">
+          <rect x="240" y="1170" width="600" height="85" rx="42" fill="#e11d48"/>
+          <text x="540" y="1226" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#FFFFFF" text-anchor="middle">
             ${this._escapeXml(timerText)}
           </text>
         </g>
@@ -211,15 +213,15 @@ class FacebookVideoMaker {
       <!-- 6. Comment Challenge Card (during Frame 3 when commentChallenge is active) -->
       ${isCommentChallenge ? `
         <g filter="url(#softShadow)">
-          <rect x="70" y="1240" width="940" height="290" rx="28" fill="#fff7ed" stroke="#ea580c" stroke-width="4"/>
-          <rect x="90" y="1258" width="900" height="64" rx="20" fill="#ea580c"/>
-          <text x="540" y="1302" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="32" font-weight="900" fill="#FFFFFF" text-anchor="middle">
+          <rect x="60" y="1150" width="960" height="250" rx="24" fill="#fff7ed" stroke="#ea580c" stroke-width="4"/>
+          <rect x="80" y="1168" width="920" height="54" rx="14" fill="#ea580c"/>
+          <text x="540" y="1206" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="30" font-weight="900" fill="#FFFFFF" text-anchor="middle">
             💬 Comment Your Answer (कमेंट चैलेंज)
           </text>
-          <text x="540" y="1395" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#9a3412" text-anchor="middle">
+          <text x="540" y="1292" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#9a3412" text-anchor="middle">
             👉 अपना सही उत्तर कमेंट में बताएं! 🏆
           </text>
-          <text x="540" y="1470" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="30" font-weight="bold" fill="#431407" text-anchor="middle">
+          <text x="540" y="1360" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="bold" fill="#431407" text-anchor="middle">
             देखते हैं कितने लोग इसका सही जवाब जानते हैं!
           </text>
         </g>
@@ -245,14 +247,14 @@ class FacebookVideoMaker {
       <!-- 7. Bottom Split Footer Bar (Image 2 style: Yellow Channel Name + Red "को Follow करें") -->
       <g filter="url(#softShadow)">
         <!-- Yellow Box: Channel Name -->
-        <rect x="70" y="1680" width="500" height="120" rx="18" fill="#facc15"/>
-        <text x="320" y="1755" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="44" font-weight="900" fill="#000000" text-anchor="middle">
+        <rect x="60" y="1430" width="510" height="105" rx="18" fill="#facc15"/>
+        <text x="315" y="1500" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="42" font-weight="900" fill="#000000" text-anchor="middle">
           Exam IQ Bharat
         </text>
 
         <!-- Red Box: को Follow करें (Strictly Follow for Facebook!) -->
-        <rect x="580" y="1680" width="430" height="120" rx="18" fill="#dc2626"/>
-        <text x="795" y="1755" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#FFFFFF" text-anchor="middle">
+        <rect x="590" y="1430" width="430" height="105" rx="18" fill="#dc2626"/>
+        <text x="805" y="1500" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#FFFFFF" text-anchor="middle">
           को Follow करें 🔔
         </text>
       </g>

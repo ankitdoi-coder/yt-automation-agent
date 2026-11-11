@@ -121,13 +121,15 @@ class FacebookUploader {
     // Step 4: Transcoding & Readiness Verification
     // ========================================================
     let reelStatus = 'processing';
+    let videoPrivacy = 'UNKNOWN';
+    let isPubliclyVisible = false;
     const pollStart = Date.now();
     const maxPollMs = 25000;
     while (Date.now() - pollStart < maxPollMs) {
       try {
         const statusRes = await axios.get(`https://graph.facebook.com/v21.0/${videoId}`, {
           params: {
-            fields: 'status,published',
+            fields: 'status,published,privacy,permalink_url',
             access_token: this.accessToken,
           },
           timeout: 10000,
@@ -136,8 +138,12 @@ class FacebookUploader {
         if (currentStatus) {
           reelStatus = currentStatus;
         }
+        if (statusRes.data?.privacy) {
+          videoPrivacy = statusRes.data.privacy.value || statusRes.data.privacy.description || JSON.stringify(statusRes.data.privacy);
+          isPubliclyVisible = videoPrivacy === 'EVERYONE';
+        }
         if (reelStatus === 'ready') {
-          console.log(`[FacebookUploader] ✅ Reel transcoding complete & LIVE on Meta Reels Feed! (Status: ready)`);
+          console.log(`[FacebookUploader] ✅ Reel transcoding complete & LIVE on Meta Reels Feed! (Status: ready, Privacy: ${videoPrivacy})`);
           break;
         }
         if (reelStatus === 'error') {
@@ -153,6 +159,10 @@ class FacebookUploader {
 
     const reelUrl = `https://www.facebook.com/reel/${videoId}`;
     console.log(`[FacebookUploader] 🔗 Live Reels Feed URL: ${reelUrl}`);
+    console.log(`[FacebookUploader] 🔒 Video Privacy Check: ${videoPrivacy} (Public Visibility: ${isPubliclyVisible ? '✅ YES' : '⚠️ RESTRICTED/PENDING'})`);
+    if (!isPubliclyVisible && videoPrivacy !== 'UNKNOWN') {
+      console.warn(`[FacebookUploader] ⚠️ WARNING: Video privacy is '${videoPrivacy}'. If your Facebook App in developers.facebook.com is in 'Development Mode', reels will ONLY be visible to developers/testers, resulting in 0 public views! Switch the app to 'Live Mode'.`);
+    }
 
     return {
       success: true,
