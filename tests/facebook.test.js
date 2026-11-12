@@ -926,6 +926,82 @@ async function runTests() {
     }
   });
 
+  // ----------------------------------------------------
+  // Test 23: ZernioUploader polls async 'publishing' posts for final URL and surfaces async failures
+  // ----------------------------------------------------
+  await testAsync('ZernioUploader polls GET /v1/posts/{id} for async URL and throws on async failure', async () => {
+    const { ZernioUploader } = require('../facebook/zernio-uploader');
+    const dummyMp4 = path.resolve(__dirname, '../temp/test_zernio_async.mp4');
+    fs.writeFileSync(dummyMp4, Buffer.from('00000018ftypmp42', 'utf8'));
+
+    let pollCount = 0;
+    const pollHttp = {
+      get: async (url) => {
+        if (url.endsWith('/accounts')) {
+          return { data: { accounts: [{ _id: 'acc_fb_1', platform: 'facebook', status: 'active' }] } };
+        }
+        if (url.endsWith('/posts/async_post_1')) {
+          pollCount += 1;
+          if (pollCount === 1) {
+            return { data: { post: { _id: 'async_post_1', status: 'publishing', platforms: [{ platform: 'facebook', status: 'publishing' }] } } };
+          }
+          return {
+            data: {
+              post: {
+                _id: 'async_post_1',
+                status: 'published',
+                platforms: [{ platform: 'facebook', status: 'published', platformPostUrl: 'https://www.facebook.com/reel/55667788990011/' }],
+              },
+            },
+          };
+        }
+        if (url.endsWith('/posts/async_fail_1')) {
+          return {
+            data: {
+              post: {
+                _id: 'async_fail_1',
+                status: 'failed',
+                platforms: [{ platform: 'facebook', status: 'failed', errorMessage: 'Page token expired' }],
+              },
+            },
+          };
+        }
+        throw new Error(`Unexpected GET ${url}`);
+      },
+      post: async (url) => {
+        if (url.endsWith('/media/presign')) {
+          return { data: { uploadUrl: 'https://storage.zernio.com/up.mp4', publicUrl: 'https://storage.zernio.com/pub.mp4' } };
+        }
+        return { data: { post: { _id: 'async_post_1', status: 'publishing', platforms: [{ platform: 'facebook', status: 'publishing' }] } } };
+      },
+      put: async () => ({ status: 200 }),
+    };
+
+    try {
+      const uploader = new ZernioUploader({
+        apiKey: 'SECRET_POLL_KEY',
+        httpClient: pollHttp,
+        pollIntervalMs: 0,
+        maxPolls: 5,
+      });
+      const res = await uploader.publishReel(dummyMp4, { title: 'Async Reel', description: 'Desc' });
+      assert.strictEqual(pollCount, 2);
+      assert.strictEqual(res.fbVideoId, '55667788990011');
+      assert.strictEqual(res.url, 'https://www.facebook.com/reel/55667788990011/');
+      assert.strictEqual(res.status, 'published');
+
+      let failMsg = '';
+      try {
+        await uploader.waitForPostCompletion('async_fail_1', { _id: 'async_fail_1', status: 'publishing' });
+      } catch (err) {
+        failMsg = err.message;
+      }
+      assert.ok(failMsg.includes('Page token expired'), 'Async Facebook failure reason must surface cleanly');
+    } finally {
+      if (fs.existsSync(dummyMp4)) fs.unlinkSync(dummyMp4);
+    }
+  });
+
   console.log('\n════════════════════════════════════════════════════════════');
   console.log(`📊 Test Summary: Passed ${passed}/${total} tests!`);
   console.log('════════════════════════════════════════════════════════════\n');

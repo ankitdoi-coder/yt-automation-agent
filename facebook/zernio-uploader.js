@@ -10,6 +10,7 @@
  *   2. POST /v1/media/presign -> get S3/R2 uploadUrl + publicUrl
  *   3. PUT {uploadUrl} -> upload MP4 binary
  *   4. POST /v1/posts -> publish Reel with platformSpecificData: { contentType: 'reel', firstComment }
+ *   5. GET /v1/posts/{postId} -> poll when async status is 'publishing' to capture live Reel URL & surface async errors
  */
 
 require('dotenv').config();
@@ -43,6 +44,8 @@ class ZernioUploader {
     this.accountId = String(options.accountId ?? process.env.ZERNIO_FACEBOOK_ACCOUNT_ID ?? '').trim() || null;
     this.baseUrl = String(options.baseUrl || process.env.ZERNIO_BASE_URL || DEFAULT_ZERNIO_BASE_URL).replace(/\/+$/, '');
     this.http = options.httpClient || axios;
+    this.pollIntervalMs = options.pollIntervalMs ?? 5000;
+    this.maxPolls = options.maxPolls ?? 12;
 
     if (!this.apiKey) {
       throw new Error('ZERNIO_API_KEY must be configured (free tier at https://zernio.com)');
@@ -53,6 +56,26 @@ class ZernioUploader {
     return {
       Authorization: `Bearer ${this.apiKey}`,
       ...extra,
+    };
+  }
+
+  _extractFacebookPlatformState(post = {}) {
+    const platforms = Array.isArray(post.platforms) ? post.platforms : [];
+    const fbPlatform = platforms.find(p => String(p?.platform || '').toLowerCase() === 'facebook') || platforms[0] || {};
+    const overallStatus = String(post.status || '').toLowerCase();
+    const platformStatus = String(fbPlatform.status || overallStatus || '').toLowerCase();
+    const platformPostUrl = fbPlatform.platformPostUrl || null;
+    const fbVideoId = extractFacebookVideoId(platformPostUrl) || fbPlatform.platformPostId || null;
+    const zernioPostId = post._id || post.id || null;
+    const errorMsg = fbPlatform.errorMessage || fbPlatform.error || post.errorMessage || post.error || null;
+    return {
+      zernioPostId,
+      overallStatus,
+      fbPlatform,
+      platformStatus,
+      platformPostUrl,
+      fbVideoId,
+      errorMsg,
     };
   }
 
@@ -149,6 +172,56 @@ class ZernioUploader {
   }
 
   /**
+   * Polls GET /v1/posts/{postId} when Zernio accepts a Reel asynchronously
+   * so the live Facebook URL / numeric Reel ID and any async failure are captured.
+   */
+  async waitForPostCompletion(zernioPostId, initialPost = {}) {
+    let latestPost = initialPost;
+    let state = this._extractFacebookPlatformState(latestPost);
+
+    if (state.platformStatus === 'failed' || state.overallStatus === 'failed') {
+      throw new Error(`Zernio reported Facebook publish failure: ${state.errorMsg || JSON.stringify(latestPost)}`);
+    }
+    if (state.platformPostUrl || state.platformStatus === 'published' || state.overallStatus === 'published') {
+      return latestPost;
+    }
+    if (!zernioPostId || this.maxPolls <= 0) {
+      return latestPost;
+    }
+
+    console.log(`[ZernioUploader] ⏳ Zernio accepted Reel (${zernioPostId}, status: ${state.platformStatus || 'publishing'}); checking Facebook publish status...`);
+
+    for (let attempt = 1; attempt <= this.maxPolls; attempt++) {
+      if (this.pollIntervalMs > 0) {
+        await new Promise(resolve => setTimeout(resolve, this.pollIntervalMs));
+      }
+      try {
+        const pollRes = await this.http.get(`${this.baseUrl}/posts/${zernioPostId}`, {
+          headers: this._authHeaders(),
+          timeout: 20000,
+        });
+        latestPost = pollRes.data?.post || pollRes.data || latestPost;
+        state = this._extractFacebookPlatformState(latestPost);
+
+        if (state.platformStatus === 'failed' || state.overallStatus === 'failed') {
+          throw new Error(`Zernio reported Facebook publish failure: ${state.errorMsg || JSON.stringify(latestPost)}`);
+        }
+        if (state.platformPostUrl || state.platformStatus === 'published' || state.overallStatus === 'published') {
+          return latestPost;
+        }
+      } catch (err) {
+        if (String(err.message || '').startsWith('Zernio reported Facebook publish failure:')) {
+          throw err;
+        }
+        const detail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+        console.warn(`[ZernioUploader] ℹ️ Status poll attempt ${attempt}/${this.maxPolls}: ${redactApiKey(detail, this.apiKey)}`);
+      }
+    }
+
+    return latestPost;
+  }
+
+  /**
    * Uploads and immediately publishes a vertical video as a public Facebook Reel.
    */
   async publishReel(videoPath, { title, description, firstComment } = {}) {
@@ -198,20 +271,22 @@ class ZernioUploader {
       }
     }
 
-    const post = postRes.data?.post || postRes.data || {};
-    const platforms = Array.isArray(post.platforms) ? post.platforms : [];
-    const fbPlatform = platforms.find(p => String(p?.platform || '').toLowerCase() === 'facebook') || platforms[0] || {};
-
-    if (String(fbPlatform.status || post.status || '').toLowerCase() === 'failed') {
-      throw new Error(`Zernio reported Facebook publish failure: ${fbPlatform.error || post.error || JSON.stringify(post)}`);
-    }
-
-    const platformPostUrl = fbPlatform.platformPostUrl || null;
-    const fbVideoId = extractFacebookVideoId(platformPostUrl) || fbPlatform.platformPostId || null;
-    const zernioPostId = post._id || post.id || null;
+    const initialPost = postRes.data?.post || postRes.data || {};
+    const post = await this.waitForPostCompletion(initialPost._id || initialPost.id, initialPost);
+    const {
+      zernioPostId,
+      platformStatus,
+      platformPostUrl,
+      fbVideoId,
+    } = this._extractFacebookPlatformState(post);
     const finalUrl = platformPostUrl || (fbVideoId ? `https://www.facebook.com/reel/${fbVideoId}` : null);
+    const finalStatus = platformStatus || 'published';
 
-    console.log(`[ZernioUploader] 🎉 Public Facebook Reel published automatically! URL: ${finalUrl || zernioPostId}`);
+    if (finalUrl) {
+      console.log(`[ZernioUploader] 🎉 Public Facebook Reel published automatically! URL: ${finalUrl}`);
+    } else {
+      console.log(`[ZernioUploader] ⏳ Zernio accepted Reel (Post ID: ${zernioPostId}, status: ${finalStatus}) — check Zernio dashboard if still processing.`);
+    }
 
     return {
       success: true,
@@ -219,7 +294,7 @@ class ZernioUploader {
       fbVideoId,
       zernioPostId,
       url: finalUrl,
-      status: fbPlatform.status || post.status || 'published',
+      status: finalStatus,
       deliveryMode: 'ZERNIO_API',
       reelsFeed: true,
       publicUrl,
