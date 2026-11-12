@@ -120,7 +120,8 @@
     "sci_tyre_01",
     "math_percent_10",
     "stat_ports_23",
-    "hist_dandi_03"
+    "hist_dandi_03",
+    "math_prime_03"
   ],
   "uploads": [
     {
@@ -1128,6 +1129,17 @@
       "deliveryMode": "ZERNIO_API",
       "uploadedAt": "2026-11-12T08:05:50.509Z",
       "answer": "B) साबरमती आश्रम (अहमदाबाद)"
+    },
+    {
+      "id": "math_prime_03",
+      "category": "math_quiz",
+      "topic": "अभाज्य संख्या (Prime Numbers)",
+      "title": "सबसे छोटी अभाज्य संख्या (Prime Number) कौन सी है?",
+      "fbVideoId": "1695369625385415",
+      "zernioPostId": "6af630390708267b58618198",
+      "deliveryMode": "ZERNIO_API",
+      "uploadedAt": "2026-11-12T21:32:11.334Z",
+      "answer": "B) 2 (एकमात्र सम अभाज्य संख्या)"
     }
   ]
 }
