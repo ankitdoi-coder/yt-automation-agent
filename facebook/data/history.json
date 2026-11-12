@@ -118,7 +118,8 @@
     "math_quiz_04",
     "math_quiz_02",
     "sci_tyre_01",
-    "math_percent_10"
+    "math_percent_10",
+    "stat_ports_23"
   ],
   "uploads": [
     {
@@ -1104,6 +1105,17 @@
       "deliveryMode": "EXPORT_READY",
       "uploadedAt": "2026-11-12T05:16:28.975Z",
       "answer": "D) 400 (80 × 5 = 400)"
+    },
+    {
+      "id": "stat_ports_23",
+      "category": "static_gk",
+      "topic": "प्रमुख बंदरगाह (Major Ports)",
+      "title": "भारत का पहला मुक्त व्यापार क्षेत्र वाला दीनदयाल बंदरगाह कौन सा है?",
+      "fbVideoId": null,
+      "zernioPostId": "6af56239f394637433583363",
+      "deliveryMode": "ZERNIO_API",
+      "uploadedAt": "2026-11-12T06:52:51.329Z",
+      "answer": "D) दीनदयाल बंदरगाह (कांडला, गुजरात)"
     }
   ]
 }
