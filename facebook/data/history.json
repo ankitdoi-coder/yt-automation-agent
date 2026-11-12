@@ -119,7 +119,8 @@
     "math_quiz_02",
     "sci_tyre_01",
     "math_percent_10",
-    "stat_ports_23"
+    "stat_ports_23",
+    "hist_dandi_03"
   ],
   "uploads": [
     {
@@ -1116,6 +1117,17 @@
       "deliveryMode": "ZERNIO_API",
       "uploadedAt": "2026-11-12T06:52:51.329Z",
       "answer": "D) दीनदयाल बंदरगाह (कांडला, गुजरात)"
+    },
+    {
+      "id": "hist_dandi_03",
+      "category": "history",
+      "topic": "दांडी मार्च (Salt March 1930)",
+      "title": "महात्मा गांधी ने दांडी यात्रा किस स्थान से शुरू की थी?",
+      "fbVideoId": "1637541888412274",
+      "zernioPostId": "6af5734217d46be8b5fc41ab",
+      "deliveryMode": "ZERNIO_API",
+      "uploadedAt": "2026-11-12T08:05:50.509Z",
+      "answer": "B) साबरमती आश्रम (अहमदाबाद)"
     }
   ]
 }
