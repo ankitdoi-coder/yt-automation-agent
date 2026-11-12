@@ -5,19 +5,14 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  # Automated schedule paused to prevent repetitive spam.
+  # Automated API schedule paused while Meta App is in Development Mode.
   # Trigger on-demand via Actions -> Run workflow (workflow_dispatch):
-  # schedule:
-  #   - cron: '30 3 * * *'  # 09:00 AM IST
-  #   - cron: '30 7 * * *'  # 01:00 PM IST
-  #   - cron: '30 11 * * *' # 05:00 PM IST
-  #   - cron: '0 15 * * *'  # 08:30 PM IST
-  #   - cron: '0 17 * * *'  # 10:30 PM IST
+  # Choose delivery_mode='export' (default) to generate a Meta Business Suite ZIP + Telegram batch.
 
   workflow_dispatch:
     inputs:
       count:
-        description: 'Number of Reels to generate and upload'
+        description: 'Number of Reels to generate (e.g. 7 for a full weekly Meta Business Suite batch)'
         required: true
         default: '1'
         type: choice
@@ -26,10 +21,19 @@ on:
           - '2'
           - '3'
           - '5'
+          - '7'
+      delivery_mode:
+        description: 'Delivery mode (export = Ready-to-Schedule ZIP Artifact + Telegram; publish_api = Meta Graph API)'
+        required: true
+        default: 'export'
+        type: choice
+        options:
+          - 'export'
+          - 'publish_api'
 
 jobs:
   publish-reels:
-    name: Generate & Publish Facebook Reel
+    name: Generate & Deliver Facebook Reels
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -60,8 +64,10 @@ jobs:
           ENV_SECRET: ${{ secrets.ENV_FILE }}
           FB_TOKEN_SECRET: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           FB_PAGE_SECRET: ${{ secrets.FB_PAGE_ID }}
+          TG_TOKEN_SECRET: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT_SECRET: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          mkdir -p facebook/data facebook/output facebook/temp
+          mkdir -p facebook/data facebook/output facebook/output/export_ready facebook/temp
 
           # If ENV_FILE secret exists, write it
           if [ -n "$ENV_SECRET" ]; then
@@ -75,23 +81,41 @@ jobs:
           if [ -n "$FB_PAGE_SECRET" ]; then
             echo "FB_PAGE_ID=$FB_PAGE_SECRET" >> .env
           fi
+          if [ -n "$TG_TOKEN_SECRET" ]; then
+            echo "TELEGRAM_BOT_TOKEN=$TG_TOKEN_SECRET" >> .env
+          fi
+          if [ -n "$TG_CHAT_SECRET" ]; then
+            echo "TELEGRAM_CHAT_ID=$TG_CHAT_SECRET" >> .env
+          fi
 
           # Ensure page ID fallback
           if ! grep -q "FB_PAGE_ID=" .env 2>/dev/null; then
             echo "FB_PAGE_ID=1289712677569663" >> .env
           fi
 
-          echo "✅ Environment configured for Facebook Reels upload"
+          echo "✅ Environment configured for Facebook Reels workflow"
 
-      - name: Generate & Upload Facebook Reel(s)
+      - name: Generate & Deliver Facebook Reel(s)
         env:
           CI: true
+          FB_DELIVERY_MODE: ${{ github.event.inputs.delivery_mode || 'export' }}
         run: |
           COUNT="${{ github.event.inputs.count || '1' }}"
-          echo "🚀 Starting Facebook Reels Agent for $COUNT reel(s)..."
+          MODE="${{ github.event.inputs.delivery_mode || 'export' }}"
+          echo "🚀 Starting Facebook Reels Agent (Mode: $MODE, Count: $COUNT)..."
           node facebook/fb-runner.js --count "$COUNT"
 
+      - name: Upload Ready-to-Schedule Reels Artifact
+        if: always() && (github.event.inputs.delivery_mode || 'export') == 'export'
+        uses: actions/upload-artifact@v4
+        with:
+          name: exam-iq-bharat-reels-${{ github.run_number }}
+          path: facebook/output/export_ready/
+          if-no-files-found: warn
+          retention-days: 30
+
       - name: Run Facebook Analytics & Self-Optimization
+        if: (github.event.inputs.delivery_mode || 'export') == 'publish_api'
         env:
           CI: true
         run: |
@@ -106,6 +130,6 @@ jobs:
           if git diff --staged --quiet; then
             echo "No history changes to commit"
           else
-            git commit -m "chore(facebook): update reels upload history and learned analytics [skip ci]"
+            git commit -m "chore(facebook): update reels delivery history [skip ci]"
             git push origin HEAD || true
           fi

@@ -560,6 +560,214 @@ async function runTests() {
     assert.ok(y + h <= 1560, `Footer bottom edge (${y + h}) encroaches into Reels 360px bottom UI zone!`);
   });
 
+  // ----------------------------------------------------
+  // Test 17: Export Deliverer buildReelMetadata formats options & keeps answerKey out of description
+  // ----------------------------------------------------
+  test('buildReelMetadata builds description, tags, pinnedComment and separates answerKey', () => {
+    const { buildReelMetadata } = require('../facebook/export-deliverer');
+    const meta = buildReelMetadata({
+      id: 'geo_test_1',
+      title: 'टेस्ट सवाल',
+      topic: 'भूगोल (Geography)',
+      question: 'भारत की सबसे लंबी नदी कौन सी है?',
+      options: [
+        { letter: 'A', text: 'गंगा' },
+        { letter: 'B', text: 'यमुना' },
+        { letter: 'C', text: 'गोदावरी' },
+        { letter: 'D', text: 'नर्मदा' },
+      ],
+      correctOption: 'A',
+      answerText: 'A) गंगा',
+      tags: ['#ExamIQ', '#GK'],
+    });
+    assert.ok(meta.title.includes('Exam IQ Bharat'));
+    assert.ok(meta.description.includes('Q. भारत की सबसे लंबी नदी कौन सी है?'));
+    assert.ok(meta.description.includes('A) गंगा'));
+    assert.ok(meta.description.includes('#ReelsViral'));
+    assert.ok(meta.pinnedComment.includes('कमेंट'));
+    assert.strictEqual(meta.answerKey, 'A) गंगा');
+  });
+
+  // ----------------------------------------------------
+  // Test 18: createExportBundle creates numbered MP4s, captions.txt, manifest & clears stale files
+  // ----------------------------------------------------
+  test('createExportBundle packages MP4s, captions.txt, schedule_manifest.json and cleans stale files', () => {
+    const { createExportBundle, buildReelMetadata } = require('../facebook/export-deliverer');
+    const tempBase = path.resolve(__dirname, '../temp/test_export_bundle');
+    const dummySrc = path.resolve(__dirname, '../temp/test_export_src.mp4');
+    fs.mkdirSync(tempBase, { recursive: true });
+    fs.writeFileSync(path.join(tempBase, 'stale_old_reel.mp4'), 'stale', 'utf8');
+    fs.writeFileSync(dummySrc, Buffer.from('00000018ftypmp42', 'utf8'));
+
+    try {
+      const item = {
+        id: 'stat_isro_03',
+        category: 'static_gk',
+        topic: 'भारतीय अंतरिक्ष',
+        title: 'ISRO मुख्यालय',
+        question: 'ISRO का मुख्यालय कहाँ है?',
+        options: [
+          { letter: 'A', text: 'दिल्ली' },
+          { letter: 'B', text: 'बेंगलुरु' },
+          { letter: 'C', text: 'मुंबई' },
+          { letter: 'D', text: 'चेन्नई' },
+        ],
+        correctOption: 'B',
+        answerText: 'B) बेंगलुरु',
+      };
+      const bundle = createExportBundle(
+        [{ item, videoPath: dummySrc, metadata: buildReelMetadata(item) }],
+        { exportDir: tempBase, scheduleStartDate: '2026-11-12T10:00:00Z' }
+      );
+
+      assert.strictEqual(fs.existsSync(path.join(tempBase, 'stale_old_reel.mp4')), false, 'Stale file must be removed');
+      assert.strictEqual(bundle.items.length, 1);
+      assert.strictEqual(bundle.items[0].filename, '01_stat_isro_03.mp4');
+      assert.ok(fs.existsSync(bundle.items[0].exportedVideoPath));
+      assert.ok(fs.existsSync(bundle.captionsPath));
+      assert.ok(fs.existsSync(bundle.manifestPath));
+
+      const captionsTxt = fs.readFileSync(bundle.captionsPath, 'utf8');
+      assert.ok(captionsTxt.includes('01_stat_isro_03.mp4'));
+      assert.ok(captionsTxt.includes('CREATOR ANSWER KEY'));
+      assert.ok(captionsTxt.includes('08:30 PM IST'));
+
+      const manifest = JSON.parse(fs.readFileSync(bundle.manifestPath, 'utf8'));
+      assert.strictEqual(manifest.totalReels, 1);
+      assert.strictEqual(manifest.reels[0].id, 'stat_isro_03');
+    } finally {
+      fs.rmSync(tempBase, { recursive: true, force: true });
+      if (fs.existsSync(dummySrc)) fs.unlinkSync(dummySrc);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 19: sendToTelegram skips unconfigured, sends mocked videos + redacts secrets on error
+  // ----------------------------------------------------
+  await testAsync('sendToTelegram skips when unconfigured, delivers mocked batch, and redacts token on errors', async () => {
+    const { sendToTelegram, buildReelMetadata } = require('../facebook/export-deliverer');
+    const prevToken = process.env.TELEGRAM_BOT_TOKEN;
+    const prevChat = process.env.TELEGRAM_CHAT_ID;
+    delete process.env.TELEGRAM_BOT_TOKEN;
+    delete process.env.TELEGRAM_CHAT_ID;
+
+    const dummyMp4 = path.resolve(__dirname, '../temp/test_tg_reel.mp4');
+    fs.writeFileSync(dummyMp4, Buffer.from('00000018ftypmp42', 'utf8'));
+
+    try {
+      const skipped = await sendToTelegram([]);
+      assert.strictEqual(skipped.skipped, true);
+      assert.strictEqual(skipped.sent, false);
+
+      const postCalls = [];
+      const mockHttp = {
+        post: async (url, body) => {
+          postCalls.push({ url, body });
+          return { data: { ok: true } };
+        },
+      };
+
+      const longItem = {
+        id: 'tg_01',
+        title: 'टेस्ट',
+        topic: 'GK',
+        question: 'लम्बा सवाल '.repeat(120),
+        options: [{ letter: 'A', text: '1' }, { letter: 'B', text: '2' }, { letter: 'C', text: '3' }, { letter: 'D', text: '4' }],
+        answerText: 'A) 1',
+      };
+      const meta = buildReelMetadata(longItem);
+      const sentRes = await sendToTelegram(
+        [{ item: longItem, filename: '01_tg_01.mp4', exportedVideoPath: dummyMp4, metadata: meta }],
+        { botToken: 'SECRET_BOT_TOKEN_123', chatId: '999999', httpClient: mockHttp, delayMs: 0 }
+      );
+      assert.strictEqual(sentRes.sent, true);
+      assert.strictEqual(sentRes.sentCount, 1);
+      // sendVideo + fallback sendMessage (>1024 chars) + batch summary sendMessage
+      assert.strictEqual(postCalls.length, 3);
+      assert.ok(postCalls[0].url.endsWith('/sendVideo'));
+      assert.ok(postCalls[1].url.endsWith('/sendMessage'));
+      assert.ok(postCalls[2].url.endsWith('/sendMessage'));
+
+      // Verify token is redacted from recorded error messages on failure
+      const failingHttp = {
+        post: async () => {
+          throw new Error('Request failed for https://api.telegram.org/botSECRET_BOT_TOKEN_123/sendVideo');
+        },
+      };
+      const errRes = await sendToTelegram(
+        [{ item: longItem, filename: '01_tg_01.mp4', exportedVideoPath: dummyMp4, metadata: meta }],
+        { botToken: 'SECRET_BOT_TOKEN_123', chatId: '999999', httpClient: failingHttp, delayMs: 0 }
+      );
+      assert.strictEqual(errRes.sentCount, 0);
+      assert.strictEqual(errRes.errors.length, 1);
+      assert.strictEqual(errRes.errors[0].error.includes('SECRET_BOT_TOKEN_123'), false, 'Bot token must be redacted from error strings');
+      assert.ok(errRes.errors[0].error.includes('[REDACTED_BOT_TOKEN]'));
+    } finally {
+      if (prevToken !== undefined) process.env.TELEGRAM_BOT_TOKEN = prevToken;
+      if (prevChat !== undefined) process.env.TELEGRAM_CHAT_ID = prevChat;
+      if (fs.existsSync(dummyMp4)) fs.unlinkSync(dummyMp4);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 20: fb-runner Export Mode runs without FB_PAGE_ACCESS_TOKEN and records history
+  // ----------------------------------------------------
+  await testAsync('fb-runner default export mode works without Meta token and writes export bundle + history', async () => {
+    const { resolveDeliveryMode, runFacebookReelsAutomation } = require('../facebook/fb-runner');
+    const { ContentVault } = require('../facebook/content-vault');
+
+    assert.strictEqual(resolveDeliveryMode([], {}), 'export');
+    assert.strictEqual(resolveDeliveryMode(['--publish-api'], {}), 'publish_api');
+    assert.strictEqual(resolveDeliveryMode(['--export-only'], { FB_DELIVERY_MODE: 'publish_api' }), 'export');
+    assert.strictEqual(resolveDeliveryMode([], { FB_DELIVERY_MODE: 'publish_api' }), 'publish_api');
+
+    const prevToken = process.env.FB_PAGE_ACCESS_TOKEN;
+    const prevPage = process.env.FB_PAGE_ID;
+    delete process.env.FB_PAGE_ACCESS_TOKEN;
+    delete process.env.FB_PAGE_ID;
+
+    const tempExportDir = path.resolve(__dirname, '../temp/test_runner_export');
+    const tempHistoryFile = path.resolve(__dirname, '../temp/test_runner_history.json');
+    const fakeVideoOut = path.resolve(__dirname, '../temp/test_runner_fake_reel.mp4');
+
+    const vault = new ContentVault();
+    vault.historyFile = tempHistoryFile;
+    const mockVideoMaker = {
+      createReel: async () => {
+        fs.writeFileSync(fakeVideoOut, Buffer.from('00000018ftypmp42', 'utf8'));
+        return fakeVideoOut;
+      },
+    };
+
+    try {
+      const res = await runFacebookReelsAutomation({
+        args: ['--count', '2'],
+        deliveryMode: 'export',
+        exportDir: tempExportDir,
+        sendTelegram: false,
+        vault,
+        videoMaker: mockVideoMaker,
+      });
+
+      assert.strictEqual(res.deliveryMode, 'export');
+      assert.strictEqual(res.results.length, 2);
+      assert.ok(res.results.every(r => r.status === 'EXPORTED'));
+      assert.ok(fs.existsSync(res.exportBundle.captionsPath));
+      assert.ok(fs.existsSync(res.exportBundle.manifestPath));
+
+      const history = JSON.parse(fs.readFileSync(tempHistoryFile, 'utf8'));
+      assert.strictEqual(history.uploads.length, 2);
+      assert.strictEqual(history.uploads[0].fbVideoId, null);
+      assert.strictEqual(history.uploads[0].deliveryMode, 'EXPORT_READY');
+    } finally {
+      if (prevToken !== undefined) process.env.FB_PAGE_ACCESS_TOKEN = prevToken;
+      if (prevPage !== undefined) process.env.FB_PAGE_ID = prevPage;
+      fs.rmSync(tempExportDir, { recursive: true, force: true });
+      if (fs.existsSync(tempHistoryFile)) fs.unlinkSync(tempHistoryFile);
+      if (fs.existsSync(fakeVideoOut)) fs.unlinkSync(fakeVideoOut);
+    }
+  });
+
   console.log('\n════════════════════════════════════════════════════════════');
   console.log(`📊 Test Summary: Passed ${passed}/${total} tests!`);
   console.log('════════════════════════════════════════════════════════════\n');

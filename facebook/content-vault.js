@@ -88,7 +88,7 @@ class ContentVault {
   }
 
   /**
-   * Records successful upload in history.json
+   * Records uploaded or exported Reel entry in history.json
    */
   recordUpload(item, uploadRes) {
     try {
@@ -105,12 +105,13 @@ class ContentVault {
         category: item.category,
         topic: item.topic,
         title: item.title,
-        fbVideoId: uploadRes?.id || uploadRes?.fbVideoId || uploadRes?.videoId,
+        fbVideoId: uploadRes?.id || uploadRes?.fbVideoId || uploadRes?.videoId || null,
+        deliveryMode: uploadRes?.deliveryMode || 'FACEBOOK_API',
         uploadedAt: new Date().toISOString(),
         answer: item.answerText,
       });
       fs.writeFileSync(this.historyFile, JSON.stringify(data, null, 2), 'utf8');
-      console.log(`[ContentVault] ✅ Upload recorded for question: ${item.id} ("${item.title}")`);
+      console.log(`[ContentVault] ✅ Recorded history for question: ${item.id} ("${item.title}")`);
     } catch (err) {
       console.warn('Failed recording upload history:', err.message);
     }

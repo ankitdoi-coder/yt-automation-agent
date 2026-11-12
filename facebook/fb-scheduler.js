@@ -1,17 +1,9 @@
 /**
  * Facebook Reels Daily Scheduler & Self-Optimization Daemon
- * 
- * 1. Posts 5 viral reels every day at peak Indian Facebook engagement hours:
- *    - 09:00 AM (Morning scroll)
- *    - 01:00 PM (Lunch break)
- *    - 05:00 PM (Evening tea time)
- *    - 08:30 PM (Family dinner / post-dinner peak)
- *    - 10:30 PM (Bedtime late night viral scroll)
- * 
- * 2. Runs Analytics & Self-Optimization Agent every night at 11:30 PM:
- *    - Evaluates views, watch time, comments, and shares
- *    - Optimizes color themes, timer duration, and hooks for the next day!
- * 
+ *
+ * Conservative 1-reel/day schedule (paused unless FB_SCHEDULER_ENABLED=true).
+ * Uses shared metadata builder so captions and tags stay aligned with fb-runner.
+ *
  * Usage:
  *   node facebook/fb-scheduler.js
  */
@@ -21,6 +13,7 @@ const { ContentVault } = require('./content-vault');
 const { FacebookVideoMaker } = require('./video-maker');
 const { FacebookUploader } = require('./fb-uploader');
 const { FacebookAnalyticsAgent } = require('./analytics-agent');
+const { buildReelMetadata } = require('./export-deliverer');
 
 async function postSingleReel() {
   console.log(`\n[${new Date().toLocaleTimeString()}] ⏰ Scheduled Reel trigger started...`);
@@ -37,25 +30,7 @@ async function postSingleReel() {
   const item = questions[0];
   try {
     const videoPath = await videoMaker.createReel(item, { index: Math.floor(Math.random() * 3), commentChallenge: true });
-    const title = `${item.title} | ${item.topic} | Exam IQ Bharat #reels #FacebookReels`;
-    const baseTags = Array.isArray(item.tags)
-      ? [...item.tags]
-      : (typeof item.tags === 'string' ? item.tags.split(/\s+/) : ['#ExamIQ', '#GKQuiz', '#GeneralKnowledge', '#StaticGK', '#SSC', '#Railway']);
-    if (!baseTags.some(t => /#reels/i.test(t))) baseTags.push('#Reels');
-    if (!baseTags.some(t => /#facebookreels/i.test(t))) baseTags.push('#FacebookReels');
-    if (!baseTags.some(t => /#reelsviral/i.test(t))) baseTags.push('#ReelsViral');
-
-    const description = [
-      `🎯 ${item.title} | ${item.topic}`,
-      '',
-      `Q. ${item.question}`,
-      ...(item.options || []).map(o => `${o.letter}) ${o.text}`),
-      '',
-      `👉 अपना जवाब (A, B, C या D) कमेंट बॉक्स में बताएं! देखते हैं कितने लोग सही जवाब देते हैं! 🏆`,
-      `🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!`,
-      '',
-      baseTags.join(' ')
-    ].join('\n');
+    const { title, description } = buildReelMetadata(item);
 
     const uploadRes = await uploader.uploadVideo(videoPath, { title, description });
     vault.recordUpload(item, uploadRes);
