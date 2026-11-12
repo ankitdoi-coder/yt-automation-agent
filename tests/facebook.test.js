@@ -717,8 +717,10 @@ async function runTests() {
     const { ContentVault } = require('../facebook/content-vault');
 
     assert.strictEqual(resolveDeliveryMode([], {}), 'export');
+    assert.strictEqual(resolveDeliveryMode([], { ZERNIO_API_KEY: 'z_live_123' }), 'zernio');
+    assert.strictEqual(resolveDeliveryMode(['--publish-zernio'], {}), 'zernio');
     assert.strictEqual(resolveDeliveryMode(['--publish-api'], {}), 'publish_api');
-    assert.strictEqual(resolveDeliveryMode(['--export-only'], { FB_DELIVERY_MODE: 'publish_api' }), 'export');
+    assert.strictEqual(resolveDeliveryMode(['--export-only'], { ZERNIO_API_KEY: 'z_live_123', FB_DELIVERY_MODE: 'zernio' }), 'export');
     assert.strictEqual(resolveDeliveryMode([], { FB_DELIVERY_MODE: 'publish_api' }), 'publish_api');
 
     const prevToken = process.env.FB_PAGE_ACCESS_TOKEN;
@@ -763,6 +765,162 @@ async function runTests() {
       if (prevToken !== undefined) process.env.FB_PAGE_ACCESS_TOKEN = prevToken;
       if (prevPage !== undefined) process.env.FB_PAGE_ID = prevPage;
       fs.rmSync(tempExportDir, { recursive: true, force: true });
+      if (fs.existsSync(tempHistoryFile)) fs.unlinkSync(tempHistoryFile);
+      if (fs.existsSync(fakeVideoOut)) fs.unlinkSync(fakeVideoOut);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 21: ZernioUploader auto-resolves FB account, uploads presigned MP4, publishes Reel & redacts keys
+  // ----------------------------------------------------
+  await testAsync('ZernioUploader resolves Facebook Page, presigns MP4, publishes contentType=reel & extracts FB Reel ID', async () => {
+    const { ZernioUploader, extractFacebookVideoId } = require('../facebook/zernio-uploader');
+    assert.strictEqual(extractFacebookVideoId('https://www.facebook.com/reel/9876543210123/'), '9876543210123');
+    assert.strictEqual(extractFacebookVideoId('https://zernio.com/posts/abc'), null);
+
+    const calls = [];
+    const mockHttp = {
+      get: async (url, cfg) => {
+        calls.push({ method: 'GET', url, cfg });
+        return {
+          data: {
+            accounts: [
+              { _id: 'acc_ig_1', platform: 'instagram', status: 'active' },
+              { _id: 'acc_fb_exam', platform: 'facebook', displayName: 'Exam IQ Bharat', status: 'active' },
+            ],
+          },
+        };
+      },
+      post: async (url, body, cfg) => {
+        calls.push({ method: 'POST', url, body, cfg });
+        if (url.endsWith('/media/presign')) {
+          return {
+            data: {
+              uploadUrl: 'https://storage.zernio.com/presign/reel1.mp4',
+              publicUrl: 'https://storage.zernio.com/public/reel1.mp4',
+            },
+          };
+        }
+        return {
+          data: {
+            post: {
+              _id: 'zernio_post_77',
+              status: 'published',
+              platforms: [
+                {
+                  platform: 'facebook',
+                  status: 'published',
+                  platformPostUrl: 'https://www.facebook.com/reel/112233445566778/',
+                },
+              ],
+            },
+          },
+        };
+      },
+      put: async (url, data, cfg) => {
+        calls.push({ method: 'PUT', url, byteLength: data.length, cfg });
+        return { status: 200 };
+      },
+    };
+
+    const dummyMp4 = path.resolve(__dirname, '../temp/test_zernio_reel.mp4');
+    fs.writeFileSync(dummyMp4, Buffer.from('00000018ftypmp42', 'utf8'));
+
+    try {
+      const uploader = new ZernioUploader({ apiKey: 'SECRET_ZERNIO_KEY', httpClient: mockHttp });
+      const res = await uploader.publishReel(dummyMp4, {
+        title: 'ISRO GK Quiz',
+        description: 'Q. ISRO मुख्यालय?',
+        firstComment: 'कमेंट में जवाब दें!',
+      });
+
+      assert.strictEqual(res.success, true);
+      assert.strictEqual(res.deliveryMode, 'ZERNIO_API');
+      assert.strictEqual(res.fbVideoId, '112233445566778');
+      assert.strictEqual(res.zernioPostId, 'zernio_post_77');
+      assert.strictEqual(res.url, 'https://www.facebook.com/reel/112233445566778/');
+      assert.strictEqual(calls.length, 4);
+      assert.strictEqual(calls[0].method, 'GET');
+      assert.strictEqual(calls[1].method, 'POST');
+      assert.strictEqual(calls[2].method, 'PUT');
+      assert.strictEqual(calls[3].method, 'POST');
+      assert.strictEqual(calls[3].body.platforms[0].accountId, 'acc_fb_exam');
+      assert.strictEqual(calls[3].body.platforms[0].platformSpecificData.contentType, 'reel');
+      assert.strictEqual(calls[3].body.platforms[0].platformSpecificData.firstComment, 'कमेंट में जवाब दें!');
+
+      // Verify secret API key redaction when Zernio fails
+      const failingHttp = {
+        get: async () => {
+          throw new Error('Unauthorized with key SECRET_ZERNIO_KEY');
+        },
+      };
+      const failingUploader = new ZernioUploader({ apiKey: 'SECRET_ZERNIO_KEY', httpClient: failingHttp });
+      let caughtMsg = '';
+      try {
+        await failingUploader.resolveFacebookAccountId();
+      } catch (e) {
+        caughtMsg = e.message;
+      }
+      assert.strictEqual(caughtMsg.includes('SECRET_ZERNIO_KEY'), false, 'Zernio API key must be redacted');
+      assert.ok(caughtMsg.includes('[REDACTED_ZERNIO_KEY]'));
+    } finally {
+      if (fs.existsSync(dummyMp4)) fs.unlinkSync(dummyMp4);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 22: fb-runner automatic zernio mode publishes end-to-end and keeps analytics safe
+  // ----------------------------------------------------
+  await testAsync('fb-runner zernio mode publishes automatic Reel and stores ZERNIO_API history safely', async () => {
+    const { runFacebookReelsAutomation } = require('../facebook/fb-runner');
+    const { ContentVault } = require('../facebook/content-vault');
+
+    const tempHistoryFile = path.resolve(__dirname, '../temp/test_zernio_history.json');
+    const fakeVideoOut = path.resolve(__dirname, '../temp/test_zernio_runner.mp4');
+    const vault = new ContentVault();
+    vault.historyFile = tempHistoryFile;
+
+    const mockVideoMaker = {
+      createReel: async () => {
+        fs.writeFileSync(fakeVideoOut, Buffer.from('00000018ftypmp42', 'utf8'));
+        return fakeVideoOut;
+      },
+    };
+    const publishedPayloads = [];
+    const mockZernioUploader = {
+      publishReel: async (videoPath, opts) => {
+        publishedPayloads.push({ videoPath, opts });
+        return {
+          success: true,
+          id: 'z_only_id',
+          fbVideoId: null,
+          zernioPostId: 'z_only_id',
+          url: 'https://zernio.com/posts/z_only_id',
+          deliveryMode: 'ZERNIO_API',
+        };
+      },
+    };
+
+    try {
+      const res = await runFacebookReelsAutomation({
+        args: ['--count', '1'],
+        deliveryMode: 'zernio',
+        vault,
+        videoMaker: mockVideoMaker,
+        zernioUploader: mockZernioUploader,
+      });
+
+      assert.strictEqual(res.deliveryMode, 'zernio');
+      assert.strictEqual(res.results.length, 1);
+      assert.strictEqual(res.results[0].status, 'SUCCESS');
+      assert.strictEqual(publishedPayloads.length, 1);
+      assert.ok(publishedPayloads[0].opts.firstComment.includes('कमेंट'));
+
+      const history = JSON.parse(fs.readFileSync(tempHistoryFile, 'utf8'));
+      assert.strictEqual(history.uploads[0].deliveryMode, 'ZERNIO_API');
+      assert.strictEqual(history.uploads[0].zernioPostId, 'z_only_id');
+      assert.strictEqual(history.uploads[0].fbVideoId, null, 'Non-numeric Zernio ID must not pollute fbVideoId');
+    } finally {
       if (fs.existsSync(tempHistoryFile)) fs.unlinkSync(tempHistoryFile);
       if (fs.existsSync(fakeVideoOut)) fs.unlinkSync(fakeVideoOut);
     }

@@ -99,13 +99,18 @@ class ContentVault {
       if (!Array.isArray(data.uploadedIds)) data.uploadedIds = [];
       if (!Array.isArray(data.uploads)) data.uploads = [];
 
+      const resolvedFbVideoId = uploadRes?.deliveryMode === 'ZERNIO_API'
+        ? (uploadRes?.fbVideoId || null)
+        : (uploadRes?.fbVideoId || uploadRes?.id || uploadRes?.videoId || null);
+
       data.uploadedIds.push(item.id);
       data.uploads.push({
         id: item.id,
         category: item.category,
         topic: item.topic,
         title: item.title,
-        fbVideoId: uploadRes?.id || uploadRes?.fbVideoId || uploadRes?.videoId || null,
+        fbVideoId: resolvedFbVideoId,
+        zernioPostId: uploadRes?.zernioPostId || null,
         deliveryMode: uploadRes?.deliveryMode || 'FACEBOOK_API',
         uploadedAt: new Date().toISOString(),
         answer: item.answerText,

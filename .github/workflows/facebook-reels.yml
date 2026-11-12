@@ -5,14 +5,16 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  # Automated API schedule paused while Meta App is in Development Mode.
-  # Trigger on-demand via Actions -> Run workflow (workflow_dispatch):
-  # Choose delivery_mode='export' (default) to generate a Meta Business Suite ZIP + Telegram batch.
+  # Conservative 1-Reel/Day automatic public publishing at 08:30 PM IST (15:00 UTC).
+  # Scheduled runs activate automatically once ZERNIO_API_KEY secret is configured
+  # (or FB_DELIVERY_MODE=export is set inside ENV_FILE).
+  schedule:
+    - cron: '0 15 * * *'
 
   workflow_dispatch:
     inputs:
       count:
-        description: 'Number of Reels to generate (e.g. 7 for a full weekly Meta Business Suite batch)'
+        description: 'Number of Reels to generate/publish'
         required: true
         default: '1'
         type: choice
@@ -23,17 +25,19 @@ on:
           - '5'
           - '7'
       delivery_mode:
-        description: 'Delivery mode (export = Ready-to-Schedule ZIP Artifact + Telegram; publish_api = Meta Graph API)'
+        description: 'auto = Zernio automatic upload if configured else Export ZIP; zernio = Auto Public Reels; export = ZIP + Telegram'
         required: true
-        default: 'export'
+        default: 'auto'
         type: choice
         options:
+          - 'auto'
+          - 'zernio'
           - 'export'
           - 'publish_api'
 
 jobs:
   publish-reels:
-    name: Generate & Deliver Facebook Reels
+    name: Generate & Publish Facebook Reels
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
@@ -59,27 +63,35 @@ jobs:
       - name: Install Node Dependencies
         run: npm ci
 
-      - name: Setup Environment
+      - name: Setup Environment & Check Auto-Publish Readiness
+        id: env_setup
         env:
           ENV_SECRET: ${{ secrets.ENV_FILE }}
           FB_TOKEN_SECRET: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           FB_PAGE_SECRET: ${{ secrets.FB_PAGE_ID }}
+          ZERNIO_KEY_SECRET: ${{ secrets.ZERNIO_API_KEY }}
+          ZERNIO_ACC_SECRET: ${{ secrets.ZERNIO_FACEBOOK_ACCOUNT_ID }}
           TG_TOKEN_SECRET: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TG_CHAT_SECRET: ${{ secrets.TELEGRAM_CHAT_ID }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ github.event.inputs.delivery_mode || 'auto' }}
         run: |
           mkdir -p facebook/data facebook/output facebook/output/export_ready facebook/temp
 
-          # If ENV_FILE secret exists, write it
           if [ -n "$ENV_SECRET" ]; then
             printf '%s\n' "$ENV_SECRET" > .env
           fi
-
-          # Allow explicit secret overrides if configured
           if [ -n "$FB_TOKEN_SECRET" ]; then
             echo "FB_PAGE_ACCESS_TOKEN=$FB_TOKEN_SECRET" >> .env
           fi
           if [ -n "$FB_PAGE_SECRET" ]; then
             echo "FB_PAGE_ID=$FB_PAGE_SECRET" >> .env
+          fi
+          if [ -n "$ZERNIO_KEY_SECRET" ]; then
+            echo "ZERNIO_API_KEY=$ZERNIO_KEY_SECRET" >> .env
+          fi
+          if [ -n "$ZERNIO_ACC_SECRET" ]; then
+            echo "ZERNIO_FACEBOOK_ACCOUNT_ID=$ZERNIO_ACC_SECRET" >> .env
           fi
           if [ -n "$TG_TOKEN_SECRET" ]; then
             echo "TELEGRAM_BOT_TOKEN=$TG_TOKEN_SECRET" >> .env
@@ -87,35 +99,48 @@ jobs:
           if [ -n "$TG_CHAT_SECRET" ]; then
             echo "TELEGRAM_CHAT_ID=$TG_CHAT_SECRET" >> .env
           fi
-
-          # Ensure page ID fallback
           if ! grep -q "FB_PAGE_ID=" .env 2>/dev/null; then
             echo "FB_PAGE_ID=1289712677569663" >> .env
           fi
 
-          echo "✅ Environment configured for Facebook Reels workflow"
+          HAS_ZERNIO=false
+          if grep -qE '^ZERNIO_API_KEY=.+' .env 2>/dev/null; then
+            HAS_ZERNIO=true
+          fi
+
+          SHOULD_RUN=true
+          if [ "$EVENT_NAME" = "schedule" ] && [ "$HAS_ZERNIO" = "false" ] && ! grep -qE '^FB_DELIVERY_MODE=export' .env 2>/dev/null; then
+            echo "⏳ Scheduled run paused: ZERNIO_API_KEY secret is not configured yet."
+            echo "👉 Add free ZERNIO_API_KEY (https://zernio.com) in Repo Settings -> Secrets -> Actions to enable 100% automatic public Reels at 08:30 PM IST."
+            SHOULD_RUN=false
+          fi
+
+          echo "should_run=$SHOULD_RUN" >> "$GITHUB_OUTPUT"
+          echo "has_zernio=$HAS_ZERNIO" >> "$GITHUB_OUTPUT"
+          echo "✅ Environment ready (should_run=$SHOULD_RUN, has_zernio=$HAS_ZERNIO)"
 
       - name: Generate & Deliver Facebook Reel(s)
+        if: steps.env_setup.outputs.should_run == 'true'
         env:
           CI: true
-          FB_DELIVERY_MODE: ${{ github.event.inputs.delivery_mode || 'export' }}
+          FB_DELIVERY_MODE: ${{ github.event.inputs.delivery_mode || 'auto' }}
         run: |
           COUNT="${{ github.event.inputs.count || '1' }}"
-          MODE="${{ github.event.inputs.delivery_mode || 'export' }}"
+          MODE="${{ github.event.inputs.delivery_mode || 'auto' }}"
           echo "🚀 Starting Facebook Reels Agent (Mode: $MODE, Count: $COUNT)..."
           node facebook/fb-runner.js --count "$COUNT"
 
-      - name: Upload Ready-to-Schedule Reels Artifact
-        if: always() && (github.event.inputs.delivery_mode || 'export') == 'export'
+      - name: Upload Ready-to-Schedule Reels Artifact (Export Fallback)
+        if: steps.env_setup.outputs.should_run == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: exam-iq-bharat-reels-${{ github.run_number }}
           path: facebook/output/export_ready/
-          if-no-files-found: warn
+          if-no-files-found: ignore
           retention-days: 30
 
       - name: Run Facebook Analytics & Self-Optimization
-        if: (github.event.inputs.delivery_mode || 'export') == 'publish_api'
+        if: steps.env_setup.outputs.should_run == 'true' && github.event.inputs.delivery_mode == 'publish_api'
         env:
           CI: true
         run: |
@@ -123,6 +148,7 @@ jobs:
           node facebook/analytics-agent.js || true
 
       - name: Commit Updated Upload History & Learned Preferences
+        if: steps.env_setup.outputs.should_run == 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"

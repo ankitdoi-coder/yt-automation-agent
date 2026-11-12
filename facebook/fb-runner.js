@@ -1,15 +1,16 @@
 /**
  * Master Runner for Facebook Automation (ExamIQ Bharat)
- * 1. Export Mode (Default): Generates vertical GK Reels (1080x1920 MP4) + ready-to-paste
- *    Meta Business Suite captions bundle (ZIP Artifact) and optionally sends to Telegram.
- * 2. Publish API Mode (--publish-api / FB_DELIVERY_MODE=publish_api): Uploads directly
- *    through Meta Graph API (only recommended once the Meta App is Live/Published).
+ * Delivery Modes:
+ *   1. zernio (Automatic Public Reels via Zernio's Live Meta App — zero Business Verification / App Review)
+ *   2. export (Creates Ready-to-Schedule MP4 + captions bundle ZIP + optional Telegram delivery)
+ *   3. publish_api (Direct Meta Graph API upload — only for Live/Published Meta Apps)
+ *   Default ('auto'): chooses 'zernio' automatically if ZERNIO_API_KEY is configured, otherwise 'export'.
  *
  * Usage:
- *   node facebook/fb-runner.js --count 7
+ *   node facebook/fb-runner.js --count 1
+ *   node facebook/fb-runner.js --publish-zernio --count 1
  *   node facebook/fb-runner.js --export-only --count 7
  *   node facebook/fb-runner.js --publish-api --count 1
- *   node facebook/fb-runner.js --publish-api --photo-only
  */
 
 require('dotenv').config();
@@ -17,6 +18,7 @@ const path = require('path');
 const { ContentVault } = require('./content-vault');
 const { FacebookVideoMaker } = require('./video-maker');
 const { FacebookUploader } = require('./fb-uploader');
+const { ZernioUploader } = require('./zernio-uploader');
 const { AIQuizImageGenerator } = require('./ai-quiz-image-generator');
 const {
   buildReelMetadata,
@@ -25,17 +27,24 @@ const {
 } = require('./export-deliverer');
 
 /**
- * Resolves delivery mode from CLI flags or environment ('export' by default).
+ * Resolves delivery mode from CLI flags or environment.
+ * Default 'auto' selects 'zernio' when ZERNIO_API_KEY is configured, otherwise 'export'.
  */
 function resolveDeliveryMode(args = [], env = process.env) {
+  if (args.includes('--publish-zernio') || args.includes('--zernio')) {
+    return 'zernio';
+  }
   if (args.includes('--publish-api') || args.includes('--api')) {
     return 'publish_api';
   }
   if (args.includes('--export-only') || args.includes('--export')) {
     return 'export';
   }
-  const envMode = String(env.FB_DELIVERY_MODE || 'export').trim().toLowerCase();
-  return envMode === 'publish_api' || envMode === 'api' ? 'publish_api' : 'export';
+  const envMode = String(env.FB_DELIVERY_MODE || 'auto').trim().toLowerCase();
+  if (envMode === 'zernio') return 'zernio';
+  if (envMode === 'publish_api' || envMode === 'api') return 'publish_api';
+  if (envMode === 'export') return 'export';
+  return String(env.ZERNIO_API_KEY || '').trim() ? 'zernio' : 'export';
 }
 
 /**
@@ -68,6 +77,7 @@ async function runFacebookReelsAutomation(options = {}) {
 
   const vault = options.vault || new ContentVault();
   const videoMaker = options.videoMaker || new FacebookVideoMaker();
+  const zernioUploader = deliveryMode === 'zernio' ? (options.zernioUploader || new ZernioUploader()) : null;
   const uploader = deliveryMode === 'publish_api' ? (options.uploader || new FacebookUploader()) : null;
   const photoGenerator = options.photoGenerator || new AIQuizImageGenerator();
 
@@ -106,6 +116,28 @@ async function runFacebookReelsAutomation(options = {}) {
             status: 'EXPORTED',
             file: path.basename(videoPath),
           });
+        } else if (deliveryMode === 'zernio') {
+          console.log('🚀 Auto-publishing public Facebook Reel via Zernio...');
+          const uploadRes = await zernioUploader.publishReel(videoPath, {
+            title: metadata.title,
+            description: metadata.description,
+            firstComment: metadata.pinnedComment,
+          });
+          vault.recordUpload(item, uploadRes);
+
+          results.push({
+            type: 'ZERNIO_REEL',
+            title: item.title,
+            status: 'SUCCESS',
+            id: uploadRes.id,
+            url: uploadRes.url || uploadRes.zernioPostId,
+          });
+          console.log(`🎉 [${i + 1}/${questions.length}] Reel live publicly via Zernio! URL: ${uploadRes.url || uploadRes.zernioPostId}\n`);
+
+          if (i < questions.length - 1) {
+            console.log('⏳ Waiting 5s before next upload...');
+            await new Promise(r => setTimeout(r, 5000));
+          }
         } else {
           console.log('📤 Uploading to Facebook Reels via Graph API...');
           const uploadRes = await uploader.uploadVideo(videoPath, {
@@ -131,7 +163,7 @@ async function runFacebookReelsAutomation(options = {}) {
       } catch (err) {
         console.error(`❌ [${i + 1}/${questions.length}] Failed for "${item.title}":`, err.response?.data || err.message);
         results.push({
-          type: deliveryMode === 'export' ? 'REEL_EXPORT' : 'REEL_VIDEO',
+          type: deliveryMode === 'export' ? 'REEL_EXPORT' : (deliveryMode === 'zernio' ? 'ZERNIO_REEL' : 'REEL_VIDEO'),
           title: item.title,
           status: 'FAILED',
           error: err.message,
