@@ -5,11 +5,12 @@ concurrency:
   cancel-in-progress: false
 
 on:
-  # Conservative 1-Reel/Day automatic public publishing at 08:30 PM IST (15:00 UTC).
-  # Scheduled runs activate automatically once ZERNIO_API_KEY secret is configured
-  # (or FB_DELIVERY_MODE=export is set inside ENV_FILE).
+  # Daily 2 Reels/day (1 Morning + 1 Evening) automatic public publishing:
+  #   - 03:30 UTC = 09:00 AM IST (1 Reel)
+  #   - 14:30 UTC = 08:00 PM IST (1 Reel)
   schedule:
-    - cron: '0 15 * * *'
+    - cron: '30 3 * * *'
+    - cron: '30 14 * * *'
 
   workflow_dispatch:
     inputs:
@@ -111,7 +112,7 @@ jobs:
           SHOULD_RUN=true
           if [ "$EVENT_NAME" = "schedule" ] && [ "$HAS_ZERNIO" = "false" ] && ! grep -qE '^FB_DELIVERY_MODE=export' .env 2>/dev/null; then
             echo "⏳ Scheduled run paused: ZERNIO_API_KEY secret is not configured yet."
-            echo "👉 Add free ZERNIO_API_KEY (https://zernio.com) in Repo Settings -> Secrets -> Actions to enable 100% automatic public Reels at 08:30 PM IST."
+            echo "👉 Add free ZERNIO_API_KEY (https://zernio.com) in Repo Settings -> Secrets -> Actions to enable 100% automatic public Reels at 09:00 AM IST & 08:00 PM IST."
             SHOULD_RUN=false
           fi
 
@@ -131,7 +132,7 @@ jobs:
           node facebook/fb-runner.js --count "$COUNT"
 
       - name: Upload Ready-to-Schedule Reels Artifact (Export Fallback)
-        if: steps.env_setup.outputs.should_run == 'true'
+        if: steps.env_setup.outputs.should_run == 'true' && (github.event.inputs.delivery_mode == 'export' || steps.env_setup.outputs.has_zernio != 'true')
         uses: actions/upload-artifact@v4
         with:
           name: exam-iq-bharat-reels-${{ github.run_number }}
@@ -157,5 +158,6 @@ jobs:
             echo "No history changes to commit"
           else
             git commit -m "chore(facebook): update reels delivery history [skip ci]"
+            git pull --rebase --autostash origin main || true
             git push origin HEAD || true
           fi
