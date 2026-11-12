@@ -117,7 +117,8 @@
     "gk_sci_laser",
     "math_quiz_04",
     "math_quiz_02",
-    "sci_tyre_01"
+    "sci_tyre_01",
+    "math_percent_10"
   ],
   "uploads": [
     {
@@ -1093,6 +1094,16 @@
       "fbVideoId": "1401973222017462",
       "uploadedAt": "2026-11-11T11:18:06.599Z",
       "answer": "B) नाइट्रोजन (Nitrogen Gas)"
+    },
+    {
+      "id": "math_percent_10",
+      "category": "math_quiz",
+      "topic": "प्रतिशत (Percentage Trick)",
+      "title": "किसी संख्या का 20% यदि 80 है, तो वह संख्या क्या होगी?",
+      "fbVideoId": null,
+      "deliveryMode": "EXPORT_READY",
+      "uploadedAt": "2026-11-12T05:16:28.975Z",
+      "answer": "D) 400 (80 × 5 = 400)"
     }
   ]
 }
