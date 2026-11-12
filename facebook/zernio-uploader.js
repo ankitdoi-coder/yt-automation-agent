@@ -221,58 +221,78 @@ class ZernioUploader {
     return latestPost;
   }
 
-  /**
-   * Uploads and immediately publishes a vertical video as a public Facebook Reel.
-   */
-  async publishReel(videoPath, { title, description, firstComment } = {}) {
-    const accountId = await this.resolveFacebookAccountId();
-    const { publicUrl } = await this.uploadVideoMedia(videoPath);
-
-    const buildPayload = (includeExtras = true) => {
-      const platformSpecificData = {
-        contentType: 'reel',
-      };
-      if (includeExtras) {
-        if (title) platformSpecificData.title = String(title).slice(0, 255);
-        if (firstComment) platformSpecificData.firstComment = firstComment;
-      }
-      return {
-        content: description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat',
-        mediaItems: [{ type: 'video', url: publicUrl }],
-        platforms: [
-          {
-            platform: 'facebook',
-            accountId,
-            platformSpecificData,
-          },
-        ],
-        publishNow: true,
-      };
-    };
-
+  async _postAndAwaitCompletion(payload) {
     let postRes;
     try {
-      postRes = await this.http.post(`${this.baseUrl}/posts`, buildPayload(true), {
+      postRes = await this.http.post(`${this.baseUrl}/posts`, payload, {
         headers: this._authHeaders({ 'Content-Type': 'application/json' }),
         timeout: 120000,
       });
     } catch (err) {
-      const status = err.response?.status;
-      const errBody = err.response?.data ? JSON.stringify(err.response.data) : err.message;
-      // Retry cleanly without optional Reel title/firstComment only if rejected as unsupported field
-      if ((status === 400 || status === 422) && /(firstComment|title)/i.test(errBody)) {
-        console.warn('[ZernioUploader] ⚠️ Optional Reel fields rejected; retrying with core contentType=reel payload...');
-        postRes = await this.http.post(`${this.baseUrl}/posts`, buildPayload(false), {
-          headers: this._authHeaders({ 'Content-Type': 'application/json' }),
-          timeout: 120000,
-        });
-      } else {
-        throw new Error(redactApiKey(`Zernio publishReel failed: ${errBody}`, this.apiKey));
-      }
+      const detail = err.response?.data ? JSON.stringify(err.response.data) : err.message;
+      throw new Error(redactApiKey(`Zernio publishReel failed: ${detail}`, this.apiKey));
     }
 
     const initialPost = postRes.data?.post || postRes.data || {};
-    const post = await this.waitForPostCompletion(initialPost._id || initialPost.id, initialPost);
+    return this.waitForPostCompletion(initialPost._id || initialPost.id, initialPost);
+  }
+
+  /**
+   * Uploads and immediately publishes a vertical video as a public Facebook Reel.
+   * Uses a progressive parameter fallback (no Reel `title`, optional `firstComment`,
+   * core `contentType=reel`, default vertical video) so Meta parameter rejections auto-recover.
+   */
+  async publishReel(videoPath, { title, description, firstComment } = {}) {
+    const accountId = await this.resolveFacebookAccountId();
+    const { publicUrl } = await this.uploadVideoMedia(videoPath);
+    const content = description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat';
+
+    const strategies = [];
+    if (firstComment) {
+      strategies.push({
+        label: 'reel + firstComment',
+        platformEntry: {
+          platform: 'facebook',
+          accountId,
+          platformSpecificData: { contentType: 'reel', firstComment },
+        },
+      });
+    }
+    strategies.push({
+      label: 'core contentType=reel',
+      platformEntry: {
+        platform: 'facebook',
+        accountId,
+        platformSpecificData: { contentType: 'reel' },
+      },
+    });
+    strategies.push({
+      label: 'default single vertical video',
+      platformEntry: { platform: 'facebook', accountId },
+    });
+
+    let post = null;
+    for (let idx = 0; idx < strategies.length; idx++) {
+      const strategy = strategies[idx];
+      const payload = {
+        content,
+        mediaItems: [{ type: 'video', url: publicUrl }],
+        platforms: [strategy.platformEntry],
+        publishNow: true,
+      };
+      try {
+        post = await this._postAndAwaitCompletion(payload);
+        break;
+      } catch (err) {
+        const hasFallback = idx < strategies.length - 1;
+        const msg = String(err.message || '');
+        const isParamErr = /(rejected|parameter|invalid|firstComment|title|contentType|unsupported)/i.test(msg);
+        if (!hasFallback || !isParamErr) {
+          throw err;
+        }
+        console.warn(`[ZernioUploader] ⚠️ Strategy "${strategy.label}" rejected (${msg}); retrying with "${strategies[idx + 1].label}"...`);
+      }
+    }
     const {
       zernioPostId,
       platformStatus,

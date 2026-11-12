@@ -1002,6 +1002,85 @@ async function runTests() {
     }
   });
 
+  // ----------------------------------------------------
+  // Test 24: ZernioUploader auto-recovers from async Facebook API parameter rejection without re-uploading MP4
+  // ----------------------------------------------------
+  await testAsync('ZernioUploader auto-retries async Facebook parameter rejection across fallback strategies', async () => {
+    const { ZernioUploader } = require('../facebook/zernio-uploader');
+    const dummyMp4 = path.resolve(__dirname, '../temp/test_zernio_fallback.mp4');
+    fs.writeFileSync(dummyMp4, Buffer.from('00000018ftypmp42', 'utf8'));
+
+    let putCalls = 0;
+    const postedPayloads = [];
+    const fallbackHttp = {
+      get: async (url) => {
+        if (url.endsWith('/accounts')) {
+          return { data: { accounts: [{ _id: 'acc_fb_1', platform: 'facebook', status: 'active' }] } };
+        }
+        if (url.endsWith('/posts/try_1') || url.endsWith('/posts/try_2')) {
+          return {
+            data: {
+              post: {
+                _id: url.split('/').pop(),
+                status: 'failed',
+                platforms: [{ platform: 'facebook', status: 'failed', errorMessage: 'Facebook: Facebook API rejected the request parameters.' }],
+              },
+            },
+          };
+        }
+        if (url.endsWith('/posts/try_3')) {
+          return {
+            data: {
+              post: {
+                _id: 'try_3',
+                status: 'published',
+                platforms: [{ platform: 'facebook', status: 'published', platformPostUrl: 'https://www.facebook.com/reel/778899001122/' }],
+              },
+            },
+          };
+        }
+        throw new Error(`Unexpected GET ${url}`);
+      },
+      post: async (url, body) => {
+        if (url.endsWith('/media/presign')) {
+          return { data: { uploadUrl: 'https://storage.zernio.com/up2.mp4', publicUrl: 'https://storage.zernio.com/pub2.mp4' } };
+        }
+        postedPayloads.push(body);
+        const attemptId = `try_${postedPayloads.length}`;
+        return { data: { post: { _id: attemptId, status: 'publishing', platforms: [{ platform: 'facebook', status: 'publishing' }] } } };
+      },
+      put: async () => {
+        putCalls += 1;
+        return { status: 200 };
+      },
+    };
+
+    try {
+      const uploader = new ZernioUploader({
+        apiKey: 'SECRET_FALLBACK_KEY',
+        httpClient: fallbackHttp,
+        pollIntervalMs: 0,
+        maxPolls: 2,
+      });
+      const res = await uploader.publishReel(dummyMp4, {
+        title: 'Ignored Reel Title',
+        description: 'Main Reel caption',
+        firstComment: 'Comment challenge!',
+      });
+
+      assert.strictEqual(putCalls, 1, 'MP4 binary must only be uploaded once across retries');
+      assert.strictEqual(postedPayloads.length, 3);
+      assert.strictEqual(postedPayloads[0].platforms[0].platformSpecificData.title, undefined, 'Must not send unsupported title on Facebook Reel');
+      assert.strictEqual(postedPayloads[0].platforms[0].platformSpecificData.firstComment, 'Comment challenge!');
+      assert.deepStrictEqual(postedPayloads[1].platforms[0].platformSpecificData, { contentType: 'reel' });
+      assert.strictEqual(postedPayloads[2].platforms[0].platformSpecificData, undefined);
+      assert.strictEqual(res.fbVideoId, '778899001122');
+      assert.strictEqual(res.url, 'https://www.facebook.com/reel/778899001122/');
+    } finally {
+      if (fs.existsSync(dummyMp4)) fs.unlinkSync(dummyMp4);
+    }
+  });
+
   console.log('\n════════════════════════════════════════════════════════════');
   console.log(`📊 Test Summary: Passed ${passed}/${total} tests!`);
   console.log('════════════════════════════════════════════════════════════\n');
