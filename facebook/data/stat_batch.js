@@ -1135,6 +1135,181 @@ const staticGk = [
       "#StaticGK",
       "#Reels"
     ]
+  },
+  {
+    "id": "stat_viral_women_26",
+    "category": "static_gk",
+    "topic": "भारत के राज्य (Indian States GK)",
+    "hookBar": "99% लोग Fail | Indian GK Test",
+    "title": "भारत में सबसे खूबसूरत लड़कियाँ कौन से राज्य में है?",
+    "question": "भारत में सबसे खूबसूरत लड़कियाँ किस राज्य की मानी जाती हैं?",
+    "questionLines": [
+      "भारत में सबसे खूबसूरत",
+      "लड़कियाँ कौन से राज्य",
+      "में है? 🌸🇮🇳"
+    ],
+    "options": [
+      { "letter": "A", "text": "पंजाब" },
+      { "letter": "B", "text": "हरियाणा" },
+      { "letter": "C", "text": "दिल्ली" },
+      { "letter": "D", "text": "हिमाचल प्रदेश" }
+    ],
+    "correctOption": "D",
+    "answerText": "D) हिमाचल प्रदेश",
+    "voiceQuestion": "भारत में सबसे खूबसूरत लड़कियाँ कौन से राज्य में मानी जाती हैं?",
+    "voiceTimer": "सोचिए और 3 सेकंड में उत्तर दीजिए!",
+    "voiceCommentChallenge": "कमेंट में बताएं अपना जवाब! देखते हैं कितने लोग सही जवाब देते हैं! Follow Exam IQ Bharat!",
+    "voiceAnswer": "सही जवाब है ऑप्शन D, हिमाचल प्रदेश! प्राकृतिक सुंदरता और संस्कृति के लिए विख्यात है।",
+    "explanation": "प्राकृतिक सुंदरता, स्वच्छ आबोहवा और संस्कृति के कारण हिमाचल प्रदेश को देश के सबसे सुंदर राज्यों में गिना जाता है।",
+    "tags": [
+      "#ExamIQ",
+      "#HimachalPradesh",
+      "#GeneralKnowledge",
+      "#StaticGK",
+      "#Reels",
+      "#FacebookReels"
+    ],
+    "imagePrompt": "Two elegant Indian women in traditional colorful silk sarees, full body, solid clean white background, isolated cutout style"
+  },
+  {
+    "id": "stat_richest_state_27",
+    "category": "static_gk",
+    "topic": "भारतीय अर्थव्यवस्था (Indian Economy GK)",
+    "hookBar": "99% लोग Fail | India Wealth Quiz",
+    "title": "भारत का सबसे अमीर राज्य कौन सा है?",
+    "question": "जीडीपी (GDP) के मामले में भारत का सबसे अमीर और संपन्न राज्य कौन सा है?",
+    "questionLines": [
+      "भारत का सबसे अमीर",
+      "राज्य (Richest State)",
+      "कौन सा है? 💰🇮🇳"
+    ],
+    "options": [
+      { "letter": "A", "text": "गुजरात" },
+      { "letter": "B", "text": "महाराष्ट्र" },
+      { "letter": "C", "text": "तमिलनाडु" },
+      { "letter": "D", "text": "कर्नाटक" }
+    ],
+    "correctOption": "B",
+    "answerText": "B) महाराष्ट्र (GDP: 40+ लाख करोड़)",
+    "voiceQuestion": "जीडीपी के मामले में भारत का सबसे अमीर और संपन्न राज्य कौन सा है?",
+    "voiceTimer": "सोचिए और 3 सेकंड में उत्तर दीजिए!",
+    "voiceCommentChallenge": "कमेंट में बताएं सही उत्तर! देखते हैं कितने लोग सही जवाब देते हैं! Follow Exam IQ Bharat!",
+    "voiceAnswer": "सही जवाब है ऑप्शन B, महाराष्ट्र! यह देश की कुल जीडीपी में लगभग 14% योगदान देता है।",
+    "explanation": "महाराष्ट्र भारत का सबसे अमीर राज्य है जिसकी अर्थव्यवस्था 40 लाख करोड़ रुपये से अधिक है।",
+    "tags": [
+      "#ExamIQ",
+      "#Maharashtra",
+      "#IndianEconomy",
+      "#StaticGK",
+      "#Reels",
+      "#FacebookReels"
+    ],
+    "imagePrompt": "Golden emblem and modern high-rise skyscraper financial hub of Mumbai, solid clean white background, isolated cutout"
+  },
+  {
+    "id": "stat_cleanest_city_28",
+    "category": "static_gk",
+    "topic": "स्वच्छ भारत (Cleanest City Survey)",
+    "hookBar": "99% लोग Fail | Swachh Bharat Quiz",
+    "title": "भारत का सबसे स्वच्छ शहर कौन सा है?",
+    "question": "स्वच्छ सर्वेक्षण में लगातार भारत का सबसे साफ-सुथरा शहर कौन सा चुना गया है?",
+    "questionLines": [
+      "भारत का सबसे स्वच्छ",
+      "शहर (Cleanest City)",
+      "कौन सा है? 🏆🌿"
+    ],
+    "options": [
+      { "letter": "A", "text": "सूरत" },
+      { "letter": "B", "text": "भोपाल" },
+      { "letter": "C", "text": "इंदौर" },
+      { "letter": "D", "text": "मैसूर" }
+    ],
+    "correctOption": "C",
+    "answerText": "C) इंदौर (मध्य प्रदेश)",
+    "voiceQuestion": "स्वच्छ सर्वेक्षण में लगातार भारत का सबसे स्वच्छ शहर कौन सा चुना गया है?",
+    "voiceTimer": "सोचिए और 3 सेकंड में उत्तर दीजिए!",
+    "voiceCommentChallenge": "कमेंट में बताएं सही उत्तर! देखते हैं कितने लोग सही जवाब देते हैं! Follow Exam IQ Bharat!",
+    "voiceAnswer": "सही जवाब है ऑप्शन C, मध्य प्रदेश का इंदौर! इंदौर लगातार 7 बार देश का सबसे स्वच्छ शहर बन चुका है।",
+    "explanation": "इंदौर को स्वच्छ भारत सर्वेक्षण में लगातार भारत का नंबर 1 स्वच्छ शहर घोषित किया गया है।",
+    "tags": [
+      "#ExamIQ",
+      "#Indore",
+      "#SwachhBharat",
+      "#StaticGK",
+      "#Reels",
+      "#FacebookReels"
+    ],
+    "imagePrompt": "Swachh Bharat golden cleanliness trophy award and green clean Indian street, solid clean white background, isolated cutout"
+  },
+  {
+    "id": "stat_longest_epic_29",
+    "category": "static_gk",
+    "topic": "भारतीय संस्कृति (Indian Epics & Literature)",
+    "hookBar": "99% लोग Fail | Indian Culture Quiz",
+    "title": "दुनिया का सबसे बड़ा महाकाव्य कौन सा है?",
+    "question": "1 लाख से अधिक श्लोकों वाला दुनिया का सबसे विशाल महाकाव्य कौन सा है?",
+    "questionLines": [
+      "दुनिया का सबसे बड़ा",
+      "महाकाव्य (Longest Epic)",
+      "कौन सा है? 📜🏹"
+    ],
+    "options": [
+      { "letter": "A", "text": "रामायण" },
+      { "letter": "B", "text": "महाभारत" },
+      { "letter": "C", "text": "इलियड" },
+      { "letter": "D", "text": "ओडिसी" }
+    ],
+    "correctOption": "B",
+    "answerText": "B) महाभारत (1 लाख+ श्लोक)",
+    "voiceQuestion": "1 लाख से अधिक श्लोकों वाला दुनिया का सबसे विशाल महाकाव्य कौन सा है?",
+    "voiceTimer": "सोचिए और 3 सेकंड में उत्तर दीजिए!",
+    "voiceCommentChallenge": "कमेंट में बताएं सही उत्तर! देखते हैं कितने लोग सही जवाब देते हैं! Follow Exam IQ Bharat!",
+    "voiceAnswer": "सही जवाब है ऑप्शन B, महाभारत! महर्षि वेदव्यास द्वारा रचित महाभारत में 1 लाख से अधिक श्लोक हैं।",
+    "explanation": "महाभारत विश्व का सबसे लंबा साहित्यिक महाकाव्य है जिसमें 1,00,000 से अधिक श्लोक हैं।",
+    "tags": [
+      "#ExamIQ",
+      "#Mahabharata",
+      "#IndianCulture",
+      "#HistoryGK",
+      "#Reels",
+      "#FacebookReels"
+    ],
+    "imagePrompt": "Ancient sacred Indian epic book parchment with golden feather quill and Gita chariot, solid clean white background, isolated cutout"
+  },
+  {
+    "id": "stat_gateway_india_30",
+    "category": "static_gk",
+    "topic": "प्रमुख भारतीय स्मारक (Indian Monuments)",
+    "hookBar": "99% लोग Fail | Famous Monuments GK",
+    "title": "गेटवे ऑफ इंडिया किस शहर में स्थित है?",
+    "question": "1911 में किंग जॉर्ज पंचम के आगमन पर बनाया गया 'गेटवे ऑफ इंडिया' किस शहर में है?",
+    "questionLines": [
+      "गेटवे ऑफ इंडिया",
+      "(Gateway of India)",
+      "किस शहर में है? 🏛️🇮🇳"
+    ],
+    "options": [
+      { "letter": "A", "text": "नई दिल्ली" },
+      { "letter": "B", "text": "कोलकाता" },
+      { "letter": "C", "text": "मुंबई" },
+      { "letter": "D", "text": "चेन्नई" }
+    ],
+    "correctOption": "C",
+    "answerText": "C) मुंबई (महाराष्ट्र)",
+    "voiceQuestion": "प्रसिद्ध स्मारक गेटवे ऑफ इंडिया किस शहर में स्थित है?",
+    "voiceTimer": "सोचिए और 3 सेकंड में उत्तर दीजिए!",
+    "voiceCommentChallenge": "कमेंट में बताएं सही उत्तर! देखते हैं कितने लोग सही जवाब देते हैं! Follow Exam IQ Bharat!",
+    "voiceAnswer": "सही जवाब है ऑप्शन C, मुंबई! इसे 1924 में जॉर्ज पंचम की भारत यात्रा की स्मृति में बनाया गया था।",
+    "explanation": "गेटवे ऑफ इंडिया मुंबई के कोलाबा में अरब सागर के तट पर स्थित एक ऐतिहासिक मेहराब स्मारक है।",
+    "tags": [
+      "#ExamIQ",
+      "#GatewayOfIndia",
+      "#MumbaiGK",
+      "#StaticGK",
+      "#Reels",
+      "#FacebookReels"
+    ],
+    "imagePrompt": "Gateway of India yellow basalt arch monument in Mumbai by the sea, solid clean white background, isolated cutout"
   }
 ];
 

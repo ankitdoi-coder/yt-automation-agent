@@ -115,7 +115,7 @@ class FacebookVideoMaker {
 
   _buildSVG({ item, isAnswer = false, timerText = null, isCommentChallenge = false }) {
     const topic = this._escapeXml(item.topic || 'सामान्य ज्ञान (General Knowledge)');
-    const hookBar = this._escapeXml(item.englishHook || item.hookBar || 'परीक्षा में बार बार पूछे जाने वाले सवाल');
+    const hookBar = this._escapeXml(item.englishHook || item.hookBar || '99% लोग Fail');
     const options = Array.isArray(item.options) ? item.options : [
       { letter: 'A', text: 'Option A' },
       { letter: 'B', text: 'Option B' },
@@ -125,12 +125,14 @@ class FacebookVideoMaker {
 
     const correctLetter = (item.correctOption || 'A').toUpperCase();
     const explanation = this._escapeXml(item.explanation || '');
+    const hasImage = !!item.imageBase64;
+    const imageMime = item.imageMime || 'image/jpeg';
 
     // Central subtle watermark (10-12% opacity)
     const logoEmbed = this.logoBase64
-      ? `<image href="data:image/png;base64,${this.logoBase64}" x="340" y="740" width="400" height="400" opacity="0.12" />`
+      ? `<image href="data:image/png;base64,${this.logoBase64}" x="340" y="740" width="400" height="400" opacity="0.10" />`
       : `
-        <g opacity="0.10" transform="translate(540, 940)">
+        <g opacity="0.08" transform="translate(540, 940)">
           <circle cx="0" cy="0" r="220" fill="none" stroke="#000000" stroke-width="8" stroke-dasharray="16 12"/>
           <circle cx="0" cy="0" r="190" fill="none" stroke="#000000" stroke-width="4"/>
           <text x="0" y="-30" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="52" font-weight="900" fill="#000000" text-anchor="middle">EXAM IQ</text>
@@ -145,7 +147,7 @@ class FacebookVideoMaker {
       : [this._escapeXml((item.question || item.title).replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, ''))];
 
     return `
-    <svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg">
+    <svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
         <!-- Gradients -->
         <linearGradient id="topPillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -159,6 +161,9 @@ class FacebookVideoMaker {
         <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
           <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.08"/>
         </filter>
+        <filter id="greenGlow" x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#22c55e" flood-opacity="0.35"/>
+        </filter>
         <filter id="coralGlow" x="-20%" y="-20%" width="140%" height="140%">
           <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#ef4444" flood-opacity="0.25"/>
         </filter>
@@ -167,70 +172,84 @@ class FacebookVideoMaker {
       <!-- Clean White Canvas Background -->
       <rect width="1080" height="1920" fill="#FFFFFF"/>
 
+      <!-- Frame Outer Border (Visual format match) -->
+      <rect x="24" y="24" width="1032" height="1872" rx="36" fill="none" stroke="#0284c7" stroke-width="8"/>
+
       <!-- Central Channel Watermark -->
       ${logoEmbed}
 
-      <!-- 1. Top Category Pill (with Book Emojis, Image 2 style) -->
+      <!-- 1. Top Header Box: 📚 GENERAL KNOWLEDGE 📚 + 99% लोग Fail Yellow Pill -->
       <g filter="url(#softShadow)">
-        <rect x="120" y="85" width="840" height="90" rx="45" fill="url(#topPillGrad)" stroke="#65a30d" stroke-width="3"/>
-        <text x="540" y="143" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${(item.topic || '').length > 28 ? 33 : 38}" font-weight="900" fill="#0f172a" text-anchor="middle">
-          📚 ${topic} 📚
+        <rect x="45" y="45" width="990" height="200" rx="24" fill="#f8fafc" stroke="#0284c7" stroke-width="4"/>
+        <!-- Row 1: Book icons + GENERAL KNOWLEDGE (or category) -->
+        <text x="540" y="115" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="46" font-weight="900" fill="#15803d" text-anchor="middle" letter-spacing="2">
+          📚 GENERAL KNOWLEDGE 📚
+        </text>
+        <text x="540" y="115" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="1" fill="transparent" text-anchor="middle">
+          ${topic}
+        </text>
+        <!-- Row 2: Yellow Pill + 99% लोग Fail -->
+        <rect x="240" y="145" width="600" height="75" rx="37" fill="#fef08a" stroke="#ca8a04" stroke-width="2.5"/>
+        <text x="540" y="198" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${hookBar.length > 25 ? 36 : 44}" font-weight="900" fill="#dc2626" text-anchor="middle">
+          ${hookBar}
         </text>
       </g>
 
-      <!-- 2. Blue Hook Sub-banner (with Shock Emojis, Image 2 style) -->
-      <g filter="url(#softShadow)">
-        <rect x="60" y="205" width="960" height="90" rx="24" fill="url(#blueHookGrad)"/>
-        <text x="540" y="263" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${(item.hookBar || '').length > 32 ? 33 : 38}" font-weight="bold" fill="#FFFFFF" text-anchor="middle">
-          🤯 ${hookBar} 🤯
-        </text>
-      </g>
-
-      <!-- 3. Question (Bold, Crisp Black Devanagari Text, Image 2 style) -->
+      <!-- 2. Question Text (Centered, Bold Blue Devanagari Text) -->
       <g>
         ${questionLines.map((line, idx) => `
-          <text x="80" y="${380 + (idx * 75)}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="50" font-weight="900" fill="#0f172a">
+          <text x="540" y="${320 + (idx * 68)}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${questionLines.length > 2 ? 46 : 52}" font-weight="900" fill="#1e40af" text-anchor="middle">
             ${line}
           </text>
         `).join('')}
       </g>
 
-      <!-- 4. Options List (A, B, C, D) -->
+      <!-- 3. Split Layout: Left Column Options (A, B, C, D) -->
       ${options.map((opt, idx) => {
         const isThisCorrect = !isCommentChallenge && isAnswer && (opt.letter === correctLetter);
-        const yPos = 650 + (idx * 130);
+        const yPos = 620 + (idx * 140);
         const optLen = String(opt.text || '').length;
-        const optFontSize = optLen > 28 ? 38 : (optLen > 21 ? 42 : 46);
+        const optFontSize = hasImage
+          ? (optLen > 18 ? 38 : (optLen > 12 ? 44 : 48))
+          : (optLen > 28 ? 38 : (optLen > 21 ? 42 : 46));
+        const optX = hasImage ? 85 : 100;
+        const rectWidth = hasImage ? 410 : 860;
 
         if (isThisCorrect) {
-          // Highlighted Option Capsule (Soft Coral/Pink Pill with Red Border - Exact match to Image 2!)
+          // Highlighted Correct Option (Vibrant Green Capsule)
           return `
           <!-- Correct Option ${opt.letter} Highlighted -->
-          <g filter="url(#coralGlow)">
-            <rect x="70" y="${yPos - 52}" width="860" height="104" rx="28" fill="#fee2e2" stroke="#ef4444" stroke-width="4"/>
-            <text x="100" y="${yPos + 16}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="900" fill="#b91c1c">
-              ${opt.letter}) ${this._escapeXml(opt.text)}
+          <g filter="url(#greenGlow)">
+            <rect x="${optX - 20}" y="${yPos - 52}" width="${rectWidth}" height="104" rx="26" fill="#16a34a" stroke="#15803d" stroke-width="3.5"/>
+            <text x="${optX}" y="${yPos + 18}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="900" fill="#FFFFFF">
+              ${opt.letter}. ${this._escapeXml(opt.text)}
             </text>
           </g>
           `;
         } else {
-          // Standard Option
+          // Standard Option (fades when answer revealed)
+          const opacity = isAnswer && !isCommentChallenge ? '0.40' : '1.0';
           return `
           <!-- Option ${opt.letter} -->
-          <g>
-            <text x="100" y="${yPos + 16}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="bold" fill="#1e293b">
-              ${opt.letter}) ${this._escapeXml(opt.text)}
+          <g opacity="${opacity}">
+            <text x="${optX}" y="${yPos + 18}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="900" fill="#0f172a">
+              ${opt.letter}. ${this._escapeXml(opt.text)}
             </text>
           </g>
           `;
         }
       }).join('')}
 
+      <!-- 4. Split Layout: Right Column Cutout Subject Image -->
+      ${hasImage ? `
+        <image xlink:href="data:${imageMime};base64,${item.imageBase64}" href="data:${imageMime};base64,${item.imageBase64}" x="480" y="550" width="540" height="740" preserveAspectRatio="xMidYMid meet" />
+      ` : ''}
+
       <!-- 5. Suspense Timer (during Frame 2) -->
       ${!isAnswer && !isCommentChallenge && timerText ? `
         <g filter="url(#softShadow)">
-          <rect x="240" y="1170" width="600" height="85" rx="42" fill="#e11d48"/>
-          <text x="540" y="1226" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#FFFFFF" text-anchor="middle">
+          <rect x="200" y="1220" width="680" height="85" rx="42" fill="#e11d48"/>
+          <text x="540" y="1276" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#FFFFFF" text-anchor="middle">
             ${this._escapeXml(timerText)}
           </text>
         </g>
@@ -239,15 +258,15 @@ class FacebookVideoMaker {
       <!-- 6. Comment Challenge Card (during Frame 3 when commentChallenge is active) -->
       ${isCommentChallenge ? `
         <g filter="url(#softShadow)">
-          <rect x="60" y="1150" width="960" height="250" rx="24" fill="#fff7ed" stroke="#ea580c" stroke-width="4"/>
-          <rect x="80" y="1168" width="920" height="54" rx="14" fill="#ea580c"/>
-          <text x="540" y="1206" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="30" font-weight="900" fill="#FFFFFF" text-anchor="middle">
+          <rect x="60" y="1170" width="960" height="230" rx="24" fill="#fff7ed" stroke="#ea580c" stroke-width="4"/>
+          <rect x="80" y="1186" width="920" height="50" rx="14" fill="#ea580c"/>
+          <text x="540" y="1222" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="900" fill="#FFFFFF" text-anchor="middle">
             💬 Comment Your Answer (कमेंट चैलेंज)
           </text>
-          <text x="540" y="1292" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="38" font-weight="900" fill="#9a3412" text-anchor="middle">
+          <text x="540" y="1295" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#9a3412" text-anchor="middle">
             👉 अपना सही उत्तर कमेंट में बताएं! 🏆
           </text>
-          <text x="540" y="1360" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="bold" fill="#431407" text-anchor="middle">
+          <text x="540" y="1355" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="26" font-weight="bold" fill="#431407" text-anchor="middle">
             देखते हैं कितने लोग इसका सही जवाब जानते हैं!
           </text>
         </g>
@@ -256,21 +275,21 @@ class FacebookVideoMaker {
       <!-- 6b. Fact / Explanation Card (during Frame 3 when commentChallenge is false) -->
       ${!isCommentChallenge && isAnswer ? `
         <g filter="url(#softShadow)">
-          <rect x="70" y="1250" width="940" height="230" rx="25" fill="#f8fafc" stroke="#38bdf8" stroke-width="3"/>
-          <rect x="70" y="1250" width="940" height="60" rx="25" fill="#e0f2fe"/>
-          <text x="540" y="1292" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="30" font-weight="900" fill="#0369a1" text-anchor="middle">
+          <rect x="60" y="1200" width="960" height="200" rx="24" fill="#f8fafc" stroke="#38bdf8" stroke-width="3"/>
+          <rect x="60" y="1200" width="960" height="54" rx="24" fill="#e0f2fe"/>
+          <text x="540" y="1238" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="900" fill="#0369a1" text-anchor="middle">
             💡 परीक्षा तथ्य (Exam Fact)
           </text>
-          <text x="540" y="1360" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="32" font-weight="bold" fill="#15803d" text-anchor="middle">
+          <text x="540" y="1296" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="32" font-weight="bold" fill="#15803d" text-anchor="middle">
             ✅ सही जवाब: ${this._escapeXml(item.answerText || '')}
           </text>
-          <text x="540" y="1425" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="27" font-weight="500" fill="#334155" text-anchor="middle">
+          <text x="540" y="1355" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="25" font-weight="500" fill="#334155" text-anchor="middle">
             ${explanation.length > 58 ? explanation.slice(0, 58) + '...' : explanation}
           </text>
         </g>
       ` : ''}
 
-      <!-- 7. Bottom Split Footer Bar (Image 2 style: Yellow Channel Name + Red "को Follow करें") -->
+      <!-- 7. Bottom Split Footer Bar (Yellow Channel Name + Facebook Blue Follow Button) -->
       <g filter="url(#softShadow)">
         <!-- Yellow Box: Channel Name -->
         <rect x="60" y="1430" width="510" height="105" rx="18" fill="#facc15"/>
@@ -278,9 +297,11 @@ class FacebookVideoMaker {
           Exam IQ Bharat
         </text>
 
-        <!-- Red Box: को Follow करें (Strictly Follow for Facebook!) -->
-        <rect x="590" y="1430" width="430" height="105" rx="18" fill="#dc2626"/>
-        <text x="805" y="1500" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#FFFFFF" text-anchor="middle">
+        <!-- Blue Facebook Follow Button (Facebook Blue #1877F2 with 'f' logo) -->
+        <rect x="590" y="1430" width="430" height="105" rx="18" fill="#1877F2"/>
+        <circle cx="636" cy="1482" r="24" fill="#FFFFFF"/>
+        <text x="636" y="1494" font-family="Arial, sans-serif" font-size="32" font-weight="900" fill="#1877F2" text-anchor="middle">f</text>
+        <text x="815" y="1498" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#FFFFFF" text-anchor="middle">
           को Follow करें 🔔
         </text>
       </g>
@@ -328,10 +349,41 @@ class FacebookVideoMaker {
       await this._getAudio(tNarration, timerAudio);
       await this._getAudio(aNarration, ansAudio);
 
+      // Check for question-related subject image
+      let imageBase64 = item.imageBase64 || null;
+      let imageMime = item.imageMime || 'image/jpeg';
+      let resolvedImagePath = item.imagePath || null;
+
+      if (!imageBase64 && !resolvedImagePath && item.imagePrompt) {
+        const aiGen = this._getAIVideoGenerator();
+        if (aiGen) {
+          const generatedImg = `${prefix}_ai_img.jpg`;
+          try {
+            console.log(`[VideoMaker] Generating AI image for question: "${item.imagePrompt}"...`);
+            await aiGen.generateImage(item.imagePrompt, generatedImg);
+            if (fs.existsSync(generatedImg) && fs.statSync(generatedImg).size > 5000) {
+              resolvedImagePath = generatedImg;
+            }
+          } catch (imgErr) {
+            console.warn(`[VideoMaker] AI image generation notice: ${imgErr.message}`);
+          }
+        }
+      }
+
+      if (!imageBase64 && resolvedImagePath && fs.existsSync(resolvedImagePath)) {
+        try {
+          const meta = await sharp(resolvedImagePath).metadata();
+          imageMime = meta.format === 'png' ? 'image/png' : 'image/jpeg';
+          imageBase64 = fs.readFileSync(resolvedImagePath).toString('base64');
+        } catch (_) {}
+      }
+
+      const itemWithImage = { ...item, imageBase64, imageMime };
+
       console.log(`[VideoMaker] Rendering educational frames matching Exam IQ layout...`);
-      const svg1 = this._buildSVG({ item });
-      const svg2 = this._buildSVG({ item, timerText });
-      const svg3 = this._buildSVG({ item, isAnswer: !isCommentChallenge, isCommentChallenge });
+      const svg1 = this._buildSVG({ item: itemWithImage });
+      const svg2 = this._buildSVG({ item: itemWithImage, timerText });
+      const svg3 = this._buildSVG({ item: itemWithImage, isAnswer: !isCommentChallenge, isCommentChallenge });
 
       await sharp(Buffer.from(svg1)).png().toFile(f1Png);
       await sharp(Buffer.from(svg2)).png().toFile(f2Png);
