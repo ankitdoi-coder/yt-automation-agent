@@ -122,7 +122,8 @@
     "stat_ports_23",
     "hist_dandi_03",
     "math_prime_03",
-    "pol_rights_count_08"
+    "pol_rights_count_08",
+    "geo_oil_05"
   ],
   "uploads": [
     {
@@ -1152,6 +1153,17 @@
       "deliveryMode": "ZERNIO_API",
       "uploadedAt": "2026-11-13T11:28:04.657Z",
       "answer": "A) 6 मौलिक अधिकार (भाग 3)"
+    },
+    {
+      "id": "geo_oil_05",
+      "category": "geopolitics",
+      "topic": "ऊर्जा व भू-राजनीति (Global Energy)",
+      "title": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
+      "fbVideoId": "2265855077337850",
+      "zernioPostId": "6af733aef20243684edda6db",
+      "deliveryMode": "ZERNIO_API",
+      "uploadedAt": "2026-11-13T15:59:10.567Z",
+      "answer": "A) वेनेजुएला (303 अरब बैरल से अधिक)"
     }
   ]
 }
