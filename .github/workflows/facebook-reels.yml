@@ -1,4 +1,4 @@
-name: Facebook Reels Automation
+name: Facebook & Instagram Reels Automation
 
 concurrency:
   group: facebook-reels-automation
@@ -6,8 +6,8 @@ concurrency:
 
 on:
   # Daily 2 Reels/day (1 Morning + 1 Evening) automatic public publishing:
-  #   - 03:30 UTC = 09:00 AM IST (1 Reel)
-  #   - 14:30 UTC = 08:00 PM IST (1 Reel)
+  #   - 03:30 UTC = 09:00 AM IST (1 Reel to Facebook & Instagram)
+  #   - 14:30 UTC = 08:00 PM IST (1 Reel to Facebook & Instagram)
   schedule:
     - cron: '30 3 * * *'
     - cron: '30 14 * * *'
@@ -25,6 +25,15 @@ on:
           - '3'
           - '5'
           - '7'
+      target_platform:
+        description: 'Destination: both = Facebook + Instagram; facebook = FB Page only; instagram = Instagram only'
+        required: true
+        default: 'both'
+        type: choice
+        options:
+          - 'both'
+          - 'facebook'
+          - 'instagram'
       delivery_mode:
         description: 'auto = Zernio automatic upload if configured else Export ZIP; zernio = Auto Public Reels; export = ZIP + Telegram'
         required: true
@@ -72,6 +81,7 @@ jobs:
           FB_PAGE_SECRET: ${{ secrets.FB_PAGE_ID }}
           ZERNIO_KEY_SECRET: ${{ secrets.ZERNIO_API_KEY }}
           ZERNIO_ACC_SECRET: ${{ secrets.ZERNIO_FACEBOOK_ACCOUNT_ID }}
+          ZERNIO_IG_ACC_SECRET: ${{ secrets.ZERNIO_INSTAGRAM_ACCOUNT_ID }}
           TG_TOKEN_SECRET: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TG_CHAT_SECRET: ${{ secrets.TELEGRAM_CHAT_ID }}
           ELEVEN_KEY_SECRET: ${{ secrets.ELEVENLABS_API_KEY }}
@@ -80,6 +90,7 @@ jobs:
           GEMINI_KEY_SECRET: ${{ secrets.GEMINI_API_KEY }}
           EVENT_NAME: ${{ github.event_name }}
           INPUT_MODE: ${{ github.event.inputs.delivery_mode || 'auto' }}
+          TARGET_PLATFORM: ${{ github.event.inputs.target_platform || 'both' }}
         run: |
           mkdir -p facebook/data facebook/output facebook/output/export_ready facebook/temp
 
@@ -97,6 +108,12 @@ jobs:
           fi
           if [ -n "$ZERNIO_ACC_SECRET" ]; then
             echo "ZERNIO_FACEBOOK_ACCOUNT_ID=$ZERNIO_ACC_SECRET" >> .env
+          fi
+          if [ -n "$ZERNIO_IG_ACC_SECRET" ]; then
+            echo "ZERNIO_INSTAGRAM_ACCOUNT_ID=$ZERNIO_IG_ACC_SECRET" >> .env
+          fi
+          if [ -n "$TARGET_PLATFORM" ]; then
+            echo "SOCIAL_DELIVERY_TARGET=$TARGET_PLATFORM" >> .env
           fi
           if [ -n "$TG_TOKEN_SECRET" ]; then
             echo "TELEGRAM_BOT_TOKEN=$TG_TOKEN_SECRET" >> .env
@@ -136,7 +153,7 @@ jobs:
           echo "has_zernio=$HAS_ZERNIO" >> "$GITHUB_OUTPUT"
           echo "✅ Environment ready (should_run=$SHOULD_RUN, has_zernio=$HAS_ZERNIO)"
 
-      - name: Generate & Deliver Facebook Reel(s)
+      - name: Generate & Deliver Social Reel(s) (Facebook & Instagram)
         if: steps.env_setup.outputs.should_run == 'true'
         env:
           CI: true
@@ -144,8 +161,9 @@ jobs:
         run: |
           COUNT="${{ github.event.inputs.count || '1' }}"
           MODE="${{ github.event.inputs.delivery_mode || 'auto' }}"
-          echo "🚀 Starting Facebook Reels Agent (Mode: $MODE, Count: $COUNT)..."
-          node facebook/fb-runner.js --count "$COUNT"
+          TARGET="${{ github.event.inputs.target_platform || 'both' }}"
+          echo "🚀 Starting Social Reels Agent (Mode: $MODE, Target: $TARGET, Count: $COUNT)..."
+          node facebook/fb-runner.js --count "$COUNT" --target "$TARGET"
 
       - name: Upload Ready-to-Schedule Reels Artifact (Export Fallback)
         if: steps.env_setup.outputs.should_run == 'true' && (github.event.inputs.delivery_mode == 'export' || steps.env_setup.outputs.has_zernio != 'true')

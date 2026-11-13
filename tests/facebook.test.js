@@ -1081,6 +1081,182 @@ async function runTests() {
     }
   });
 
+  // ----------------------------------------------------
+  // Test 25: ZernioUploader auto-resolves Instagram account and publishes Instagram Reel
+  // ----------------------------------------------------
+  await testAsync('ZernioUploader resolves Instagram account and publishes Instagram Reel with shareToFeed', async () => {
+    const { ZernioUploader, extractInstagramReelId } = require('../facebook/zernio-uploader');
+
+    assert.strictEqual(extractInstagramReelId('https://www.instagram.com/reel/C8abcXYZ_12/'), 'C8abcXYZ_12');
+    assert.strictEqual(extractInstagramReelId('https://www.instagram.com/p/D9test123/'), 'D9test123');
+    assert.strictEqual(extractInstagramReelId('invalid_url'), null);
+
+    const calls = [];
+    const mockHttp = {
+      get: async (url) => {
+        calls.push({ method: 'GET', url });
+        if (url.endsWith('/accounts')) {
+          return {
+            data: {
+              accounts: [
+                { _id: 'acc_fb_1', platform: 'facebook', displayName: 'FB Page' },
+                { _id: 'acc_ig_1', platform: 'instagram', username: 'examiqbharat', status: 'active' },
+              ],
+            },
+          };
+        }
+        return { data: { status: 'published' } };
+      },
+      post: async (url, body) => {
+        calls.push({ method: 'POST', url, body });
+        if (url.endsWith('/media/presign')) {
+          return {
+            data: {
+              uploadUrl: 'https://storage.zernio.com/presign/reel_ig.mp4',
+              publicUrl: 'https://storage.zernio.com/public/reel_ig.mp4',
+            },
+          };
+        }
+        return {
+          data: {
+            post: {
+              _id: 'zernio_ig_post_88',
+              status: 'published',
+              platforms: [
+                {
+                  platform: 'instagram',
+                  status: 'published',
+                  platformPostUrl: 'https://www.instagram.com/reel/C8XYZtest99/',
+                },
+              ],
+            },
+          },
+        };
+      },
+      put: async (url, data) => {
+        calls.push({ method: 'PUT', url, byteLength: data.length });
+        return { status: 200 };
+      },
+    };
+
+    const dummyMp4 = path.resolve(__dirname, '../temp/test_zernio_ig.mp4');
+    fs.writeFileSync(dummyMp4, Buffer.from('00000018ftypmp42', 'utf8'));
+
+    try {
+      const uploader = new ZernioUploader({ apiKey: 'KEY_TEST', httpClient: mockHttp });
+      const res = await uploader.publishInstagramReel(dummyMp4, {
+        title: 'Hindi GK Quiz',
+        description: 'Q. भारत की राजधानी?',
+        firstComment: 'Comment answer!',
+      });
+
+      assert.strictEqual(res.success, true);
+      assert.strictEqual(res.platform, 'instagram');
+      assert.strictEqual(res.igMediaId, 'C8XYZtest99');
+      assert.strictEqual(res.url, 'https://www.instagram.com/reel/C8XYZtest99/');
+      assert.strictEqual(calls.length, 4);
+      assert.strictEqual(calls[3].body.platforms[0].platform, 'instagram');
+      assert.strictEqual(calls[3].body.platforms[0].accountId, 'acc_ig_1');
+      assert.strictEqual(calls[3].body.platforms[0].platformSpecificData.shareToFeed, true);
+      assert.strictEqual(calls[3].body.platforms[0].platformSpecificData.firstComment, 'Comment answer!');
+    } finally {
+      if (fs.existsSync(dummyMp4)) fs.unlinkSync(dummyMp4);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 26: ZernioUploader publishMultiReel publishes to both Facebook and Instagram
+  // ----------------------------------------------------
+  await testAsync('ZernioUploader publishMultiReel publishes to both Facebook & Instagram in 1 pass', async () => {
+    const { ZernioUploader } = require('../facebook/zernio-uploader');
+    const calls = [];
+    const mockHttp = {
+      get: async (url) => {
+        calls.push({ method: 'GET', url });
+        if (url.endsWith('/accounts')) {
+          return {
+            data: {
+              accounts: [
+                { _id: 'acc_fb_multi', platform: 'facebook', displayName: 'FB Page' },
+                { _id: 'acc_ig_multi', platform: 'instagram', username: 'ig_page' },
+              ],
+            },
+          };
+        }
+        return { data: { status: 'published' } };
+      },
+      post: async (url, body) => {
+        calls.push({ method: 'POST', url, body });
+        if (url.endsWith('/media/presign')) {
+          return {
+            data: {
+              uploadUrl: 'https://storage.zernio.com/presign/reel_multi.mp4',
+              publicUrl: 'https://storage.zernio.com/public/reel_multi.mp4',
+            },
+          };
+        }
+        return {
+          data: {
+            post: {
+              _id: 'zernio_multi_100',
+              status: 'published',
+              platforms: [
+                {
+                  platform: 'facebook',
+                  status: 'published',
+                  platformPostUrl: 'https://www.facebook.com/reel/998877665544/',
+                },
+                {
+                  platform: 'instagram',
+                  status: 'published',
+                  platformPostUrl: 'https://www.instagram.com/reel/C9multiPost123/',
+                },
+              ],
+            },
+          },
+        };
+      },
+      put: async () => ({ status: 200 }),
+    };
+
+    const dummyMp4 = path.resolve(__dirname, '../temp/test_zernio_multi.mp4');
+    fs.writeFileSync(dummyMp4, Buffer.from('00000018ftypmp42', 'utf8'));
+
+    try {
+      const uploader = new ZernioUploader({ apiKey: 'KEY_TEST', httpClient: mockHttp });
+      const res = await uploader.publishMultiReel(dummyMp4, {
+        title: 'Polity Quiz',
+        description: 'Constitution GK',
+        firstComment: 'Score?',
+      });
+
+      assert.strictEqual(res.success, true);
+      assert.strictEqual(res.facebook.id, '998877665544');
+      assert.strictEqual(res.facebook.url, 'https://www.facebook.com/reel/998877665544/');
+      assert.strictEqual(res.instagram.id, 'C9multiPost123');
+      assert.strictEqual(res.instagram.url, 'https://www.instagram.com/reel/C9multiPost123/');
+      const postCall = calls.find(c => c.method === 'POST' && c.url.endsWith('/posts'));
+      assert.ok(postCall, 'Must call POST /posts');
+      assert.strictEqual(postCall.body.platforms.length, 2, 'Must submit both FB and IG platforms');
+    } finally {
+      if (fs.existsSync(dummyMp4)) fs.unlinkSync(dummyMp4);
+    }
+  });
+
+  // ----------------------------------------------------
+  // Test 27: resolveSocialTarget parses CLI flags and env correctly
+  // ----------------------------------------------------
+  await testAsync('resolveSocialTarget parses CLI flags and env safely', async () => {
+    const { resolveSocialTarget } = require('../facebook/fb-runner');
+
+    assert.strictEqual(resolveSocialTarget(['--instagram']), 'instagram');
+    assert.strictEqual(resolveSocialTarget(['--facebook']), 'facebook');
+    assert.strictEqual(resolveSocialTarget(['--both']), 'both');
+    assert.strictEqual(resolveSocialTarget(['--target', 'instagram']), 'instagram');
+    assert.strictEqual(resolveSocialTarget([], { SOCIAL_DELIVERY_TARGET: 'instagram' }), 'instagram');
+    assert.strictEqual(resolveSocialTarget([], {}), 'both');
+  });
+
   console.log('\n════════════════════════════════════════════════════════════');
   console.log(`📊 Test Summary: Passed ${passed}/${total} tests!`);
   console.log('════════════════════════════════════════════════════════════\n');

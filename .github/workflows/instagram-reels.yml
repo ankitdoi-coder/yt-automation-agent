@@ -1,0 +1,161 @@
+name: Instagram Reels Automation
+
+concurrency:
+  group: instagram-reels-automation
+  cancel-in-progress: false
+
+on:
+  # Daily 2 Reels/day (1 Morning + 1 Evening) automatic public publishing to Instagram:
+  #   - 03:30 UTC = 09:00 AM IST (1 Reel)
+  #   - 14:30 UTC = 08:00 PM IST (1 Reel)
+  schedule:
+    - cron: '30 3 * * *'
+    - cron: '30 14 * * *'
+
+  workflow_dispatch:
+    inputs:
+      count:
+        description: 'Number of Instagram Reels to generate/publish'
+        required: true
+        default: '1'
+        type: choice
+        options:
+          - '1'
+          - '2'
+          - '3'
+          - '5'
+          - '7'
+      delivery_mode:
+        description: 'auto = Zernio automatic upload if configured else Export ZIP; zernio = Auto Public Reels; export = ZIP'
+        required: true
+        default: 'auto'
+        type: choice
+        options:
+          - 'auto'
+          - 'zernio'
+          - 'export'
+
+jobs:
+  publish-instagram-reels:
+    name: Generate & Publish Instagram Reels
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install FFmpeg & Indian Devanagari Fonts
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y ffmpeg fonts-deva fonts-noto-core fonts-indic fonts-freefont-ttf
+
+      - name: Install Node Dependencies
+        run: npm ci
+
+      - name: Setup Environment & Check Auto-Publish Readiness
+        id: env_setup
+        env:
+          ENV_SECRET: ${{ secrets.ENV_FILE }}
+          ZERNIO_KEY_SECRET: ${{ secrets.ZERNIO_API_KEY }}
+          ZERNIO_IG_ACC_SECRET: ${{ secrets.ZERNIO_INSTAGRAM_ACCOUNT_ID }}
+          TG_TOKEN_SECRET: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TG_CHAT_SECRET: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ELEVEN_KEY_SECRET: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVEN_KEYS_SECRET: ${{ secrets.ELEVENLABS_API_KEYS }}
+          ELEVEN_VOICE_SECRET: ${{ secrets.ELEVENLABS_VOICE_ID || secrets.ELEVENLABS_VOICE }}
+          GEMINI_KEY_SECRET: ${{ secrets.GEMINI_API_KEY }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_MODE: ${{ github.event.inputs.delivery_mode || 'auto' }}
+        run: |
+          mkdir -p facebook/data facebook/output facebook/output/export_ready facebook/temp
+
+          if [ -n "$ENV_SECRET" ]; then
+            printf '%s\n' "$ENV_SECRET" > .env
+          fi
+          if [ -n "$ZERNIO_KEY_SECRET" ]; then
+            echo "ZERNIO_API_KEY=$ZERNIO_KEY_SECRET" >> .env
+          fi
+          if [ -n "$ZERNIO_IG_ACC_SECRET" ]; then
+            echo "ZERNIO_INSTAGRAM_ACCOUNT_ID=$ZERNIO_IG_ACC_SECRET" >> .env
+          fi
+          if [ -n "$TG_TOKEN_SECRET" ]; then
+            echo "TELEGRAM_BOT_TOKEN=$TG_TOKEN_SECRET" >> .env
+          fi
+          if [ -n "$TG_CHAT_SECRET" ]; then
+            echo "TELEGRAM_CHAT_ID=$TG_CHAT_SECRET" >> .env
+          fi
+          if [ -n "$ELEVEN_KEY_SECRET" ]; then
+            echo "ELEVENLABS_API_KEY=$ELEVEN_KEY_SECRET" >> .env
+          fi
+          if [ -n "$ELEVEN_KEYS_SECRET" ]; then
+            echo "ELEVENLABS_API_KEYS=$ELEVEN_KEYS_SECRET" >> .env
+          fi
+          if [ -n "$ELEVEN_VOICE_SECRET" ]; then
+            echo "ELEVENLABS_VOICE_ID=$ELEVEN_VOICE_SECRET" >> .env
+          fi
+          if [ -n "$GEMINI_KEY_SECRET" ]; then
+            echo "GEMINI_API_KEY=$GEMINI_KEY_SECRET" >> .env
+          fi
+
+          echo "SOCIAL_DELIVERY_TARGET=instagram" >> .env
+
+          HAS_ZERNIO=false
+          if grep -qE '^ZERNIO_API_KEY=.+' .env 2>/dev/null; then
+            HAS_ZERNIO=true
+          fi
+
+          SHOULD_RUN=true
+          if [ "$EVENT_NAME" = "schedule" ] && [ "$HAS_ZERNIO" = "false" ] && ! grep -qE '^FB_DELIVERY_MODE=export' .env 2>/dev/null; then
+            echo "⏳ Scheduled run paused: ZERNIO_API_KEY secret is not configured yet."
+            echo "👉 Add ZERNIO_API_KEY in Repo Settings -> Secrets -> Actions to enable automatic public Instagram Reels at 09:00 AM IST & 08:00 PM IST."
+            SHOULD_RUN=false
+          fi
+
+          echo "should_run=$SHOULD_RUN" >> "$GITHUB_OUTPUT"
+          echo "has_zernio=$HAS_ZERNIO" >> "$GITHUB_OUTPUT"
+          echo "✅ Environment ready (should_run=$SHOULD_RUN, has_zernio=$HAS_ZERNIO)"
+
+      - name: Generate & Deliver Instagram Reel(s)
+        if: steps.env_setup.outputs.should_run == 'true'
+        env:
+          CI: true
+          FB_DELIVERY_MODE: ${{ github.event.inputs.delivery_mode || 'auto' }}
+        run: |
+          COUNT="${{ github.event.inputs.count || '1' }}"
+          MODE="${{ github.event.inputs.delivery_mode || 'auto' }}"
+          echo "🚀 Starting Instagram Reels Agent (Mode: $MODE, Count: $COUNT)..."
+          node facebook/fb-runner.js --count "$COUNT" --instagram
+
+      - name: Upload Ready-to-Schedule Reels Artifact (Export Fallback)
+        if: steps.env_setup.outputs.should_run == 'true' && (github.event.inputs.delivery_mode == 'export' || steps.env_setup.outputs.has_zernio != 'true')
+        uses: actions/upload-artifact@v4
+        with:
+          name: exam-iq-bharat-instagram-reels-${{ github.run_number }}
+          path: facebook/output/export_ready/
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Commit Updated Upload History
+        if: steps.env_setup.outputs.should_run == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add facebook/data/history.json facebook/data/learned_preferences.json || true
+          if git diff --staged --quiet; then
+            echo "No history changes to commit"
+          else
+            git commit -m "chore(instagram): update reels delivery history [skip ci]"
+            git pull --rebase --autostash origin main || true
+            git push origin HEAD || true
+          fi

@@ -48,6 +48,30 @@ function resolveDeliveryMode(args = [], env = process.env) {
 }
 
 /**
+ * Resolves target social platform(s): 'facebook', 'instagram', or 'both'.
+ */
+function resolveSocialTarget(args = [], env = process.env) {
+  if (args.includes('--both') || args.includes('--multi') || args.includes('--all-socials') || args.includes('--all')) {
+    return 'both';
+  }
+  if (args.includes('--instagram') || args.includes('--insta') || args.includes('--ig')) {
+    return 'instagram';
+  }
+  if (args.includes('--facebook') || args.includes('--fb')) {
+    return 'facebook';
+  }
+  const targetIdx = args.indexOf('--target');
+  if (targetIdx !== -1 && args[targetIdx + 1]) {
+    const t = args[targetIdx + 1].trim().toLowerCase();
+    if (['facebook', 'instagram', 'both', 'all'].includes(t)) {
+      return t === 'all' ? 'both' : t;
+    }
+  }
+  const envTarget = String(env.SOCIAL_DELIVERY_TARGET || env.FB_TARGET_PLATFORM || 'both').trim().toLowerCase();
+  return ['facebook', 'instagram', 'both'].includes(envTarget) ? envTarget : 'both';
+}
+
+/**
  * Parses positive --count flag (bounded 1..30) with fallback.
  */
 function parseRequestedCount(args = [], fallback = 1) {
@@ -68,11 +92,13 @@ async function runFacebookReelsAutomation(options = {}) {
   const isPhotoOnly = options.isPhotoOnly ?? args.includes('--photo-only');
   const skipPhoto = options.skipPhoto ?? args.includes('--skip-photo');
 
+  const socialTarget = options.socialTarget || resolveSocialTarget(args, process.env);
+
   console.log('====================================================');
-  console.log('🚀 EXAM IQ BHARAT: FACEBOOK REELS AGENT');
+  console.log('🚀 EXAM IQ BHARAT: SOCIAL REELS AGENT (FB & INSTA)');
   console.log('====================================================');
   console.log(`Target Page: ${process.env.FB_PAGE_NAME || 'Exam IQ Bharat'} (ID: ${process.env.FB_PAGE_ID || '1289712677569663'})`);
-  console.log(`Delivery Mode: ${deliveryMode.toUpperCase()} | Reels Count: ${isPhotoOnly ? 0 : count}`);
+  console.log(`Delivery Mode: ${deliveryMode.toUpperCase()} | Social Target: ${socialTarget.toUpperCase()} | Reels Count: ${isPhotoOnly ? 0 : count}`);
   console.log('----------------------------------------------------\n');
 
   const vault = options.vault || new ContentVault();
@@ -118,22 +144,27 @@ async function runFacebookReelsAutomation(options = {}) {
             file: path.basename(videoPath),
           });
         } else if (deliveryMode === 'zernio') {
-          console.log('🚀 Auto-publishing public Facebook Reel via Zernio...');
+          console.log(`🚀 Auto-publishing public Reel via Zernio (Target: ${socialTarget.toUpperCase()})...`);
           const uploadRes = await zernioUploader.publishReel(videoPath, {
             title: metadata.title,
             description: metadata.description,
             firstComment: metadata.pinnedComment,
+            target: socialTarget,
           });
           vault.recordUpload(item, uploadRes);
 
+          const resultType = socialTarget === 'instagram'
+            ? 'INSTAGRAM_REEL'
+            : (socialTarget === 'both' ? 'MULTI_REEL' : 'ZERNIO_REEL');
+
           results.push({
-            type: 'ZERNIO_REEL',
+            type: resultType,
             title: item.title,
             status: 'SUCCESS',
             id: uploadRes.id,
             url: uploadRes.url || uploadRes.zernioPostId,
           });
-          console.log(`🎉 [${i + 1}/${questions.length}] Reel live publicly via Zernio! URL: ${uploadRes.url || uploadRes.zernioPostId}\n`);
+          console.log(`🎉 [${i + 1}/${questions.length}] Live publicly via Zernio! URL: ${uploadRes.url || uploadRes.zernioPostId}\n`);
 
           if (i < questions.length - 1) {
             console.log('⏳ Waiting 5s before next upload...');
@@ -260,5 +291,6 @@ if (require.main === module) {
 module.exports = {
   parseRequestedCount,
   resolveDeliveryMode,
+  resolveSocialTarget,
   runFacebookReelsAutomation,
 };
