@@ -17,18 +17,98 @@ const TELEGRAM_MESSAGE_LIMIT = 4096;
 const TELEGRAM_VIDEO_MAX_BYTES = 50 * 1024 * 1024;
 
 /**
+ * Generates an algorithmic, high-CTR English/Hinglish curiosity hook (under 55 characters)
+ * to prevent the 1.5s mobile scroll drop-off and qualify for Meta Reels Discovery Feed.
+ */
+function generateViralEnglishHook(item = {}) {
+  if (item.englishHook && typeof item.englishHook === 'string' && item.englishHook.trim()) {
+    return item.englishHook.trim();
+  }
+
+  const cat = String(item.category || '').toLowerCase();
+  const title = String(item.title || '');
+  const topic = String(item.topic || '');
+  const q = String(item.question || '');
+
+  // Math IQ category
+  if (cat.includes('math') || title.includes('संख्या') || title.includes('गणित') || topic.includes('Math')) {
+    if (title.includes('अभाज्य') || title.includes('Prime')) {
+      return '99% Fail This! Only Even Prime Number? 🧠';
+    }
+    if (title.includes('प्रतिशत') || title.includes('Percent')) {
+      return 'Can You Solve This Math Trap In 3s? ⚡';
+    }
+    return '99% People Fail This Quick Math Test! 🧠';
+  }
+
+  // Polity & Constitution
+  if (cat.includes('pol') || topic.includes('संविधान') || topic.includes('Polity') || title.includes('अनुच्छेद') || title.includes('संशोधन')) {
+    if (title.includes('अनुच्छेद') || q.includes('अनुच्छेद')) {
+      return 'Can You Answer? Which Article Deals With This? 📜';
+    }
+    if (title.includes('संशोधन') || q.includes('संशोधन')) {
+      return '99% Fail This Historic Amendment Quiz! ⚖️';
+    }
+    if (title.includes('राष्ट्रपति') || title.includes('राज्यपाल')) {
+      return 'IAS Favorite: Minimum Age Requirement? 🏛️';
+    }
+    return '99% Fail This UPSC Polity Question! ⚖️';
+  }
+
+  // Geography & Ports/Rivers/Lakes
+  if (cat.includes('geo') || cat.includes('stat') || topic.includes('भूगोल') || topic.includes('Geography') || title.includes('बंदरगाह') || title.includes('नदी')) {
+    if (title.includes('बंदरगाह') || topic.includes('Port')) {
+      return "India's 1st Free Port? (99% Guess Mumbai!) ⚓";
+    }
+    if (title.includes('नदी') || topic.includes('River')) {
+      return "UPSC Trap: Name India's Longest River? 🌊";
+    }
+    if (title.includes('पठार') || title.includes('झील') || title.includes('पहाड़')) {
+      return 'Only 1% Know This Geography Fact! 🗺️';
+    }
+    return '99% People Fail This Geography Question! 🌍';
+  }
+
+  // History & Freedom Struggle
+  if (cat.includes('hist') || topic.includes('इतिहास') || topic.includes('History') || title.includes('गांधी') || title.includes('युद्ध')) {
+    if (title.includes('दांडी') || title.includes('गांधी')) {
+      return 'UPSC Trap: Where Did Dandi March Start? 🚶';
+    }
+    if (title.includes('युद्ध') || title.includes('Battle')) {
+      return '90% Get This Wrong! Famous Battle Quiz ⚔️';
+    }
+    return 'History Trap: Can You Answer in 3 Seconds? 📜';
+  }
+
+  // Science (Physics, Chemistry, Biology)
+  if (cat.includes('sci') || topic.includes('विज्ञान') || topic.includes('Science') || title.includes('कोशिका') || title.includes('रक्त')) {
+    if (title.includes('कोशिका') || q.includes('Powerhouse')) {
+      return 'Quick Science IQ: Powerhouse Of The Cell? ⚡';
+    }
+    if (title.includes('रक्त') || title.includes('विटामिन')) {
+      return 'Only 1% Can Answer This Biology Quiz! 🔬';
+    }
+    return '99% Students Confused: Quick Science Test! 🧪';
+  }
+
+  // Default High-CTR Curiosity Hook
+  return '99% People Fail This UPSC Question! 🎯';
+}
+
+/**
  * Builds standardized Facebook Reel title, description, tags, and engagement comment.
  */
 function buildReelMetadata(item = {}) {
+  const englishHook = generateViralEnglishHook(item);
   const safeTitle = item.title || 'सामान्य ज्ञान GK Quiz';
   const safeTopic = item.topic || 'सामान्य ज्ञान';
-  const title = `${safeTitle} | ${safeTopic} | Exam IQ Bharat #reels #FacebookReels`;
+  const title = `${englishHook} | Exam IQ Bharat #Reels`;
 
   const baseTags = Array.isArray(item.tags)
     ? [...item.tags]
     : (typeof item.tags === 'string' && item.tags.trim()
       ? item.tags.trim().split(/\s+/)
-      : ['#ExamIQ', '#GKQuiz', '#GeneralKnowledge', '#StaticGK', '#SSC', '#Railway']);
+      : ['#ExamIQ', '#GKQuiz', '#GeneralKnowledge', '#StaticGK', '#UPSC', '#SSCCGL']);
 
   if (!baseTags.some(t => /^#reels$/i.test(t))) baseTags.push('#Reels');
   if (!baseTags.some(t => /^#facebookreels$/i.test(t))) baseTags.push('#FacebookReels');
@@ -36,12 +116,15 @@ function buildReelMetadata(item = {}) {
 
   const optionLines = (item.options || []).map(o => `${o.letter}) ${o.text}`);
   const description = [
+    `🔥 ${englishHook}`,
+    '',
     `🎯 ${safeTitle} | ${safeTopic}`,
     '',
     item.question ? `Q. ${item.question}` : '',
     ...optionLines,
     '',
-    '👉 अपना जवाब (A, B, C या D) कमेंट बॉक्स में बताएं! देखते हैं कितने लोग सही जवाब देते हैं! 🏆',
+    '👉 अपना जवाब (A, B, C या D) कमेंट बॉक्स में बताएं! Only 1% know the real answer 🏆',
+    '⏱️ सही उत्तर वीडियो के अंत में देखें!',
     '🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!',
     '',
     baseTags.join(' '),
@@ -50,12 +133,13 @@ function buildReelMetadata(item = {}) {
     .join('\n');
 
   const pinnedComment =
-    '💬 आपका उत्तर (A, B, C या D) क्या है? कमेंट करें! सही जवाब देने वालों का कमेंट पिन किया जाएगा 🏆👇';
+    '💬 आपका उत्तर (A, B, C या D) क्या है? कमेंट करें! 90% लोग इसमें गलती करते हैं 👇';
 
   const answerKey = item.answerText || item.correctOption || '';
 
   return {
     title,
+    englishHook,
     description,
     tags: baseTags,
     pinnedComment,
@@ -371,6 +455,7 @@ module.exports = {
   buildReelMetadata,
   createExportBundle,
   formatIstScheduleSlot,
+  generateViralEnglishHook,
   sendToTelegram,
   splitTelegramText,
 };

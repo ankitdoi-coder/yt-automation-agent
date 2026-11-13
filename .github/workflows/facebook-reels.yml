@@ -74,6 +74,10 @@ jobs:
           ZERNIO_ACC_SECRET: ${{ secrets.ZERNIO_FACEBOOK_ACCOUNT_ID }}
           TG_TOKEN_SECRET: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TG_CHAT_SECRET: ${{ secrets.TELEGRAM_CHAT_ID }}
+          ELEVEN_KEY_SECRET: ${{ secrets.ELEVENLABS_API_KEY }}
+          ELEVEN_KEYS_SECRET: ${{ secrets.ELEVENLABS_API_KEYS }}
+          ELEVEN_VOICE_SECRET: ${{ secrets.ELEVENLABS_VOICE_ID || secrets.ELEVENLABS_VOICE }}
+          GEMINI_KEY_SECRET: ${{ secrets.GEMINI_API_KEY }}
           EVENT_NAME: ${{ github.event_name }}
           INPUT_MODE: ${{ github.event.inputs.delivery_mode || 'auto' }}
         run: |
@@ -99,6 +103,18 @@ jobs:
           fi
           if [ -n "$TG_CHAT_SECRET" ]; then
             echo "TELEGRAM_CHAT_ID=$TG_CHAT_SECRET" >> .env
+          fi
+          if [ -n "$ELEVEN_KEY_SECRET" ]; then
+            echo "ELEVENLABS_API_KEY=$ELEVEN_KEY_SECRET" >> .env
+          fi
+          if [ -n "$ELEVEN_KEYS_SECRET" ]; then
+            echo "ELEVENLABS_API_KEYS=$ELEVEN_KEYS_SECRET" >> .env
+          fi
+          if [ -n "$ELEVEN_VOICE_SECRET" ]; then
+            echo "ELEVENLABS_VOICE_ID=$ELEVEN_VOICE_SECRET" >> .env
+          fi
+          if [ -n "$GEMINI_KEY_SECRET" ]; then
+            echo "GEMINI_API_KEY=$GEMINI_KEY_SECRET" >> .env
           fi
           if ! grep -q "FB_PAGE_ID=" .env 2>/dev/null; then
             echo "FB_PAGE_ID=1289712677569663" >> .env

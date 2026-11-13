@@ -101,12 +101,13 @@ async function runFacebookReelsAutomation(options = {}) {
       console.log('----------------------------------------------------');
 
       try {
+        const metadata = buildReelMetadata(item);
+        const enrichedItem = { ...item, englishHook: metadata.englishHook };
+
         const startTime = Date.now();
-        const videoPath = await videoMaker.createReel(item, { index: i, commentChallenge: true });
+        const videoPath = await videoMaker.createReel(enrichedItem, { index: i, commentChallenge: true });
         const renderDuration = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`⚡ Rendered in ${renderDuration}s: ${videoPath}`);
-
-        const metadata = buildReelMetadata(item);
 
         if (deliveryMode === 'export') {
           renderedForExport.push({ item, videoPath, metadata });

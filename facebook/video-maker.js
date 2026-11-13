@@ -53,9 +53,35 @@ class FacebookVideoMaker {
     return null;
   }
 
-  // Generate crisp Hindi voice audio
+  _getAIVideoGenerator() {
+    if (!this._aiVideoGenerator) {
+      try {
+        const { AIVideoGenerator } = require('../utils/ai-video-generator');
+        this._aiVideoGenerator = new AIVideoGenerator();
+      } catch (err) {
+        console.warn(`[VideoMaker] Could not load AIVideoGenerator: ${err.message}`);
+        this._aiVideoGenerator = null;
+      }
+    }
+    return this._aiVideoGenerator;
+  }
+
+  // Generate ultra-realistic voice audio (ElevenLabs / Gemini primary, Edge-TTS fallback)
   async _getAudio(text, outputPath) {
-    // 1. Try edge-tts via command line if available
+    // 1. Try ElevenLabs / Gemini Neural TTS via AIVideoGenerator
+    const aiGen = this._getAIVideoGenerator();
+    if (aiGen) {
+      try {
+        await aiGen.generateTTSAudio(text, outputPath);
+        if (fs.existsSync(outputPath) && fs.statSync(outputPath).size > 1000) {
+          return outputPath;
+        }
+      } catch (err) {
+        console.warn(`[VideoMaker] Premium AI TTS (ElevenLabs/Gemini) fallback: ${err.message}`);
+      }
+    }
+
+    // 2. Try edge-tts via command line if available
     try {
       const { execSync } = require('child_process');
       execSync(`edge-tts --voice hi-IN-MadhurNeural --text "${text.replace(/"/g, '')}" --write-media "${outputPath}"`, {
@@ -67,7 +93,7 @@ class FacebookVideoMaker {
       }
     } catch (_) {}
 
-    // 2. Google Translate TTS fallback
+    // 3. Google Translate TTS fallback
     const url = `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=hi&q=${encodeURIComponent(text)}`;
     const res = await axios.get(url, {
       responseType: 'arraybuffer',
@@ -89,7 +115,7 @@ class FacebookVideoMaker {
 
   _buildSVG({ item, isAnswer = false, timerText = null, isCommentChallenge = false }) {
     const topic = this._escapeXml(item.topic || 'सामान्य ज्ञान (General Knowledge)');
-    const hookBar = this._escapeXml(item.hookBar || 'परीक्षा में बार बार पूछे जाने वाले सवाल');
+    const hookBar = this._escapeXml(item.englishHook || item.hookBar || 'परीक्षा में बार बार पूछे जाने वाले सवाल');
     const options = Array.isArray(item.options) ? item.options : [
       { letter: 'A', text: 'Option A' },
       { letter: 'B', text: 'Option B' },
@@ -325,14 +351,15 @@ class FacebookVideoMaker {
           '-stream_loop', '-1', '-i', this.audioAssets.bgmPath,
           '-filter_complex', '[2:a]volume=0.14[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]',
           '-map', '0:v', '-map', '[aout]',
-          '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
+          '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-t', String(d1), seg1
         ]);
       } else {
         await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
-          '-i', qAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
+          '-i', qAudio,
+          '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-shortest', seg1
         ]);
@@ -353,14 +380,15 @@ class FacebookVideoMaker {
           ...extraArgs,
           '-filter_complex', filterStr,
           '-map', '0:v', '-map', '[aout]',
-          '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
+          '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-t', String(d2), seg2
         ]);
       } else {
         await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d2), '-i', f2Png,
-          '-i', timerAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
+          '-i', timerAudio,
+          '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-shortest', seg2
         ]);
@@ -381,14 +409,15 @@ class FacebookVideoMaker {
           ...extraArgs,
           '-filter_complex', filterStr,
           '-map', '0:v', '-map', '[aout]',
-          '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
+          '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-t', String(d3), seg3
         ]);
       } else {
         await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d3), '-i', f3Png,
-          '-i', ansAudio, '-c:v', 'libx264', '-tune', 'stillimage', '-r', '30',
+          '-i', ansAudio,
+          '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
           '-shortest', seg3
         ]);
