@@ -1,4 +1,6 @@
 require('dotenv').config();
+const fs = require('fs');
+const path = require('path');
 const { YouTubeAutomationAgent } = require('../index');
 const { Logger } = require('../utils/logger');
 
@@ -12,48 +14,58 @@ const logger = new Logger('DailyRunner');
 // 3. Slot 3 (07:00 PM IST) - Evening Prime Exam Class (Long Video 2, 50 Questions)
 // 4. Slot 4 (09:30 PM IST) - Bedtime Rapid Scroll (Shorts, 9:16 Vertical)
 // High-Retention Focused Daily Schedule for Algorithmic Growth:
-// 2 High-Yield Vertical Shorts daily (Morning commute 08:30 IST & Prime study 19:30 IST)
+function loadGrowthConfig() {
+  try {
+    const p = path.resolve(__dirname, '..', 'config', 'growth.json');
+    if (fs.existsSync(p)) {
+      return JSON.parse(fs.readFileSync(p, 'utf8'));
+    }
+  } catch (_) {}
+  return {};
+}
+
+// High-Yield Vertical Shorts Schedule (07:50 IST Morning ~08:00 AM Public & 16:50 IST Evening ~05:00 PM Public)
 // 20-min Long videos are paused from daily automation to protect channel Domain Quality Score
 const SCHEDULE_SLOTS = [
   {
     id: 'slot1',
-    name: 'Morning Rapid Revision (Shorts 1, 9:16 Vertical)',
-    timeIST: '08:30',
+    name: 'Morning Prime Revision (Shorts 1, 9:16 Vertical)',
+    timeIST: '07:50',
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
-    defaultTopic: 'सामान्य विज्ञान (General Science): जीव विज्ञान (Biology) के 5 अति महत्वपूर्ण प्रश्न | Science GK Shorts'
+    defaultTopic: 'General Science: Human Body & Biology Important Questions | Top 3 Science GK Shorts'
   },
   {
     id: 'slot2',
     name: 'Evening Prime Revision (Shorts 2, 9:16 Vertical)',
-    timeIST: '19:30',
+    timeIST: '16:50',
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
-    defaultTopic: 'प्रमुख पुस्तकें और लेखक व भारत के राष्ट्रीय उद्यान: Top 5 Static GK Shorts'
+    defaultTopic: 'Indian Polity & Constitution: Fundamental Rights & Key Articles | Top 3 Polity GK Shorts'
   }
 ];
 
-// High-Yield Syllabus Topic Pools for Daily Automated Rotation (Inspired by 1M+ views viral benchmarks)
-// Prioritizes: General Science (Biology, Chemistry, Physics), High-Yield Static GK, and Indian History/Polity
+// High-Yield 3-Question Shorts Topic Pools (no 50-question long-form strings on 30s Shorts)
 const SLOT_TOPIC_POOLS = {
   slot1: [
-    'सामान्य विज्ञान (General Science): जीव विज्ञान (Biology) के 5 अति महत्वपूर्ण प्रश्न | Science GK Shorts',
-    'मानव शरीर (Human Anatomy) एवं विटामिन्स के 5 सबसे महत्वपूर्ण सवाल | Biology GK Shorts',
-    'कोशिका (Cell) व मानव रोग: बार-बार पूछे जाने वाले 5 प्रश्न | General Science GK Shorts',
-    'रसायन विज्ञान (Chemistry): अम्ल, क्षार और pH मान के 5 महत्वपूर्ण प्रश्न | Science GK Shorts',
-    'भौतिक विज्ञान (Physics): प्रमुख मात्रक और आविष्कार के 5 प्रश्न | Science GK Shorts',
-    'मानव रक्त परिसंचरण व प्रमुख अंग: Top 5 Biology GK Questions | Science Shorts',
-    'विटामिन, उनके रासायनिक नाम व कमी से रोग: Top 5 Science GK Shorts'
+    'General Science: Human Body & Biology Important Questions | Top 3 Science GK Shorts',
+    'Vitamin, Chemical Names & Deficiency Diseases | Top 3 General Science GK Shorts',
+    'Human Blood Circulation, Heart & Organs | Top 3 Biology GK Shorts',
+    'Acids, Bases, pH Scale & Everyday Chemistry | Top 3 Chemistry GK Shorts',
+    'SI Units, Physics Inventions & Laws | Top 3 Physics GK Shorts',
+    'Indian Polity: Fundamental Rights & Key Constitutional Articles | Top 3 Polity GK Shorts',
+    'Cell Biology, Genetics & Human Diseases | Top 3 Science GK Shorts'
   ],
   slot2: [
-    'प्राचीन एवं मध्यकालीन भारत का इतिहास: 50 सबसे महत्वपूर्ण प्रश्न | Indian History GK Masterclass',
-    'सामान्य विज्ञान (General Science): 50 सबसे महत्वपूर्ण प्रश्न (Biology + Physics + Chemistry) | Science GK',
-    'भारतीय संविधान एवं राजव्यवस्था: 50 अति महत्वपूर्ण अनुच्छेद व प्रश्न | Indian Polity GK',
-    'आधुनिक भारत का इतिहास एवं 1857 की क्रांति: 50 महत्वपूर्ण प्रश्न | Modern History GK Class',
-    'जीव विज्ञान (Biology): कोशिका से मानव शरीर तक 50 महत्वपूर्ण प्रश्न | Lucent Science GK',
-    'मौर्य वंश एवं गुप्त काल का स्वर्णिम इतिहास: 50 अति महत्वपूर्ण प्रश्न | Ancient History GK'
+    'Indian Polity & Constitution: Key Articles & Amendments | Top 3 Polity GK Shorts',
+    'Modern Indian History: 1857 Revolt & Freedom Struggle | Top 3 History GK Shorts',
+    'Static GK: National Parks, Tiger Reserves & Wildlife Sanctuaries | Top 3 Static GK Shorts',
+    'Indian Geography: Major Rivers, Dams & Mountain Passes | Top 3 Geography GK Shorts',
+    'Ancient History: Maurya, Gupta Empire & Harappan Civilization | Top 3 History GK Shorts',
+    'Famous Books & Authors + Classical Dances of India | Top 3 Static GK Shorts',
+    'First in India & Important Constitutional Schedules | Top 3 Static GK Shorts'
   ],
   slot3: [
     'Static GK Marathon: भारत के राष्ट्रीय उद्यान, लोक नृत्य, नदियां व बांध: 50 प्रश्न | Static GK Class',
@@ -64,13 +76,13 @@ const SLOT_TOPIC_POOLS = {
     'भारतीय इतिहास के 50 महत्वपूर्ण युद्ध, संधियां व राष्ट्रीय आंदोलन | History GK Marathon'
   ],
   slot4: [
-    'प्रमुख पुस्तकें और लेखक (Books and Authors): Top 5 Most Repeated Static GK | GK Shorts',
-    'भारत के प्रमुख राष्ट्रीय उद्यान (National Parks of India): Top 5 Static GK Shorts',
-    'भारत के प्रमुख लोक नृत्य एवं त्यौहार: Top 5 Most Repeated Questions | Static GK Shorts',
-    'भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: बार-बार पूछे जाने वाले सवाल | Polity GK Shorts',
-    'भारत में प्रथम (First in India - Male & Female): Top 5 Static GK | GK Shorts',
-    'प्रमुख नदियों के किनारे बसे शहर व प्रमुख बांध: Top 5 Static GK Shorts',
-    'गुप्त वंश व मौर्य साम्राज्य: भारतीय इतिहास के 5 महत्वपूर्ण सवाल | History GK Shorts'
+    'Books and Authors Important Questions | Top 3 Static GK Shorts',
+    'National Parks of India Important Questions | Top 3 Static GK Shorts',
+    'Classical Dances and Festivals of India | Top 3 Static GK Shorts',
+    'Indian Constitution Important Articles | Top 3 Polity GK Shorts',
+    'First in India (Male & Female) GK | Top 3 Static GK Shorts',
+    'Major Dams and River Cities of India | Top 3 Geography GK Shorts',
+    'Gupta and Maurya Empire Important Questions | Top 3 History GK Shorts'
   ]
 };
 
@@ -113,13 +125,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/science|विज्ञान|bio|biology|chem|physics/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - जीव विज्ञान (Biology) के 5 अति महत्वपूर्ण प्रश्न | Science GK Shorts 1');
+        return formatSlotTopic(cleanBase, ' - Biology & Human Body: Top 3 Science GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - जीव विज्ञान (Biology) व मानव शरीर: 50 महत्वपूर्ण प्रश्न | Long Class 1');
+        return formatSlotTopic(cleanBase, ' - Physics & Chemistry: Top 3 Science GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - रसायन विज्ञान व भौतिक विज्ञान: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - प्रमुख वैज्ञानिक आविष्कार, मात्रक व खोजें: Top 5 GK Shorts 2');
+        return formatSlotTopic(cleanBase, ' - Scientific Inventions & Units: Top 3 GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -129,13 +141,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/static|विविध|पुस्तक|author|book|उद्यान|park|dance|नृत्य|त्यौहार|festival/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - प्रमुख पुस्तकें व लेखक: Top 5 Static GK Shorts 1');
+        return formatSlotTopic(cleanBase, ' - Books, Parks & Static GK: Top 3 Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - भारत के राष्ट्रीय उद्यान, बांध व नदियां: 50 महत्वपूर्ण प्रश्न | Long Class 1');
+        return formatSlotTopic(cleanBase, ' - National Parks, Folk Dances & Heritage: Top 3 Static GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - लोक नृत्य, प्रमुख त्यौहार व दिवस: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - भारत में प्रथम (First in India): Top 5 Static GK Shorts 2');
+        return formatSlotTopic(cleanBase, ' - First in India: Top 3 Static GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -145,13 +157,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/history|इतिहास|संविधान|polity/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - मौर्य काल, गुप्त वंश व 1857 की क्रांति: Top 5 GK Shorts 1');
+        return formatSlotTopic(cleanBase, ' - Maurya, Gupta & 1857 Revolt: Top 3 History GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - प्राचीन एवं मध्यकालीन भारत का इतिहास: 50 महत्वपूर्ण प्रश्न | Long Class 1');
+        return formatSlotTopic(cleanBase, ' - Fundamental Rights & Constitutional Articles: Top 3 Polity GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - आधुनिक भारत का इतिहास एवं भारतीय संविधान: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - भारतीय संविधान के 5 अति महत्वपूर्ण अनुच्छेद: Top 5 GK Shorts 2');
+        return formatSlotTopic(cleanBase, ' - Key Indian Constitution Articles: Top 3 Polity GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -161,13 +173,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/geography|भूगोल/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - भारत के प्रमुख बांध व झीलें: Top 5 GK Shorts 1');
+        return formatSlotTopic(cleanBase, ' - Major Dams, Rivers & Lakes: Top 3 Geography GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - भारत की नदियां, पर्वत व राष्ट्रीय उद्यान: 50 महत्वपूर्ण प्रश्न | Long Class 1');
+        return formatSlotTopic(cleanBase, ' - Mountain Passes, National Parks & Borders: Top 3 Geography GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - विश्व का भूगोल, सौरमंडल व महाद्वीप: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - भारत के राज्य, सीमाएं व प्रमुख दर्रे: Top 5 GK Shorts 2');
+        return formatSlotTopic(cleanBase, ' - Indian States & Passes: Top 3 GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -176,13 +188,13 @@ function resolveSlotTopic(slot, baseTopic) {
   // General custom topic - give distinct sub-angles per slot
   switch (slot.id) {
     case 'slot1':
-      return formatSlotTopic(cleanBase, ': Top 5 रोचक व परीक्षा उपयोगी सवाल | Rapid Fire GK Shorts 1');
+      return formatSlotTopic(cleanBase, ': Top 3 Rapid-Fire Exam GK Questions #shorts');
     case 'slot2':
-      return formatSlotTopic(cleanBase, ': भाग 1 - 50 अति महत्वपूर्ण प्रश्न (दोपहर मास्टरक्लास)');
+      return formatSlotTopic(cleanBase, ': Top 3 Most Repeated Exam Questions #shorts');
     case 'slot3':
       return formatSlotTopic(cleanBase, ': भाग 2 - 50 अति महत्वपूर्ण प्रश्न (शाम की प्राइम क्लास)');
     case 'slot4':
-      return formatSlotTopic(cleanBase, ': Top 5 मोस्ट रिपीटेड कठिन सवाल | ExamIQ Bharat Shorts 2');
+      return formatSlotTopic(cleanBase, ': Top 3 Difficult GK Questions #shorts');
     default:
       return formatSlotTopic(cleanBase, ` - ${slot.name}`);
   }
@@ -199,13 +211,31 @@ function calculateSlotPublishDate(timeIST) {
   const targetIST = new Date(nowIST);
   targetIST.setUTCHours(hours, minutes, 0, 0);
 
-  let targetUTC = new Date(targetIST.getTime() - istOffsetMs);
+  const targetUTC = new Date(targetIST.getTime() - istOffsetMs);
+  const isPast = targetUTC.getTime() <= now.getTime();
 
-  // If slot time has already passed or is within 45 minutes, schedule for TOMORROW at that time!
-  // This guarantees videos are ALWAYS scheduled in advance and never dumped into the past.
-  if (targetUTC.getTime() <= (now.getTime() + 45 * 60 * 1000)) {
+  // Direct public publishing (default): whenever cron/pipeline runs, publish immediately!
+  // Never schedule into tomorrow if the trigger is slightly late or server delayed.
+  const scheduleInAdvance = process.env.SCHEDULE_IN_ADVANCE === 'true';
+  if (!scheduleInAdvance) {
+    return {
+      targetUTC: now,
+      isoString: now.toISOString(),
+      isPast: true,
+      timeIST
+    };
+  }
+
+  // Only if explicitly instructed to schedule in advance:
+  if (isPast) {
     targetIST.setUTCDate(targetIST.getUTCDate() + 1);
-    targetUTC = new Date(targetIST.getTime() - istOffsetMs);
+    const nextUTC = new Date(targetIST.getTime() - istOffsetMs);
+    return {
+      targetUTC: nextUTC,
+      isoString: nextUTC.toISOString(),
+      isPast: false,
+      timeIST
+    };
   }
 
   return {
@@ -234,9 +264,16 @@ async function run() {
   // Ensure fully automated publishing without manual approval bottlenecks
   await agent.db.setSetting('approval_required', 'false');
 
-  // Determine which slots to run
+  // Determine which slots to run (respect cadence.maxShortsPerDay from config/growth.json)
+  const growth = loadGrowthConfig();
+  const maxShortsPerDay = Math.max(1, Number(growth.cadence?.maxShortsPerDay ?? 2));
+  const minHoursBetweenUploads = Math.max(6, Number(growth.cadence?.minHoursBetweenUploads ?? 6));
   const targetSlotInput = (process.env.TARGET_SLOT || 'all').toLowerCase();
-  let slotsToRun = SCHEDULE_SLOTS;
+  const istHourNow = new Date(Date.now() + 5.5 * 60 * 60 * 1000).getUTCHours();
+  const timeMatchedSlot = istHourNow < 13 ? SCHEDULE_SLOTS[0] : (SCHEDULE_SLOTS[1] || SCHEDULE_SLOTS[0]);
+  let slotsToRun = process.env.RUN_ALL_SLOTS === 'true'
+    ? SCHEDULE_SLOTS.slice(0, maxShortsPerDay)
+    : [timeMatchedSlot];
 
   if (!targetSlotInput.startsWith('all')) {
     const matched = SCHEDULE_SLOTS.filter(s =>
@@ -247,7 +284,7 @@ async function run() {
     if (matched.length > 0) {
       slotsToRun = matched;
     } else {
-      logger.warn(`Unknown TARGET_SLOT "${process.env.TARGET_SLOT}", defaulting to all 4 daily slots`);
+      logger.warn(`Unknown TARGET_SLOT "${process.env.TARGET_SLOT}", defaulting to configured slots (${slotsToRun.length})`);
     }
   }
 
@@ -282,38 +319,22 @@ async function run() {
     const slot = slotsToRun[i];
     const slotTiming = calculateSlotPublishDate(slot.timeIST);
 
-    // If running full daily batch, skip slots already uploaded to YouTube in the last 18 hours
+    // Enforce 1 Short per day / minHoursBetweenUploads gate across ALL Short uploads
     const isForceRun = process.env.FORCE_RUN === 'true' || process.env.FORCE_RUN === true;
     if (recentUploads.length > 0 && !isForceRun && targetSlotInput.startsWith('all')) {
-      const alreadyUploaded = recentUploads.find(item => {
+      const recentShorts = recentUploads.filter(item => {
         const publishedAt = new Date(item.snippet?.publishedAt || 0).getTime();
         const ageHours = (Date.now() - publishedAt) / (1000 * 60 * 60);
-        if (ageHours > 18) return false;
+        if (ageHours > 20) return false;
         const title = (item.snippet?.title || '').toLowerCase();
-        const isUploadShorts = title.includes('#shorts') || title.includes('#short') || /top\s*5\b|5\s*सवाल|5\s*mcq/i.test(title);
-        const isUploadLong = !isUploadShorts && (/50\b|masterclass|marathon|क्लास|भाग\s*\d/i.test(title) || !title.includes('shorts'));
-
-        if (slot.id === 'slot1') {
-          // Slot 1 is Morning Rapid Revision Shorts (Science / Biology)
-          return isUploadShorts && (title.includes('science') || title.includes('विज्ञान') || title.includes('biology') || title.includes('जीव विज्ञान') || title.includes('shorts 1') || title.includes('rapid revision'));
-        }
-        if (slot.id === 'slot2') {
-          // Slot 2 is Afternoon Study Masterclass Long Video (50 Questions - History / Science)
-          return isUploadLong && (title.includes('इतिहास') || title.includes('history') || title.includes('प्राचीन') || title.includes('मध्यकालीन') || title.includes('आधुनिक') || title.includes('भाग 1') || title.includes('masterclass'));
-        }
-        if (slot.id === 'slot3') {
-          // Slot 3 is Evening Prime Exam Class Long Video (50 Questions - Marathon / Science / Polity)
-          return isUploadLong && (title.includes('संविधान') || title.includes('भूगोल') || title.includes('polity') || title.includes('भाग 2') || title.includes('marathon') || title.includes('static') || title.includes('रामबाण'));
-        }
-        if (slot.id === 'slot4') {
-          // Slot 4 is Bedtime Rapid Scroll Shorts (Static GK / First in India / Mixed)
-          return isUploadShorts && (title.includes('प्रथम') || title.includes('रोचक') || title.includes('top 5 gk') || title.includes('shorts 2') || title.includes('static') || title.includes('पुस्तक') || title.includes('उद्यान') || title.includes('नृत्य'));
-        }
-        return false;
+        return title.includes('#short') || /\btop\s*[35]\b|mcq\b|gk quiz|static gk|general science|polity|history/i.test(title);
       });
 
+      const recentCooldownShort = recentShorts.find(item => ((Date.now() - new Date(item.snippet?.publishedAt || 0).getTime()) / (1000 * 60 * 60)) <= minHoursBetweenUploads);
+      const alreadyUploaded = recentCooldownShort || (recentShorts.length >= maxShortsPerDay ? recentShorts[0] : null);
+
       if (alreadyUploaded) {
-        logger.info(`⏭️ Skipping ${slot.name} (${slot.id}): Already uploaded to channel today: "${alreadyUploaded.snippet?.title}". (Set FORCE_RUN=true to override).`);
+        logger.info(`⏭️ Skipping ${slot.name} (${slot.id}): Daily Short quota (${recentShorts.length}/${maxShortsPerDay} within ${minHoursBetweenUploads}h) already filled by "${alreadyUploaded.snippet?.title}". (Set FORCE_RUN=true to override).`);
         skippedSlots.push({ slot: slot.name, timeIST: slot.timeIST, title: alreadyUploaded.snippet?.title });
         continue;
       }
@@ -321,7 +342,7 @@ async function run() {
 
     logger.info(`\n────────────────────────────────────────────────────────────`);
     logger.info(`🎬 Generating Video ${i + 1}/${slotsToRun.length}: ${slot.name}`);
-    logger.info(`⏰ Target Publish Window: ${slot.timeIST} IST (UTC: ${slotTiming.isoString}) | Status: ${slotTiming.isPast ? 'Direct Public Upload' : 'Scheduled Auto-Public'}`);
+    logger.info(`⏰ Target Publish Window: ${slot.timeIST} IST | Status: ${(process.env.PUBLISH_IMMEDIATELY !== 'false' || slotTiming.isPast) ? 'Direct Public Upload' : 'Scheduled Auto-Public'}`);
     logger.info(`────────────────────────────────────────────────────────────`);
 
     try {
@@ -354,31 +375,39 @@ async function run() {
         logger.info(`Uploading to YouTube with target schedule: ${slotTiming.isoString}...`);
 
         const targetPrivacy = process.env.DEFAULT_PRIVACY_STATUS || 'public';
+        const directPublic = process.env.SCHEDULE_IN_ADVANCE !== 'true'; // Default is always instant direct public
+        const immediateIso = new Date().toISOString();
         const entry = await agent.db.getLatestScheduleEntry?.(productionId);
         if (entry) {
-          if (!slotTiming.isPast) entry.publishTime = slotTiming.isoString;
+          entry.publishTime = directPublic ? immediateIso : slotTiming.isoString;
           entry.metadata = {
             ...entry.metadata,
             privacyStatus: targetPrivacy
           };
+          if (directPublic) {
+            delete entry.metadata.publishAt;
+          }
           await agent.db.saveScheduleEntry(entry);
         }
         if (Array.isArray(agent.agents.publishing.publishQueue)) {
           const queueEntry = agent.agents.publishing.publishQueue.find(e => e.productionId === productionId || e.id === productionId);
           if (queueEntry) {
-            if (!slotTiming.isPast) queueEntry.publishTime = slotTiming.isoString;
+            queueEntry.publishTime = directPublic ? immediateIso : slotTiming.isoString;
             queueEntry.metadata = {
               ...queueEntry.metadata,
               privacyStatus: targetPrivacy
             };
+            if (directPublic) {
+              delete queueEntry.metadata.publishAt;
+            }
           }
         }
 
         const publishResult = await agent.agents.publishing.publishContent(productionId, {
-          publishNow: slotTiming.isPast || process.env.PUBLISH_IMMEDIATELY === 'true'
+          publishNow: directPublic
         });
 
-        const statusMsg = slotTiming.isPast || process.env.PUBLISH_IMMEDIATELY === 'true'
+        const statusMsg = directPublic
           ? `PUBLIC NOW: ${publishResult.youtubeUrl || publishResult.youtubeId}`
           : `SCHEDULED for ${slot.timeIST} IST: ${publishResult.youtubeUrl || publishResult.youtubeId}`;
 
@@ -387,7 +416,7 @@ async function run() {
           slot: slot.name,
           timeIST: slot.timeIST,
           url: publishResult.youtubeUrl || publishResult.youtubeId,
-          status: slotTiming.isPast ? 'Published Public' : 'Scheduled Auto-Public'
+          status: (directPublic || slotTiming.isPast) ? 'Published Public' : 'Scheduled Auto-Public'
         });
       }
     } catch (err) {

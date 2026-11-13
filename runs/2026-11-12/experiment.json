@@ -1,0 +1,60 @@
+{
+  "experiment_id": "exp_20261109_rapid_pacing",
+  "date": "2026-11-12",
+  "day_number": 2,
+  "channel_id": "UCjh63suNzws9XB2sF1xKzyw",
+  "channel_handle": "@examiqbharat",
+  "variable": "duration_and_pacing",
+  "control": {
+    "question_count": 5,
+    "pause_between_qa_seconds": 3.0,
+    "target_duration_seconds": 45,
+    "historical_apv": 58.6,
+    "historical_avg_views": 21.5
+  },
+  "variant": {
+    "question_count": 3,
+    "pause_between_qa_seconds": 0.4,
+    "hook_pause_seconds": 0.25,
+    "target_duration_seconds": 25,
+    "title_style": "english_under_50_chars",
+    "audio": "tick_on_short_pause_chime_bgm_minus_14_lufs",
+    "visual_improvements": [
+      "green_correct_reveal_pill",
+      "animated_top_progress_bar_30fps",
+      "bottom_cta_above_shorts_20pct_safe_zone",
+      "like_and_comment_challenge_footer"
+    ],
+    "target_apv": 85.0
+  },
+  "prior_variant_results": [
+    {
+      "video_id": "c-cxf09GBCs",
+      "date": "2026-11-11",
+      "views_t16h": 1005,
+      "views_t27h": 1025,
+      "likes_t16h": 0,
+      "comments_t16h": 1
+    },
+    {
+      "video_id": "UaT3jlVOzI4",
+      "date": "2026-11-12",
+      "published_at": "2026-11-12T16:02:01Z",
+      "views_t0h": 0,
+      "comments_t0h": 1,
+      "status": "public_processed"
+    }
+  ],
+  "sample_size_target": 5,
+  "variant_n_completed": 2,
+  "start_date": "2026-11-09",
+  "decision_date": "2026-11-14",
+  "today_topic": {
+    "category": "polity",
+    "topic_english": "Indian Polity",
+    "topic_hindi": "भारतीय संविधान",
+    "subtopic": "Indian Polity — Fundamental Rights & Key Constitutional Articles",
+    "question_count": 3
+  },
+  "status": "active"
+}

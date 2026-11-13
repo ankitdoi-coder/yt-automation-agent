@@ -412,13 +412,19 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
       String(strategy.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
     );
     if (isShort) {
+      if (Number.isFinite(Number(strategy.targetQuestionCount)) && Number(strategy.targetQuestionCount) >= 3) {
+        return Number(strategy.targetQuestionCount);
+      }
+      if (growth.shorts?.targetQuestionCount) {
+        return growth.shorts.targetQuestionCount;
+      }
       const text = `${strategy.topic || ''} ${strategy.angle || ''}`;
       const match = text.match(/\btop\s*(\d{1,2})\b/i);
       if (match) {
         const val = Number(match[1]);
         if (val >= 3 && val <= 10) return val;
       }
-      return growth.shorts?.targetQuestionCount || 5;
+      return 3;
     }
     const text = `${strategy.topic || ''} ${strategy.angle || ''}`;
     const topMatch = text.match(/\btop\s*(\d{1,3})\b/i);
@@ -526,6 +532,14 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
   }
 
   buildQuizBatchPrompt({ strategy, language, size, totalQuestions = 50, collectedQuestions = [], withMeta }) {
+    const isShort = Boolean(
+      strategy?.isShort ||
+      totalQuestions <= 5 ||
+      String(strategy?.contentType || strategy?.requestedStyle || '').includes('quiz_short')
+    );
+    const shortsCuriosityRule = isShort
+      ? `\n17. SHORTS HIGH-CURIOSITY NCERT RULE (~30s TARGET): For this ${totalQuestions}-question Short, choose surprising, high-curiosity NCERT Class 6-12 exam concepts (e.g. unexpected human-body superlatives like largest internal organ or mature RBCs lacking a nucleus, vitamin chemical names/clotting like Vitamin K, key Constitutional Articles, or high-frequency exam traps). Keep every question crisp (7-14 words) and every option concise (1-4 words) so all ${totalQuestions} questions + hook + challenge fit cleanly inside 28-30 seconds. Make Q${totalQuestions} (the final question) especially intriguing for the end-of-video Comment Challenge!`
+      : '';
     const languageLine = language === 'hi'
       ? 'Write every question, option, explanation and header text in Hindi using proper Devanagari script. IMPORTANT: On-screen questions and options must write all numbers and dates as numeric digits (e.g. 17, 28 फरवरी 1928, 1947, 360, अनुच्छेद 324) and NOT spelled out as Hindi words. Write continuous, natural Hindi words with correct matras.'
       : 'Write every question, option, explanation and header text in English.';
@@ -581,7 +595,7 @@ ${existing}
 13. Strict JSON: every string in "options" and "question" must be enclosed in double quotes. Do NOT use unescaped double quotes inside question, options, or explanation text; use single quotes ('...') for any terms or titles inside sentences (e.g. 'मास्टर ग्रंथि', 'विटामिन C').
 14. ZERO REPETITION & NO CLICHES: Never ask beginner cliches (e.g. counting bones in human body "मानव शरीर में हड्डियां", simple national symbols, simple capitals). Every question must be a fresh, competitive-exam level question (SSC CGL / UPSC / Railway NTPC standard) covering diverse specialized sub-domains.
 15. SYLLABUS-BACKED SCIENCE & STATIC GK FOCUS: For General Science topics, prioritize high-yield exam concepts: cell biology (माइटोकॉन्ड्रिया, राइबोसोम, लाइसोसोम), vitamins & chemical names (एस्कॉर्बिक एसिड, रेटिनॉल), human anatomy & organs (हृदय, वृक्क, यकृत, इंसुलिन), acid/base & pH values (रक्त का pH, अम्लीय वर्षा), physics SI units (पास्कल, जूल, वाट) and inventions. For Static GK, prioritize Books & Authors, National Parks with states, Folk Dances with festivals, and Dams with river projects.
-16. COMPLETE SENTENCE QUESTIONS: Every question must be a complete, grammatically sound question (at least 5 to 15 words, e.g. 'मानव शरीर में रक्त का सामान्य pH मान कितना होता है?', 'कोशिका की आत्मघाती थैली किसे कहा जाता है?'). NEVER write telegraphic 1-3 word phrases (e.g. do NOT write 'लार का pH' or 'मास्टर ग्रंथि').
+16. COMPLETE SENTENCE QUESTIONS: Every question must be a complete, grammatically sound question (at least 5 to 15 words, e.g. 'मानव शरीर में रक्त का सामान्य pH मान कितना होता है?', 'कोशिका की आत्मघाती थैली किसे कहा जाता है?'). NEVER write telegraphic 1-3 word phrases (e.g. do NOT write 'लार का pH' or 'मास्टर ग्रंथि').${shortsCuriosityRule}
 Return only the valid JSON, no markdown outside, no commentary.`;
   }
 

@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-12",
+  "video_path": "D:\\youtube-automation-agent\\runs\\2026-11-12\\video.mp4",
+  "qa_passed": true,
+  "measured_duration_seconds": 28,
+  "resolution": "1080x1920",
+  "integrated_loudness_lufs": -16.1,
+  "max_silence_gap_seconds": 1.11746,
+  "qa_frames": [
+    "qa_frame_1.png",
+    "qa_frame_2.png",
+    "qa_frame_3.png",
+    "qa_frame_4.png",
+    "qa_frame_5.png"
+  ],
+  "gates": {
+    "resolution_1080x1920": true,
+    "vertical_format": true,
+    "duration_valid": true,
+    "silence_gap_under_1_2s": true,
+    "loudness_near_14_lufs": true,
+    "audio_present": true
+  }
+}

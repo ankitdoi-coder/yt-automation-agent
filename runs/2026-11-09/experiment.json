@@ -1,0 +1,36 @@
+{
+  "experiment_id": "exp_20261109_rapid_pacing",
+  "date": "2026-11-09",
+  "channel_id": "UCjh63suNzws9XB2sF1xKzyw",
+  "channel_handle": "@examiqbharat",
+  "variable": "duration_and_pacing",
+  "control": {
+    "question_count": 5,
+    "pause_between_qa_seconds": 3.0,
+    "target_duration_seconds": 45,
+    "historical_apv": 58.6,
+    "historical_avg_views": 21.5
+  },
+  "variant": {
+    "question_count": 3,
+    "pause_between_qa_seconds": 0.4,
+    "target_duration_seconds": 20,
+    "title_style": "english_under_50_chars",
+    "audio": "loud_tubular_chime_plus_suspense_bgm",
+    "target_apv": 85.0
+  },
+  "hypothesis": "Reducing Shorts duration from 45s to ~20s and removing the 3s pause between Q&A boosts APV from 58.6% to >80%, satisfying the YouTube Shorts feed retention threshold and pushing impressions above 1k.",
+  "primary_metric": "averageViewPercentage",
+  "secondary_metric": "shorts_feed_views",
+  "sample_size_target": 5,
+  "start_date": "2026-11-09",
+  "decision_date": "2026-11-14",
+  "today_topic": {
+    "category": "science",
+    "topic_english": "General Science",
+    "topic_hindi": "सामान्य विज्ञान",
+    "subtopic": "Human Body & Biology Essentials",
+    "question_count": 3
+  },
+  "status": "active"
+}

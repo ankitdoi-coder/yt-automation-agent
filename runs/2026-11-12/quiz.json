@@ -1,0 +1,75 @@
+{
+  "title": "Indian Polity Quiz | Top 3 Questions 🎯 #shorts",
+  "isShort": true,
+  "subject": "Indian Polity",
+  "subjectHindi": "भारतीय संविधान",
+  "totalQuestions": 3,
+  "language": "hi",
+  "hook": "दम है तो 3 में से 2 सही करके दिखाओ!",
+  "targetDurationSeconds": 24,
+  "pacingSecondsPerQuestion": 4.5,
+  "pauseAfterQuestionSeconds": 0.4,
+  "audioDesign": {
+    "bgm": "intense_suspense_beat",
+    "chime": "tubular_bell_chime_880hz",
+    "tick_on_short_pause": true,
+    "target_lufs": -14.0,
+    "tts_speed": "1.0x"
+  },
+  "questions": [
+    {
+      "number": 1,
+      "question": "डॉ. भीमराव अंबेडकर ने किस अनुच्छेद को 'संविधान की आत्मा' कहा था?",
+      "options": [
+        "अनुच्छेद 14 (Article 14)",
+        "अनुच्छेद 21 (Article 21)",
+        "अनुच्छेद 32 (Article 32)",
+        "अनुच्छेद 19 (Article 19)"
+      ],
+      "answerIndex": 2,
+      "answer": "अनुच्छेद 32 (Article 32)",
+      "explanation": "अनुच्छेद 32 संवैधानिक उपचारों का अधिकार देता है, जिससे मौलिक अधिकारों के उल्लंघन पर नागरिक सीधे सर्वोच्च न्यायालय जा सकते हैं।",
+      "fact": "Article 32 = 'संविधान का हृदय और आत्मा (Heart & Soul of the Constitution)'.",
+      "source": "Constitution of India, Part III — Article 32",
+      "difficulty": "easy",
+      "questionNarration": "पहला सवाल: डॉक्टर भीमराव अंबेडकर ने किस अनुच्छेद को संविधान की आत्मा कहा था?",
+      "answerNarration": "सही उत्तर है अनुच्छेद 32।"
+    },
+    {
+      "number": 2,
+      "question": "भारतीय संविधान के किस अनुच्छेद में 'अस्पृश्यता का अंत' वर्णित है?",
+      "options": [
+        "अनुच्छेद 15 (Article 15)",
+        "अनुच्छेद 17 (Article 17)",
+        "अनुच्छेद 18 (Article 18)",
+        "अनुच्छेद 24 (Article 24)"
+      ],
+      "answerIndex": 1,
+      "answer": "अनुच्छेद 17 (Article 17)",
+      "explanation": "अनुच्छेद 17 के अनुसार अस्पृश्यता (छुआछूत) को पूर्णतः समाप्त किया जाता है और इसका किसी भी रूप में आचरण दंडनीय अपराध है।",
+      "fact": "अनुच्छेद 17 = एक साथ समानता (अस्पृश्यता का पूर्ण अंत).",
+      "source": "Constitution of India, Part III — Article 17",
+      "difficulty": "medium",
+      "questionNarration": "दूसरा सवाल: भारतीय संविधान के किस अनुच्छेद में अस्पृश्यता का अंत वर्णित है?",
+      "answerNarration": "सही उत्तर है अनुच्छेद 17।"
+    },
+    {
+      "number": 3,
+      "question": "शिक्षा का अधिकार (अनुच्छेद 21A) किस संविधान संशोधन द्वारा जोड़ा गया था?",
+      "options": [
+        "42वाँ संशोधन (1976)",
+        "44वाँ संशोधन (1978)",
+        "86वाँ संशोधन (2002)",
+        "73वाँ संशोधन (1992)"
+      ],
+      "answerIndex": 2,
+      "answer": "86वाँ संशोधन (2002)",
+      "explanation": "86वें संविधान संशोधन अधिनियम 2002 ने अनुच्छेद 21A जोड़कर 6 से 14 वर्ष के बच्चों के लिए निःशुल्क और अनिवार्य शिक्षा को मौलिक अधिकार बनाया।",
+      "fact": "86 (8 + 6 = 14) → 6 से 14 वर्ष तक अनिवार्य शिक्षा का मौलिक अधिकार!",
+      "source": "Constitution (Eighty-sixth Amendment) Act, 2002 — Article 21A",
+      "difficulty": "medium",
+      "questionNarration": "तीसरा सवाल: शिक्षा का अधिकार, अनुच्छेद 21 ए, किस संविधान संशोधन द्वारा जोड़ा गया था?",
+      "answerNarration": "सही उत्तर है 86वाँ संशोधन 2002।"
+    }
+  ]
+}

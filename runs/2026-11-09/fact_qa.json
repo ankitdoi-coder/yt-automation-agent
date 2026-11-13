@@ -1,0 +1,63 @@
+{
+  "date": "2026-11-09",
+  "topic": "General Science (Human Body & Biology Essentials)",
+  "total_questions": 3,
+  "qa_gate_passed": true,
+  "verified_at": "2026-11-09T10:24:00+05:30",
+  "checks": [
+    {
+      "number": 1,
+      "question": "मानव शरीर की सबसे बड़ी ग्रंथि (Gland) कौन सी है?",
+      "options": [
+        "A) अग्न्याशय (Pancreas)",
+        "B) यकृत (Liver)",
+        "C) थायरॉयड (Thyroid)",
+        "D) पीयूष ग्रंथि (Pituitary)"
+      ],
+      "marked_answer_index": 1,
+      "marked_answer_text": "यकृत (Liver)",
+      "independent_blind_answer_index": 1,
+      "verified": true,
+      "confidence": 1.0,
+      "source_authority": "NCERT Class 10 Science, Ch 6 (Life Processes) / Lucent General Science",
+      "source_url": "https://ncert.nic.in/textbook.php?jesc1=6-16",
+      "ambiguity": "none"
+    },
+    {
+      "number": 2,
+      "question": "रक्त का थक्का (Blood Clotting) बनने के लिए कौन सा विटामिन आवश्यक है?",
+      "options": [
+        "A) विटामिन A",
+        "B) विटामिन C",
+        "C) विटामिन K",
+        "D) विटामिन D"
+      ],
+      "marked_answer_index": 2,
+      "marked_answer_text": "विटामिन K",
+      "independent_blind_answer_index": 2,
+      "verified": true,
+      "confidence": 1.0,
+      "source_authority": "NCERT Class 11 Biology, Ch 18 (Body Fluids & Circulation)",
+      "source_url": "https://ncert.nic.in/textbook.php?kebo1=18-22",
+      "ambiguity": "none"
+    },
+    {
+      "number": 3,
+      "question": "मानव शरीर की कौन सी परिपक्व कोशिका में केंद्रक (Nucleus) नहीं पाया जाता?",
+      "options": [
+        "A) श्वेत रक्त कोशिका (WBC)",
+        "B) लाल रक्त कोशिका (Mature RBC)",
+        "C) तंत्रिका कोशिका (Neuron)",
+        "D) यकृत कोशिका (Hepatocyte)"
+      ],
+      "marked_answer_index": 1,
+      "marked_answer_text": "लाल रक्त कोशिका (Mature RBC)",
+      "independent_blind_answer_index": 1,
+      "verified": true,
+      "confidence": 0.99,
+      "source_authority": "NCERT Class 11 Biology, Ch 8 (Cell: The Unit of Life)",
+      "source_url": "https://ncert.nic.in/textbook.php?kebo1=8-22",
+      "ambiguity": "none"
+    }
+  ]
+}

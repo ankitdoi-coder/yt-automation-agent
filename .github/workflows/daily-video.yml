@@ -6,22 +6,21 @@ concurrency:
 
 on:
   schedule:
-    # Runs daily at 23:00 UTC = 04:30 AM IST (Indian Standard Time)
-    # Starts at 04:30 AM everyday to generate, render, and schedule all 4 daily slots (2 Long + 2 Shorts)
-    - cron: '0 23 * * *'
+    # Two direct-public daily triggers: 02:20 UTC (07:50 IST -> ~08:00 AM) and 11:20 UTC (16:50 IST -> ~05:00 PM)
+    # Morning slot: 02:20 UTC = 07:50 IST (~08:00 AM Direct Public) | Evening slot: 11:20 UTC = 16:50 IST (~05:00 PM Direct Public)
+    - cron: '20 2 * * *'
+    - cron: '20 11 * * *'
   workflow_dispatch:
     inputs:
       target_slot:
         description: 'Which slot to generate'
         required: true
-        default: 'all (2 Long + 2 Shorts)'
+        default: 'all (Time-based Auto Slot)'
         type: choice
         options:
-          - all (2 Long + 2 Shorts)
-          - slot1 (09:30 AM IST Shorts - Morning Revision)
-          - slot2 (02:00 PM IST Long - Afternoon Study Masterclass)
-          - slot3 (07:00 PM IST Long - Evening Prime Exam Class)
-          - slot4 (09:30 PM IST Shorts - Bedtime Rapid Scroll)
+          - all (Time-based Auto Slot)
+          - slot1 (07:50 IST Morning Short - ~08:00 AM Public)
+          - slot2 (16:50 IST Evening Short - ~05:00 PM Public)
       privacy_status:
         description: 'Target privacy status (public = auto-publishes to everyone)'
         required: true
@@ -102,6 +101,8 @@ jobs:
           TARGET_SLOT: ${{ github.event.inputs.target_slot || 'all' }}
           VIDEO_TOPIC: ${{ github.event.inputs.topic }}
           DEFAULT_PRIVACY_STATUS: ${{ github.event.inputs.privacy_status || 'public' }}
+          PUBLISH_IMMEDIATELY: 'true'
+          SCHEDULE_IN_ADVANCE: 'false'
           FORCE_RUN: ${{ github.event.inputs.force_run || 'false' }}
           CI: true
         run: npm run daily:job

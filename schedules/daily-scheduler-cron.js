@@ -30,24 +30,35 @@ const chalk = require('chalk') || {
   gray: (s) => s
 };
 
-const CRON_EXPRESSION = '30 4 * * *'; // 04:30 AM every day
+const MORNING_CRON = '50 7 * * *'; // 07:50 AM IST (~08:00 AM Direct Public Short)
+const EVENING_CRON = '50 16 * * *'; // 04:50 PM IST (~05:00 PM Direct Public Short)
+const SCHEDULE_TIMES = [
+  { hour: 7, minute: 50, label: '07:50 AM IST' },
+  { hour: 16, minute: 50, label: '04:50 PM IST' }
+];
 let isRunning = false;
 
 function formatDateTime(date = new Date()) {
   return date.toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', hour12: true });
 }
 
-function getNextCronRun(targetHour = 4, targetMinute = 30) {
+function getNextCronRun() {
   const now = new Date();
-  const next = new Date(now);
-  next.setHours(targetHour, targetMinute, 0, 0);
-  if (next <= now) {
-    next.setDate(next.getDate() + 1);
+  let earliest = null;
+  for (const slot of SCHEDULE_TIMES) {
+    const next = new Date(now);
+    next.setHours(slot.hour, slot.minute, 0, 0);
+    if (next <= now) {
+      next.setDate(next.getDate() + 1);
+    }
+    if (!earliest || next < earliest.nextDate) {
+      earliest = { nextDate: next, label: slot.label };
+    }
   }
-  const diffMs = next - now;
+  const diffMs = earliest.nextDate - now;
   const hours = Math.floor(diffMs / (1000 * 60 * 60));
   const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-  return { nextDate: next, diffStr: `${hours}h ${minutes}m` };
+  return { nextDate: earliest.nextDate, label: earliest.label, diffStr: `${hours}h ${minutes}m` };
 }
 
 function runDailyPipeline(reason = 'Cron Scheduled Trigger') {
@@ -58,25 +69,31 @@ function runDailyPipeline(reason = 'Cron Scheduled Trigger') {
 
   isRunning = true;
   console.log(`\n${'='.repeat(70)}`);
-  console.log(`🚀 [${formatDateTime()}] STARTING DAILY PIPELINE: 2 LONG + 2 SHORTS VIDEOS`);
+  console.log(`🚀 [${formatDateTime()}] STARTING DAILY SHORTS PIPELINE (DIRECT PUBLIC UPLOAD)`);
   console.log(`📌 Trigger Reason: ${reason}`);
   console.log(`${'='.repeat(70)}\n`);
 
   const scriptPath = path.resolve(__dirname, '../scripts/run-daily-job.js');
   const child = fork(scriptPath, [], {
-    env: { ...process.env, CI: 'false' },
+    env: {
+      ...process.env,
+      CI: 'false',
+      PUBLISH_IMMEDIATELY: 'true',
+      SCHEDULE_IN_ADVANCE: 'false',
+      DEFAULT_PRIVACY_STATUS: process.env.DEFAULT_PRIVACY_STATUS || 'public'
+    },
     stdio: 'inherit'
   });
 
   child.on('exit', (code) => {
     isRunning = false;
-    const { nextDate, diffStr } = getNextCronRun(4, 30);
+    const { nextDate, label, diffStr } = getNextCronRun();
     if (code === 0) {
       console.log(`\n✅ [${formatDateTime()}] Daily Pipeline completed successfully!`);
     } else {
       console.error(`\n❌ [${formatDateTime()}] Daily Pipeline exited with error code: ${code}`);
     }
-    console.log(`⏳ Next scheduled run at 04:30 AM (in ~${diffStr}) on ${formatDateTime(nextDate)}\n`);
+    console.log(`⏳ Next scheduled run at ${label} (in ~${diffStr}) on ${formatDateTime(nextDate)}\n`);
   });
 
   child.on('error', (err) => {
@@ -86,18 +103,16 @@ function runDailyPipeline(reason = 'Cron Scheduled Trigger') {
 }
 
 function printBanner() {
-  const { nextDate, diffStr } = getNextCronRun(4, 30);
+  const { nextDate, label, diffStr } = getNextCronRun();
   console.log('\n' + '═'.repeat(70));
   console.log('🤖  YOUTUBE AUTOMATION AGENT - 24/7 DAILY SCHEDULER DAEMON');
   console.log('═'.repeat(70));
-  console.log(`⏰ Daily Trigger Time  : 04:30 AM Everyday (Cron: '${CRON_EXPRESSION}')`);
+  console.log(`⏰ Daily Trigger Times : 07:50 AM IST ('${MORNING_CRON}') & 04:50 PM IST ('${EVENING_CRON}')`);
   console.log(`📅 Current Local Time  : ${formatDateTime()}`);
-  console.log(`⏳ Next Run Scheduled  : ${formatDateTime(nextDate)} (in ~${diffStr})`);
-  console.log('🎬 Production Pipeline : 4 Videos (2 Long Masterclasses + 2 Shorts)');
-  console.log('   • Slot 1 (09:30 AM IST): Morning Rapid Revision (Shorts 1, 9:16)');
-  console.log('   • Slot 2 (02:00 PM IST): Afternoon Study Masterclass (Long 1, 50 Qs)');
-  console.log('   • Slot 3 (07:00 PM IST): Evening Prime Exam Class (Long 2, 50 Qs)');
-  console.log('   • Slot 4 (09:30 PM IST): Bedtime Rapid Scroll (Shorts 2, 9:16)');
+  console.log(`⏳ Next Run Scheduled  : ${label} -> ${formatDateTime(nextDate)} (in ~${diffStr})`);
+  console.log('🎬 Production Pipeline : 2 Daily Direct-Public Shorts (9:16 Vertical, 3 Qs, ~30s)');
+  console.log('   • Slot 1 (07:50 AM IST): Morning Direct-Public Short (~08:00 AM Live)');
+  console.log('   • Slot 2 (04:50 PM IST): Evening Direct-Public Short (~05:00 PM Live)');
   console.log('═'.repeat(70));
   console.log('Daemon running in background. Press Ctrl+C to terminate.\n');
 }
@@ -112,16 +127,22 @@ if (runNow) {
   runDailyPipeline('Immediate Run Flag (--now)');
 }
 
-// Schedule the daily cron at 04:30 AM every day
-cron.schedule(CRON_EXPRESSION, () => {
-  console.log(`\n⏰ [${formatDateTime()}] 04:30 AM Cron Alarm Triggered!`);
-  runDailyPipeline('04:30 AM Daily Scheduled Cron');
+// Schedule Morning trigger at 07:50 AM IST (~08:00 AM Public)
+cron.schedule(MORNING_CRON, () => {
+  console.log(`\n⏰ [${formatDateTime()}] 07:50 AM IST Morning Cron Triggered!`);
+  runDailyPipeline('07:50 AM IST Morning Direct-Public Cron');
+});
+
+// Schedule Evening trigger at 04:50 PM IST (~05:00 PM Public)
+cron.schedule(EVENING_CRON, () => {
+  console.log(`\n⏰ [${formatDateTime()}] 04:50 PM IST Evening Cron Triggered!`);
+  runDailyPipeline('04:50 PM IST Evening Direct-Public Cron');
 });
 
 // Hourly heartbeat to keep daemon visible and healthy
 setInterval(() => {
-  const { nextDate, diffStr } = getNextCronRun(4, 30);
-  console.log(`[${formatDateTime()}] 💓 24/7 Scheduler Active | Status: ${isRunning ? 'Running Pipeline' : 'Idle'} | Next trigger: 04:30 AM (in ~${diffStr})`);
+  const { label, diffStr } = getNextCronRun();
+  console.log(`[${formatDateTime()}] 💓 24/7 Scheduler Active | Status: ${isRunning ? 'Running Pipeline' : 'Idle'} | Next trigger: ${label} (in ~${diffStr})`);
 }, 60 * 60 * 1000);
 
 // Graceful termination handling

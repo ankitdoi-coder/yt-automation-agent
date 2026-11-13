@@ -1,0 +1,60 @@
+{
+  "date": "2026-11-12",
+  "topic": "Indian Polity — Fundamental Rights & Key Constitutional Articles",
+  "total_questions": 3,
+  "qa_gate_passed": true,
+  "verified_at": "2026-11-12T09:47:00+05:30",
+  "checks": [
+    {
+      "number": 1,
+      "question": "डॉ. भीमराव अंबेडकर ने किस अनुच्छेद को 'संविधान की आत्मा' कहा था?",
+      "options": [
+        "A) अनुच्छेद 14 (Article 14)",
+        "B) अनुच्छेद 21 (Article 21)",
+        "C) अनुच्छेद 32 (Article 32)",
+        "D) अनुच्छेद 19 (Article 19)"
+      ],
+      "marked_answer_index": 2,
+      "marked_answer_text": "अनुच्छेद 32 (Article 32)",
+      "independent_blind_answer_index": 2,
+      "verified": true,
+      "confidence": 1.0,
+      "source_authority": "Constitution of India, Part III Article 32; Constituent Assembly Debates (Dr. B.R. Ambedkar)",
+      "ambiguity": "none"
+    },
+    {
+      "number": 2,
+      "question": "भारतीय संविधान के किस अनुच्छेद में 'अस्पृश्यता का अंत' वर्णित है?",
+      "options": [
+        "A) अनुच्छेद 15 (Article 15)",
+        "B) अनुच्छेद 17 (Article 17)",
+        "C) अनुच्छेद 18 (Article 18)",
+        "D) अनुच्छेद 24 (Article 24)"
+      ],
+      "marked_answer_index": 1,
+      "marked_answer_text": "अनुच्छेद 17 (Article 17)",
+      "independent_blind_answer_index": 1,
+      "verified": true,
+      "confidence": 1.0,
+      "source_authority": "Constitution of India, Part III — Article 17 (Abolition of Untouchability)",
+      "ambiguity": "none"
+    },
+    {
+      "number": 3,
+      "question": "शिक्षा का अधिकार (अनुच्छेद 21A) किस संविधान संशोधन द्वारा जोड़ा गया था?",
+      "options": [
+        "A) 42वाँ संशोधन (1976)",
+        "B) 44वाँ संशोधन (1978)",
+        "C) 86वाँ संशोधन (2002)",
+        "D) 73वाँ संशोधन (1992)"
+      ],
+      "marked_answer_index": 2,
+      "marked_answer_text": "86वाँ संशोधन (2002)",
+      "independent_blind_answer_index": 2,
+      "verified": true,
+      "confidence": 1.0,
+      "source_authority": "Constitution (Eighty-sixth Amendment) Act, 2002 — inserted Article 21A into Part III",
+      "ambiguity": "none"
+    }
+  ]
+}

@@ -1,3 +1,10 @@
+const dns = require('dns');
+const net = require('net');
+try {
+  if (typeof dns.setDefaultResultOrder === 'function') dns.setDefaultResultOrder('ipv4first');
+  if (typeof net.setDefaultAutoSelectFamily === 'function') net.setDefaultAutoSelectFamily(false);
+} catch (_) {}
+
 const fs = require('fs').promises;
 const path = require('path');
 const { google } = require('googleapis');

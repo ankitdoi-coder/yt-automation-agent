@@ -1340,7 +1340,9 @@ class AIVideoGenerator {
       const renderOptions = renderDurations
         ? {
             durations: renderDurations,
-            transition: 'cut'
+            transition: 'cut',
+            animateProgress: isShort,
+            width: isShort ? 1080 : 1920
           }
         : {};
       const targetDuration = renderDurations
@@ -1403,13 +1405,28 @@ class AIVideoGenerator {
       await fs.writeFile(concatListPath, lines.join('\n'), 'utf8');
 
       try {
-        await runFFmpeg([
-          '-y', '-f', 'concat', '-safe', '0', '-i', concatListPath,
-          '-vf', 'fps=30,format=yuv420p',
-          '-c:v', 'libx264',
-          '-preset', 'veryfast',
-          videoPath
-        ]);
+        if (options.animateProgress) {
+          const animDuration = Math.max(1, perSlideDurations.reduce((sum, d) => sum + d, 0));
+          const progressWidth = Number(options.width) || 1080;
+          await runFFmpeg([
+            '-y',
+            '-f', 'concat', '-safe', '0', '-i', concatListPath,
+            '-f', 'lavfi', '-i', `color=c=#2563eb:s=${progressWidth}x12:r=30:d=${(animDuration + 0.5).toFixed(3)}`,
+            '-filter_complex', `[0:v]fps=30,drawbox=x=0:y=0:w=iw:h=12:color=#e2e8f0:t=fill[bg];[bg][1:v]overlay=x='-w+(t/${animDuration.toFixed(3)})*w':y=0:shortest=1,format=yuv420p[v]`,
+            '-map', '[v]',
+            '-c:v', 'libx264',
+            '-preset', 'veryfast',
+            videoPath
+          ]);
+        } else {
+          await runFFmpeg([
+            '-y', '-f', 'concat', '-safe', '0', '-i', concatListPath,
+            '-vf', 'fps=30,format=yuv420p',
+            '-c:v', 'libx264',
+            '-preset', 'veryfast',
+            videoPath
+          ]);
+        }
         return videoPath;
       } finally {
         await fs.unlink(concatListPath).catch(() => {});
@@ -2293,15 +2310,15 @@ class AIVideoGenerator {
             flex: 1;
         }
 
-        /* Correct Answer Reveal Highlight (Competitor Soft Red Pill) */
+        /* Correct Answer Reveal Highlight (High-Trust Vivid Green Pill) */
         .clean-opt-item.correct-reveal {
-            background: #fee2e2 !important;
-            border: 4.5px solid #ef4444 !important;
-            box-shadow: 0 4px 18px rgba(239, 68, 68, 0.25) !important;
+            background: #dcfce7 !important;
+            border: 4.5px solid #16a34a !important;
+            box-shadow: 0 4px 18px rgba(22, 163, 74, 0.25) !important;
         }
         .clean-opt-item.correct-reveal .opt-prefix,
         .clean-opt-item.correct-reveal .opt-content {
-            color: #b91c1c !important;
+            color: #14532d !important;
         }
 
         /* Dim other options slightly on answer reveal */
@@ -2309,10 +2326,10 @@ class AIVideoGenerator {
             opacity: 0.85;
         }
 
-        /* 6. Bottom Split Footer */
+        /* 6. Bottom Split Footer (raised above YouTube Shorts bottom 20% UI overlay) */
         .bottom-split-footer {
             margin-top: auto;
-            margin-bottom: 50px;
+            margin-bottom: 310px;
             display: flex;
             align-items: stretch;
             height: 98px;
@@ -2516,7 +2533,7 @@ class AIVideoGenerator {
         noImages: isNoImageShort,
         headline: hookText,
         narrationText: hookText,
-        pauseAfter: 0.4,
+        pauseAfter: 0.25,
         estimatedSpeechDuration: Math.max(1.8, estimateSpeechDuration(hookText, language)),
         narrationWords: Math.max(3, wordCount(hookText))
       });
@@ -2774,12 +2791,14 @@ class AIVideoGenerator {
             }
 
             // Replace dead digital silence during thinking time with mechanical clock ticking
-            if (isQuestionSlide && pause >= 1.0) {
+            if (isQuestionSlide && pause >= 0.25) {
               const tickWavPath = path.join(tempDir, `tick_${String(index).padStart(3, '0')}.wav`);
+              const tickPeriod = pause >= 1.0 ? '1' : '0.22';
+              const tickAmplitude = pause >= 1.0 ? '0.45' : '0.50';
               try {
                 await runFFmpeg([
                   '-y', '-f', 'lavfi',
-                  '-i', `aevalsrc=0.45*sin(2*PI*1200*t)*exp(-45*mod(t\\,1)):s=24000:d=${pause.toFixed(3)}`,
+                  '-i', `aevalsrc=${tickAmplitude}*sin(2*PI*1200*t)*exp(-45*mod(t\\,${tickPeriod})):s=24000:d=${pause.toFixed(3)}`,
                   '-ar', '24000', '-ac', '1',
                   '-c:a', 'pcm_s16le',
                   tickWavPath
@@ -2878,20 +2897,31 @@ class AIVideoGenerator {
         finalMasterWav = masterWavPath;
       }
 
-      // Encode master WAV to target MP3 container
-      await runFFmpeg([
-        '-y', '-i', finalMasterWav,
-        '-ar', '24000', '-ac', '1',
-        '-c:a', 'libmp3lame', '-b:a', '192k',
-        audioPath
-      ]);
+      const isShortQuiz = slides.some(s => s.kind && s.kind.startsWith('shortQuiz'));
+
+      // Encode master WAV to target MP3 container (normalize Shorts audio to -14 LUFS)
+      if (isShortQuiz) {
+        await runFFmpeg([
+          '-y', '-i', finalMasterWav,
+          '-af', 'loudnorm=I=-14:TP=-1.5:LRA=7,aresample=24000',
+          '-ar', '24000', '-ac', '1',
+          '-c:a', 'libmp3lame', '-b:a', '192k',
+          audioPath
+        ]);
+      } else {
+        await runFFmpeg([
+          '-y', '-i', finalMasterWav,
+          '-ar', '24000', '-ac', '1',
+          '-c:a', 'libmp3lame', '-b:a', '192k',
+          audioPath
+        ]);
+      }
 
       let exactDurations = durations.map(d => Number(d.toFixed(3)));
       let totalDur = exactDurations.reduce((sum, d) => sum + d, 0);
 
       // Maintain 100% natural voice clarity: do NOT distort speech with aggressive 1.3x-1.5x tempo.
       // Shorts under 60s are optimal. Only apply micro-tempo (max 1.05x) if strictly exceeding 58s.
-      const isShortQuiz = slides.some(s => s.kind && s.kind.startsWith('shortQuiz'));
       if (isShortQuiz && totalDur > 58.0) {
         const speedFactor = Math.min(1.05, Number((totalDur / 55.0).toFixed(3)));
         this.logger.info(`Shorts audio duration (${totalDur.toFixed(2)}s) exceeds 58s; gently scaling tempo by ${speedFactor}x for natural delivery`);
@@ -3319,13 +3349,13 @@ ${optionsHtml}
 ${optionsHtml}
             </div>
 
-            <!-- 6. Bottom Split Footer: [ Yellow: ChannelName ] [ Red: को Subscribe करें ] -->
+            <!-- 6. Bottom Split Footer: [ Yellow: ChannelName ] [ Red: CTA ] -->
             <div class="bottom-split-footer">
                 <div class="split-channel-box">
                     <span>${this.escapeHtml(channelName)}</span>
                 </div>
-                <div class="split-subscribe-box">
-                    <span>को Subscribe करें</span>
+                <div class="split-subscribe-box"${slide.isCommentChallenge ? ' style="font-size: 32px; white-space: nowrap;"' : ''}>
+                    <span>${slide.isCommentChallenge ? '👍 Like &amp; Comment!' : 'को Subscribe करें'}</span>
                 </div>
             </div>
         </div>

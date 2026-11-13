@@ -304,6 +304,14 @@ class ProductionManagementAgent {
     if (strategy.bestPublishTime) {
       return strategy.bestPublishTime;
     }
+
+    const now = new Date();
+
+    // Default: Instant Direct Public. When daily automation or cron runs, publish immediately!
+    // Never delay or push to future/tomorrow unless explicit SCHEDULE_IN_ADVANCE=true is set.
+    if (process.env.SCHEDULE_IN_ADVANCE !== 'true') {
+      return now.toISOString();
+    }
     
     const isShort = Boolean(
       strategy.isShort ||
@@ -311,7 +319,6 @@ class ProductionManagementAgent {
       String(strategy.requestedStyle || '').toLowerCase().includes('short')
     );
 
-    const now = new Date();
     // Indian Standard Time is UTC + 5:30.
     // Optimal study hours:
     // Long-form: 7:00 PM IST = 13:30 UTC

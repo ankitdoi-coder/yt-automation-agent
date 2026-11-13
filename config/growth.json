@@ -1,11 +1,11 @@
 {
   "version": "1.0.0",
-  "updatedAt": "2026-10-16T21:00:00.000Z",
-  "comment": "Growth configuration flags for ExamIQ Bharat. Gated pipeline settings for A/B testing and algorithmic recovery.",
+  "updatedAt": "2026-11-12T04:15:00.000Z",
+  "comment": "Growth configuration flags for ExamIQ Bharat. Enforces 1x 3-question rapid Short/day during active A/B experiment.",
   "shorts": {
     "titleStyle": "dynamic_curiosity_hook",
     "targetQuestionCount": 3,
-    "targetDurationSeconds": 18,
+    "targetDurationSeconds": 30,
     "cleanDescription": true,
     "pacingSecondsPerQuestion": 4.5
   },
@@ -24,7 +24,7 @@
   },
   "cadence": {
     "maxShortsPerDay": 2,
-    "maxLongVideosPerDay": 1,
+    "maxLongVideosPerDay": 0,
     "minHoursBetweenUploads": 6
   }
 }

@@ -132,37 +132,20 @@ function buildShortVideoDescription({
   brand = 'ExamIQ Bharat',
   topic = 'General Knowledge',
   questions = [],
+  questionCount = null,
   year = new Date().getFullYear()
 } = {}) {
-  const cleanTitle = (title || 'Top 5 GK Questions in Hindi | GK Quiz #Shorts').trim();
-  const cleanTopic = (topic || 'सामान्य ज्ञान').trim();
-
-  let questionsList = '';
-  if (Array.isArray(questions) && questions.length > 0) {
-    const validQs = questions.slice(0, 5).map((q, idx) => {
-      const qText = typeof q === 'string' ? q : (q.question || '');
-      return `Q${idx + 1}. ${qText.trim()}`;
-    }).filter(q => q.length > 6);
-    if (validQs.length > 0) {
-      questionsList = '\n\n📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:\n' + validQs.join('\n');
-    }
-  }
+  const qCount = Number(questionCount) || (Array.isArray(questions) && questions.length > 0 ? questions.length : 3);
+  const cleanTitle = (title || `Top ${qCount} GK Questions | GK Quiz #Shorts`).trim();
+  const cleanTopic = (topic || 'General Knowledge').trim();
 
   return `🎯 ${cleanTitle}
 
-इस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD ${year}, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।${questionsList}
+${cleanTopic} (${year}) — दम है तो ${qCount} में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।
+💬 सवाल नंबर ${qCount} का सही जवाब और अपना स्कोर (${qCount} में से) कमेंट में लिखें!
+🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ${brand} को Subscribe करें।
 
-💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯
-🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ${brand} को Subscribe करें!
-
-🔍 Queries Solved:
-• GK in Hindi
-• General Knowledge Quiz
-• Lucent GK Important Questions
-• Samanya Gyan for Competitive Exams
-• Viral GK Shorts
-
-#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq`.trim();
+#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat`.trim();
 }
 
 module.exports = {

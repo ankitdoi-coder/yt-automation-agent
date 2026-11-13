@@ -1,0 +1,76 @@
+{
+  "title": "General Science Quiz | Top 3 Questions 🎯 #shorts",
+  "isShort": true,
+  "subject": "General Science",
+  "subjectHindi": "सामान्य विज्ञान",
+  "totalQuestions": 3,
+  "language": "hi",
+  "hook": "दम है तो 3 में से 2 सही करके दिखाओ!",
+  "targetDurationSeconds": 20,
+  "pacingSecondsPerQuestion": 4.5,
+  "pauseAfterQuestionSeconds": 0.4,
+  "audioDesign": {
+    "bgm": "intense_suspense_beat",
+    "chime": "tubular_bell_chime_880hz",
+    "tts_speed": "1.0x"
+  },
+  "questions": [
+    {
+      "number": 1,
+      "question": "मानव शरीर की सबसे बड़ी ग्रंथि (Gland) कौन सी है?",
+      "options": [
+        "अग्न्याशय (Pancreas)",
+        "यकृत (Liver)",
+        "थायरॉयड (Thyroid)",
+        "पीयूष ग्रंथि (Pituitary)"
+      ],
+      "answerIndex": 1,
+      "answer": "यकृत (Liver)",
+      "explanation": "यकृत मानव शरीर की सबसे बड़ी ग्रंथि है, जिसका वजन लगभग 1.5 किलोग्राम होता है।",
+      "fact": "Liver = L (Largest) gland in the human body.",
+      "source": "NCERT Class 10 Science, Ch 6",
+      "source_url": "https://ncert.nic.in/textbook.php?jesc1=6-16",
+      "difficulty": "easy",
+      "questionNarration": "पहला सवाल: मानव शरीर की सबसे बड़ी ग्रंथि कौन सी है?",
+      "answerNarration": "सही उत्तर है यकृत (Liver)।"
+    },
+    {
+      "number": 2,
+      "question": "रक्त का थक्का (Blood Clotting) बनने के लिए कौन सा विटामिन आवश्यक है?",
+      "options": [
+        "विटामिन A",
+        "विटामिन C",
+        "विटामिन K",
+        "विटामिन D"
+      ],
+      "answerIndex": 2,
+      "answer": "विटामिन K",
+      "explanation": "विटामिन K यकृत में प्रोथ्रोम्बिन (Prothrombin) के संश्लेषण के लिए अनिवार्य होता है।",
+      "fact": "K for Koagulation (Clotting) — रक्त के बहाव को रोकने वाला रक्षक।",
+      "source": "NCERT Class 11 Biology, Ch 18",
+      "source_url": "https://ncert.nic.in/textbook.php?kebo1=18-22",
+      "difficulty": "medium",
+      "questionNarration": "दूसरा सवाल: रक्त का थक्का बनने के लिए कौन सा विटामिन आवश्यक है?",
+      "answerNarration": "सही उत्तर है विटामिन K।"
+    },
+    {
+      "number": 3,
+      "question": "मानव शरीर की कौन सी परिपक्व कोशिका में केंद्रक (Nucleus) नहीं पाया जाता?",
+      "options": [
+        "श्वेत रक्त कोशिका (WBC)",
+        "लाल रक्त कोशिका (Mature RBC)",
+        "तंत्रिका कोशिका (Neuron)",
+        "यकृत कोशिका (Hepatocyte)"
+      ],
+      "answerIndex": 1,
+      "answer": "लाल रक्त कोशिका (Mature RBC)",
+      "explanation": "मानव की परिपक्व लाल रक्त कणिकाएं अकेंद्रकीय होती हैं ताकि अधिक ऑक्सीजन और हीमोग्लोबिन समा सके।",
+      "fact": "RBC बिना केंद्रक के होती है ताकि अधिक हीमोग्लोबिन ढो सके।",
+      "source": "NCERT Class 11 Biology, Ch 8",
+      "source_url": "https://ncert.nic.in/textbook.php?kebo1=8-22",
+      "difficulty": "hard",
+      "questionNarration": "तीसरा सवाल: मानव शरीर की किस परिपक्व कोशिका में केंद्रक नहीं पाया जाता?",
+      "answerNarration": "सही उत्तर है लाल रक्त कोशिका (Mature RBC)।"
+    }
+  ]
+}

@@ -62,37 +62,32 @@ class SEOOptimizerAgent {
       if (isQuizShort) {
         this.logger.info('Generating viral Short Quiz SEO metadata with high-CTR packaging and educational tags');
         const qCount = script.quiz?.totalQuestions || script.quiz?.questions?.length || 3;
-        const topicRaw = strategy.topic || script.title || 'General Knowledge';
+        const { englishTopic } = this.extractTopicAndCategory(script, strategy);
+        const topicRaw = strategy.topic || englishTopic || 'General Knowledge';
         const cleanTopic = topicRaw
-          .replace(/^top\s+\d+\s+/i, '')
+          .replace(/^(?:top\s*\d+|भाग\s*\d+|set\s*\d+)[\s:\-_|]*/i, '')
+          .replace(/[-–—:\|]?\s*\d+\s*(?:अति\s*)?महत्वपूर्ण\s*प्रश्न.*$/i, '')
           .replace(/#\w+/g, '')
           .replace(/\|.*$/g, '')
-          .trim();
+          .trim() || englishTopic;
         
-        // High-CTR, search-optimized Short title with exam targets, micro-topics, and set deduplication
+        // High-CTR, search-optimized Short title with exam targets and honest question count
         title = this.buildExamOptimizedShortTitle(script, strategy, brand);
-        description = this.generateShortQuizDescription(title, brand, cleanTopic, script.quiz?.questions);
-        tags = [
+        description = this.generateShortQuizDescription(title, brand, englishTopic || cleanTopic, script.quiz?.questions, qCount);
+        tags = Array.from(new Set([
           'Shorts',
           'GK Shorts',
-          'gk questions',
+          englishTopic.toLowerCase(),
           'gk quiz',
           'gk in hindi',
-          'lucent gk',
-          'gk questions and answers',
-          'samanya gyan',
-          'gk mcq',
+          'general knowledge',
           'ssc gk',
           'railway gk',
-          'upsc gk',
+          'upsc prelims',
           'static gk',
-          'education',
-          'study tips',
-          'competitive exams',
-          cleanTopic.toLowerCase(),
-          brand,
-          'general knowledge'
-        ];
+          cleanTopic && !/[\u0900-\u097F]/.test(cleanTopic) ? cleanTopic.toLowerCase() : null,
+          brand
+        ].filter(Boolean))).slice(0, 12);
       } else {
         const aiSEO = await this.generateSEOWithAI(script, strategy, brand, chapters);
 
@@ -134,17 +129,22 @@ class SEOOptimizerAgent {
         }
       }
 
-      // Ensure tags include brand and top competitive exam keywords
-      const examTags = [brand, 'Education', 'GK in Hindi', 'General Knowledge Quiz', 'SSC CGL GK', 'UPSC Prelims', 'RRB NTPC GK', 'Static GK', 'Lucent GK'];
-      for (const et of examTags) {
-        if (!tags.some(t => t.toLowerCase() === et.toLowerCase())) {
-          tags.unshift(et);
+      // Ensure long-form videos include full exam search tag set (keep Shorts lean <= 12 tags)
+      if (!isQuizShort) {
+        const examTags = [brand, 'Education', 'GK in Hindi', 'General Knowledge Quiz', 'SSC CGL GK', 'UPSC Prelims', 'RRB NTPC GK', 'Static GK', 'Lucent GK'];
+        for (const et of examTags) {
+          if (!tags.some(t => t.toLowerCase() === et.toLowerCase())) {
+            tags.unshift(et);
+          }
         }
       }
 
-      // Generate hashtags
+      // Generate hashtags (topic-aware, never hardcoded #science)
+      const { category: shortCat = 'static' } = isQuizShort ? this.extractTopicAndCategory(script, strategy) : {};
+      const catTagMap = { science: '#science', history: '#history', polity: '#polity', geography: '#geography', economics: '#economics', computer: '#computergk', sports: '#sportsgk', static: '#staticgk' };
+      const topicHashtag = catTagMap[shortCat] || '#staticgk';
       const hashtags = isQuizShort
-        ? ['#generalknowledge', '#gkinhindi', '#gkquestion', '#gkquiz', '#examgkquestions', '#science', '#currentaffairs', '#gk', '#gkfacts', '#education', '#shorts']
+        ? ['#shorts', '#generalknowledge', '#gkinhindi', '#gkquiz', topicHashtag, '#ssc', '#railway', '#upsc', '#education']
         : await this.generateHashtags(strategy);
       
       // Generate end screen elements
@@ -173,7 +173,11 @@ class SEOOptimizerAgent {
           secondaryKeywords: (strategy.keywords || []).slice(1, 5),
           targetLength: this.calculateOptimalLength(strategy.contentType),
           language: strategy.language || (strategy.contentType === 'Quiz' ? 'hi' : 'en'),
-          category: parseInt(categoryId, 10)
+          category: parseInt(categoryId, 10),
+          questionCount: Array.isArray(script?.quiz?.questions) ? script.quiz.questions.length : (script?.quiz?.totalQuestions || undefined),
+          lastQuestion: Array.isArray(script?.quiz?.questions) && script.quiz.questions.length > 0
+            ? (script.quiz.questions[script.quiz.questions.length - 1]?.question || '')
+            : ''
         },
         createdAt: new Date().toISOString()
       };
@@ -438,12 +442,13 @@ ${timestampsText}
     return { topicName: fallback, englishTopic: 'Static GK', category: 'static' };
   }
 
-  generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge', questions = []) {
+  generateShortQuizDescription(title, brand = 'ExamIQ Bharat', cleanTopic = 'General Knowledge', questions = [], questionCount = null) {
     return buildShortVideoDescription({
       title,
       brand,
       topic: cleanTopic,
-      questions
+      questions,
+      questionCount
     });
   }
 

@@ -1,0 +1,571 @@
+{
+  "generatedAt": "2026-11-12T15:17:42.741Z",
+  "channel": {
+    "id": "UCjh63suNzws9XB2sF1xKzyw",
+    "title": "ExamIQ",
+    "totalViews": 4700,
+    "subscribers": 7,
+    "totalVideos": 128,
+    "recentSampled": 50,
+    "recentShortsCount": 40
+  },
+  "analyticsSummary": {
+    "last28dAll": {
+      "views": 1318,
+      "watchMin": 690,
+      "subs": 3,
+      "days": 26
+    },
+    "last7dAll": {
+      "views": 345,
+      "watchMin": 59,
+      "subs": 0,
+      "days": 5
+    },
+    "prior7dAll": {
+      "views": 353,
+      "watchMin": 151,
+      "subs": 1,
+      "days": 8
+    },
+    "last28dShorts": {
+      "views": 0,
+      "watchMin": 0,
+      "subs": 0,
+      "days": 0
+    },
+    "last7dShorts": {
+      "views": 0,
+      "watchMin": 0,
+      "subs": 0,
+      "days": 0
+    },
+    "latestDailyAnalyticsDate": "2026-11-09",
+    "traffic28All": [
+      [
+        "YT_SEARCH",
+        559,
+        74
+      ],
+      [
+        "SHORTS",
+        494,
+        97
+      ],
+      [
+        "SUBSCRIBER",
+        103,
+        35
+      ],
+      [
+        "RELATED_VIDEO",
+        94,
+        453
+      ],
+      [
+        "YT_CHANNEL",
+        32,
+        8
+      ],
+      [
+        "NO_LINK_OTHER",
+        18,
+        5
+      ],
+      [
+        "YT_OTHER_PAGE",
+        13,
+        27
+      ],
+      [
+        "EXT_URL",
+        4,
+        1
+      ]
+    ]
+  },
+  "durationBuckets": [
+    {
+      "bucket": "<20s",
+      "count": 3,
+      "avgViewsDataApi": 43,
+      "analyticsApvSampleCount": 2,
+      "avgApvPct": 66.74
+    },
+    {
+      "bucket": "20-35s",
+      "count": 10,
+      "avgViewsDataApi": 109.8,
+      "analyticsApvSampleCount": 2,
+      "avgApvPct": 114.84
+    },
+    {
+      "bucket": "35-60s",
+      "count": 26,
+      "avgViewsDataApi": 17.7,
+      "analyticsApvSampleCount": 22,
+      "avgApvPct": 55.48
+    },
+    {
+      "bucket": "60s+",
+      "count": 11,
+      "avgViewsDataApi": 7.5,
+      "analyticsApvSampleCount": 8,
+      "avgApvPct": 23.41
+    }
+  ],
+  "byTopic": [
+    {
+      "group": "General Science",
+      "count": 23,
+      "totalViews": 1381,
+      "avgViews": 60,
+      "avgApvPct": 54.24
+    },
+    {
+      "group": "Audio Trend",
+      "count": 2,
+      "totalViews": 96,
+      "avgViews": 48,
+      "avgApvPct": 87.54
+    },
+    {
+      "group": "Indian Polity",
+      "count": 3,
+      "totalViews": 63,
+      "avgViews": 21,
+      "avgApvPct": 41.46
+    },
+    {
+      "group": "Indian History",
+      "count": 7,
+      "totalViews": 137,
+      "avgViews": 19.6,
+      "avgApvPct": 95.49
+    },
+    {
+      "group": "Geography",
+      "count": 1,
+      "totalViews": 18,
+      "avgViews": 18,
+      "avgApvPct": 40.3
+    },
+    {
+      "group": "Static/Mixed GK",
+      "count": 4,
+      "totalViews": 44,
+      "avgViews": 11,
+      "avgApvPct": 40.02
+    }
+  ],
+  "byTitleStyle": [
+    {
+      "group": "english_<=50",
+      "count": 13,
+      "totalViews": 1236,
+      "avgViews": 95.1,
+      "avgApvPct": 88.1
+    },
+    {
+      "group": "english_>50",
+      "count": 1,
+      "totalViews": 55,
+      "avgViews": 55,
+      "avgApvPct": 33.44
+    },
+    {
+      "group": "hindi_long",
+      "count": 25,
+      "totalViews": 435,
+      "avgViews": 17.4,
+      "avgApvPct": 54.74
+    },
+    {
+      "group": "hindi_short",
+      "count": 1,
+      "totalViews": 13,
+      "avgViews": 13,
+      "avgApvPct": 53.17
+    }
+  ],
+  "byUploadHourIst": [
+    {
+      "group": "16:00 IST",
+      "count": 1,
+      "totalViews": 1025,
+      "avgViews": 1025,
+      "avgApvPct": null
+    },
+    {
+      "group": "10:00 IST",
+      "count": 5,
+      "totalViews": 138,
+      "avgViews": 27.6,
+      "avgApvPct": 85.33
+    },
+    {
+      "group": "08:00 IST",
+      "count": 9,
+      "totalViews": 224,
+      "avgViews": 24.9,
+      "avgApvPct": 41.07
+    },
+    {
+      "group": "21:00 IST",
+      "count": 6,
+      "totalViews": 145,
+      "avgViews": 24.2,
+      "avgApvPct": 57.72
+    },
+    {
+      "group": "19:00 IST",
+      "count": 6,
+      "totalViews": 135,
+      "avgViews": 22.5,
+      "avgApvPct": 93.96
+    },
+    {
+      "group": "14:00 IST",
+      "count": 1,
+      "totalViews": 13,
+      "avgViews": 13,
+      "avgApvPct": 53.17
+    },
+    {
+      "group": "07:00 IST",
+      "count": 1,
+      "totalViews": 7,
+      "avgViews": 7,
+      "avgApvPct": 18.93
+    },
+    {
+      "group": "12:00 IST",
+      "count": 2,
+      "totalViews": 11,
+      "avgViews": 5.5,
+      "avgApvPct": 54.24
+    },
+    {
+      "group": "09:00 IST",
+      "count": 9,
+      "totalViews": 41,
+      "avgViews": 4.6,
+      "avgApvPct": 57.5
+    }
+  ],
+  "top5Shorts": [
+    {
+      "id": "c-cxf09GBCs",
+      "title": "General Science Quiz | Top 3 Questions 🎯 #shorts",
+      "views": 1025,
+      "dur": 30,
+      "apv": null,
+      "titleStyle": "english_<=50",
+      "titleLen": 49,
+      "hourIst": 16,
+      "comments": 1,
+      "likes": 0
+    },
+    {
+      "id": "dAy4CZ-hDgU",
+      "title": "use this audio 🎧",
+      "views": 95,
+      "dur": 11,
+      "apv": 87.54,
+      "titleStyle": "english_<=50",
+      "titleLen": 17,
+      "hourIst": 10,
+      "comments": 1,
+      "likes": 3
+    },
+    {
+      "id": "1z_JwIZj6NA",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 भारतीय इतिहास GK #shorts | ExamIQ",
+      "views": 82,
+      "dur": 41,
+      "apv": 105.17,
+      "titleStyle": "hindi_long",
+      "titleLen": 77,
+      "hourIst": 21,
+      "comments": 0,
+      "likes": 2
+    },
+    {
+      "id": "jtFxGiaXXBI",
+      "title": "General Science Question | Science Question answer | Science gk quiz",
+      "views": 55,
+      "dur": 47,
+      "apv": 33.44,
+      "titleStyle": "english_>50",
+      "titleLen": 68,
+      "hourIst": 8,
+      "comments": 1,
+      "likes": 1
+    },
+    {
+      "id": "R4hYbJi7Gvs",
+      "title": "भारतीय संविधान के महत्वपूर्ण प्रश्न | Indian Polity GK | Samvidhan GK Question | General Knowledge",
+      "views": 51,
+      "dur": 64,
+      "apv": 38.25,
+      "titleStyle": "hindi_long",
+      "titleLen": 98,
+      "hourIst": 19,
+      "comments": 1,
+      "likes": 0
+    }
+  ],
+  "bottom5Shorts": [
+    {
+      "id": "w5hQjqDhbkE",
+      "title": "Indian History GK Questions | Top GK Quiz #shorts",
+      "views": 0,
+      "ageHours": 9.9,
+      "dur": 30,
+      "apv": null,
+      "titleStyle": "english_<=50",
+      "titleLen": 49,
+      "hourIst": 10,
+      "privacy": "public",
+      "madeForKids": false
+    },
+    {
+      "id": "JWXKXK2Qb7I",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 जीव विज्ञान GK #shorts | ExamIQ",
+      "views": 0,
+      "ageHours": 371.3,
+      "dur": 32,
+      "apv": null,
+      "titleStyle": "hindi_long",
+      "titleLen": 75,
+      "hourIst": 9,
+      "privacy": "public",
+      "madeForKids": false
+    },
+    {
+      "id": "pVAD8rZIiIw",
+      "title": "use this audio 🎧 🤯",
+      "views": 1,
+      "ageHours": 128.2,
+      "dur": 11,
+      "apv": null,
+      "titleStyle": "english_<=50",
+      "titleLen": 20,
+      "hourIst": 12,
+      "privacy": "public",
+      "madeForKids": false
+    },
+    {
+      "id": "3OeL9aO6kG4",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 सामान्य विज्ञान GK #shorts | ExamIQ",
+      "views": 1,
+      "ageHours": 275.3,
+      "dur": 41,
+      "apv": null,
+      "titleStyle": "hindi_long",
+      "titleLen": 79,
+      "hourIst": 9,
+      "privacy": "public",
+      "madeForKids": false
+    },
+    {
+      "id": "Zvph4NbtpX4",
+      "title": "Top 3 General Science MCQ 2026 #shorts",
+      "views": 2,
+      "ageHours": 25.3,
+      "dur": 28,
+      "apv": null,
+      "titleStyle": "english_<=50",
+      "titleLen": 38,
+      "hourIst": 19,
+      "privacy": "public",
+      "madeForKids": false
+    }
+  ],
+  "anomalies": [
+    {
+      "id": "w5hQjqDhbkE",
+      "title": "Indian History GK Questions | Top GK Quiz #shorts",
+      "views": 0,
+      "ageHours": 9.9,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "rejectionReason": null,
+      "regionRestriction": null,
+      "descLen": 885,
+      "tagsCount": 23
+    },
+    {
+      "id": "Zvph4NbtpX4",
+      "title": "Top 3 General Science MCQ 2026 #shorts",
+      "views": 2,
+      "ageHours": 25.3,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "rejectionReason": null,
+      "regionRestriction": null,
+      "descLen": 855,
+      "tagsCount": 23
+    },
+    {
+      "id": "pVAD8rZIiIw",
+      "title": "use this audio 🎧 🤯",
+      "views": 1,
+      "ageHours": 128.2,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "rejectionReason": null,
+      "regionRestriction": {
+        "blocked": [
+          "BY",
+          "RU"
+        ]
+      },
+      "descLen": 0,
+      "tagsCount": 0
+    },
+    {
+      "id": "3OeL9aO6kG4",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 सामान्य विज्ञान GK #shorts | ExamIQ",
+      "views": 1,
+      "ageHours": 275.3,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "rejectionReason": null,
+      "regionRestriction": null,
+      "descLen": 1049,
+      "tagsCount": 23
+    },
+    {
+      "id": "993885Qja4w",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 जीव विज्ञान GK #shorts | ExamIQ",
+      "views": 2,
+      "ageHours": 347.3,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "rejectionReason": null,
+      "regionRestriction": null,
+      "descLen": 1051,
+      "tagsCount": 23
+    },
+    {
+      "id": "JWXKXK2Qb7I",
+      "title": "क्या आप इन 5 सवालों के जवाब दे सकते हैं? 🤔 जीव विज्ञान GK #shorts | ExamIQ",
+      "views": 0,
+      "ageHours": 371.3,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "rejectionReason": null,
+      "regionRestriction": null,
+      "descLen": 923,
+      "tagsCount": 23
+    }
+  ],
+  "competitorChannels": [
+    {
+      "channelId": "UCs1IShaugLrtYQjHFxugADQ",
+      "title": "Ajay Study Point",
+      "subscribers": 64700,
+      "totalViews": 15899216,
+      "sampledShorts": 6,
+      "uploadsPerWeek": 3.4
+    },
+    {
+      "channelId": "UCEtyYw_6eWBc6N-PJl95bZA",
+      "title": "Quiz by Neeraj ",
+      "subscribers": 911,
+      "totalViews": 172585,
+      "sampledShorts": 11,
+      "uploadsPerWeek": 8.2
+    },
+    {
+      "channelId": "UCCCyhxnG2Ift7p4K0fSZrUQ",
+      "title": "Daily UPSC Quiz",
+      "subscribers": 178,
+      "totalViews": 165444,
+      "sampledShorts": 12,
+      "uploadsPerWeek": 11.2
+    },
+    {
+      "channelId": "UCh_d7lUkcnhCD_u8LPGh0Bg",
+      "title": "PR GK STUDY ",
+      "subscribers": 47,
+      "totalViews": 20977,
+      "sampledShorts": 12,
+      "uploadsPerWeek": 7.7
+    },
+    {
+      "channelId": "UCfDMwPeZ3_QIsz34Uew8Arg",
+      "title": "CrazyGkTree",
+      "subscribers": 41200,
+      "totalViews": 28173004,
+      "sampledShorts": 7,
+      "uploadsPerWeek": 5.4
+    },
+    {
+      "channelId": "UCP-qM0dGTbKPrxrXfg5_X6g",
+      "title": "Gk knowledge ",
+      "subscribers": 223,
+      "totalViews": 127988,
+      "sampledShorts": 12,
+      "uploadsPerWeek": 38.3
+    },
+    {
+      "channelId": "UCjrrP9RRGSTHJXl_c2JJ9kg",
+      "title": "GK Master India",
+      "subscribers": 34100,
+      "totalViews": 2413934,
+      "sampledShorts": 12,
+      "uploadsPerWeek": 7.6
+    },
+    {
+      "channelId": "UCKMyVgFYm84FN2rTVvgck3A",
+      "title": "Learn Unseen Gyan",
+      "subscribers": 214000,
+      "totalViews": 70843543,
+      "sampledShorts": 11,
+      "uploadsPerWeek": 15.4
+    }
+  ],
+  "competitorSummary": {
+    "totalSampledShorts": 83,
+    "channelCount": 8,
+    "top20Percent": {
+      "count": 16,
+      "avgViews": 35608,
+      "avgDurationS": 20.88,
+      "avgTitleLen": 90.75,
+      "avgLikesPct": 1.85,
+      "avgCommentsPct": 0.1,
+      "topTopics": [
+        "Static/Mixed GK (15)",
+        "Indian History (1)"
+      ],
+      "sampleTitles": [
+        "👉🏼 101 से 118 तक तत्वों के नाम, संकेत, परमाणु क्रमांक || Names, symbols, atomic numbers of elements (5s, 142259v)",
+        "Top 20 Important GK Questions 2026 🔥 || GK Question and Answer #gk #brgkstudy #gkinhindi Part -33 (29s, 86112v)",
+        "👉🏼 81 से 100 तक तत्वों के नाम, संकेत, परमाणु क्रमांक || Names, symbols, atomic numbers of elements (6s, 61304v)",
+        "Top 10 General Knowledge Questions for Everyone! #gk #shorts (26s, 39983v)",
+        "Top 20 Important GK Questions 2026 🔥 || GK Question and Answer #gk #brgkstudy #gkinhindi Part -30 (27s, 36331v)"
+      ]
+    },
+    "bottom50Percent": {
+      "count": 41,
+      "avgViews": 870,
+      "avgDurationS": 20.02,
+      "avgTitleLen": 80.95,
+      "avgLikesPct": 1.17,
+      "avgCommentsPct": 0.32,
+      "topTopics": [
+        "Static/Mixed GK (40)",
+        "Geography (1)"
+      ]
+    }
+  }
+}

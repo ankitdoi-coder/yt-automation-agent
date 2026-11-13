@@ -208,7 +208,12 @@ class PublishingSchedulingAgent {
     // Prepare video metadata
     const requestedPrivacy = metadata.privacyStatus || process.env.DEFAULT_PRIVACY_STATUS || 'public';
     const scheduledFor = new Date(scheduleEntry.publishTime);
-    const futureSchedule = !options.publishNow && Number.isFinite(scheduledFor.getTime()) && scheduledFor.getTime() > Date.now() + 60000;
+    const publishNow = options.publishNow === true ||
+      (process.env.SCHEDULE_IN_ADVANCE !== 'true' && process.env.PUBLISH_IMMEDIATELY !== 'false');
+    const futureSchedule = !publishNow &&
+      requestedPrivacy !== 'public' &&
+      Number.isFinite(scheduledFor.getTime()) &&
+      scheduledFor.getTime() > Date.now() + 60000;
     const videoMetadata = {
       snippet: {
         title: safeMetadata.title,
@@ -254,16 +259,31 @@ class PublishingSchedulingAgent {
       });
     } catch (_) {}
     
-    // Upload thumbnail
-    if (metadata.thumbnail && (metadata.thumbnail.path || metadata.thumbnail.originalPath)) {
+    const isShortVideo = Boolean(
+      metadata.isShort ||
+      metadata.contentType === 'short' ||
+      String(metadata.contentType || '').includes('quiz_short') ||
+      /#shorts?\b/i.test(safeMetadata.title || '')
+    );
+
+    // Upload 16:9 thumbnail only for long-form videos; Shorts render vertically in-feed
+    if (!isShortVideo && metadata.thumbnail && (metadata.thumbnail.path || metadata.thumbnail.originalPath)) {
       await this.uploadThumbnail(videoId, metadata.thumbnail.path, metadata.thumbnail.originalPath);
     }
 
-    // Post engagement challenge comment to drive YouTube Shorts comment velocity
-    try {
-      await this.postEngagementComment(videoId, safeMetadata);
-    } catch (commentErr) {
-      this.logger.warn(`Could not post engagement comment for ${videoId}: ${commentErr.message}`);
+    // Post engagement challenge comment once video is public (API rejects comments on private/scheduled videos)
+    if (!futureSchedule && requestedPrivacy !== 'private') {
+      try {
+        await this.postEngagementComment(videoId, {
+          ...safeMetadata,
+          questionCount: metadata.seo?.questionCount || metadata.seo?.metadata?.questionCount || metadata.questionCount,
+          lastQuestion: metadata.seo?.lastQuestion || metadata.seo?.metadata?.lastQuestion || metadata.script?.quiz?.questions?.slice(-1)?.[0]?.question || ''
+        });
+      } catch (commentErr) {
+        this.logger.warn(`Could not post engagement comment for ${videoId}: ${commentErr.message}`);
+      }
+    } else {
+      this.logger.info(`Deferring engagement comment for ${videoId} until publishAt (${scheduleEntry.publishTime || requestedPrivacy})`);
     }
 
     // Cross-post vertical video / short to Facebook Page Reels
@@ -768,7 +788,24 @@ class PublishingSchedulingAgent {
   async postEngagementComment(videoId, safeMetadata = {}) {
     if (!this.youtube || !videoId) return;
     try {
-      const commentText = '🎯 आज के टेस्ट में आपका स्कोर कितना रहा? 5 में से अपना स्कोर कमेंट करके बताएं! 🏆\n🔔 रोज़ाना नए GK Tests के लिए ExamIQ Bharat को Subscribe करें!';
+      const qCountMatch = String(safeMetadata.title || '').match(/\btop\s*(\d+)\b/i);
+      const qCount = Number(safeMetadata.questionCount) || (qCountMatch ? Number(qCountMatch[1]) : 3) || 3;
+      let prompts = [
+        `🎯 दम है तो बताओ — सवाल नंबर ${qCount} का सही जवाब क्या है? कमेंट में A, B, C या D लिखो! 👇🔥`,
+        `🏆 आज के ${qCount} सवालों में आपका स्कोर (${qCount} में से) कितना रहा? कमेंट में जरूर बताएं! 💬`,
+        `📚 SSC / Railway की तैयारी कर रहे हो? सवाल ${qCount} का जवाब + अपना स्कोर कमेंट करो! 💪`
+      ];
+      const rawLastQ = String(safeMetadata.lastQuestion || '').replace(/[?।!]+$/g, '').trim();
+      const qHint = rawLastQ ? (rawLastQ.length > 36 ? `${rawLastQ.slice(0, 33).trim()}...` : rawLastQ) : '';
+      if (qHint) {
+        prompts = [
+          `🎯 Daily Challenge: Question ${qCount} (${qHint}) का सही जवाब किस-किस को पहले से पता था? अपना स्कोर कमेंट में लिखो! 🏆👇`,
+          `🔥 दम है तो बताओ — Q${qCount} (${qHint}) का सही उत्तर + आपका स्कोर (${qCount} में से) कितना रहा? कमेंट करो! 💬`
+        ];
+      }
+      const idx = videoId.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % prompts.length;
+      const commentText = `${prompts[idx]}\n🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ Bharat को Subscribe करें!`;
+
       await this.youtube.commentThreads.insert({
         part: 'snippet',
         requestBody: {
