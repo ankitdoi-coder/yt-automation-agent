@@ -622,6 +622,16 @@ class Database {
         value TEXT NOT NULL,
         description TEXT,
         updated_at TEXT DEFAULT CURRENT_TIMESTAMP
+      )`,
+      // Category Sequential Series Counter
+      `CREATE TABLE IF NOT EXISTS category_series (
+        category TEXT PRIMARY KEY,
+        display_name TEXT NOT NULL,
+        display_name_hi TEXT NOT NULL,
+        current_part INTEGER NOT NULL DEFAULT 0,
+        last_video_id TEXT,
+        last_published_at TEXT,
+        updated_at TEXT DEFAULT CURRENT_TIMESTAMP
       )`
     ];
 
@@ -711,6 +721,21 @@ class Database {
         process.env.CHANNEL_TIMEZONE || 'Asia/Kolkata'
       ]
     );
+
+    // Seed default category series for sequential part tracking
+    const defaultCategorySeries = [
+      ['polity', 'Indian Polity', 'भारतीय संविधान', 0],
+      ['science', 'General Science', 'सामान्य विज्ञान', 0],
+      ['history', 'Indian History', 'भारत का इतिहास', 0],
+      ['geography', 'Indian Geography', 'भारत का भूगोल', 0],
+      ['static', 'Static GK', 'सामान्य ज्ञान (GK)', 0]
+    ];
+    for (const [cat, name, nameHi, part] of defaultCategorySeries) {
+      await this.executeQuery(
+        'INSERT OR IGNORE INTO category_series (category, display_name, display_name_hi, current_part) VALUES (?, ?, ?, ?)',
+        [cat, name, nameHi, part]
+      );
+    }
   }
 
   // Content Strategy methods
@@ -2774,6 +2799,53 @@ class Database {
       settings[row.key] = row.value;
       return settings;
     }, {});
+  }
+
+  // Category Sequential Series Counter
+  async getNextCategoryPart(categoryKey, defaultName = null, defaultNameHi = null) {
+    const norm = String(categoryKey || 'static').toLowerCase().trim();
+    let row = await this.getRow('SELECT * FROM category_series WHERE category = ?', [norm]);
+    if (!row) {
+      const name = defaultName || norm.charAt(0).toUpperCase() + norm.slice(1);
+      const nameHi = defaultNameHi || name;
+      await this.executeQuery(
+        'INSERT OR IGNORE INTO category_series (category, display_name, display_name_hi, current_part) VALUES (?, ?, ?, 0)',
+        [norm, name, nameHi]
+      );
+      row = await this.getRow('SELECT * FROM category_series WHERE category = ?', [norm]) || {
+        category: norm,
+        display_name: name,
+        display_name_hi: nameHi,
+        current_part: 0
+      };
+    }
+    const currentPart = Number(row.current_part || 0);
+    const nextPart = currentPart + 1;
+    return {
+      category: row.category,
+      displayName: row.display_name,
+      displayNameHi: row.display_name_hi,
+      currentPart,
+      nextPart
+    };
+  }
+
+  async incrementCategoryPart(categoryKey, videoId = null) {
+    const norm = String(categoryKey || 'static').toLowerCase().trim();
+    await this.executeQuery(
+      `UPDATE category_series 
+       SET current_part = current_part + 1,
+           last_video_id = COALESCE(?, last_video_id),
+           last_published_at = CURRENT_TIMESTAMP,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE category = ?`,
+      [videoId, norm]
+    );
+    return await this.getRow('SELECT * FROM category_series WHERE category = ?', [norm]);
+  }
+
+  async getAllCategorySeries() {
+    return await this.getAllRows('SELECT * FROM category_series ORDER BY category ASC');
   }
 
   // Production readiness

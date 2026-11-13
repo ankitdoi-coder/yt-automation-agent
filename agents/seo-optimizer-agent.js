@@ -301,26 +301,23 @@ ${timestampsText}
     return uniqueTags;
   }
 
-    buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
+  buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
     // Generate clean English title (< 50 chars) for YouTube Shorts (No Devanagari Hindi words)
-    const qCount = script?.quiz?.totalQuestions || script?.quiz?.questions?.length || strategy?.targetQuestionCount || 3;
+    const qCount = script?.quiz?.totalQuestions || script?.quiz?.questions?.length || strategy?.targetQuestionCount || 10;
     const { englishTopic = 'Static GK' } = this.extractTopicAndCategory(script, strategy);
+    const partNumber = Number(script?.partNumber || script?.quiz?.part || strategy?.partNumber) || 1;
 
-    const templates = [
-      `Top ${qCount} ${englishTopic} Questions 🎯 #shorts`,
-      `${englishTopic} Questions | Top GK Quiz #shorts`,
-      `Top ${qCount} ${englishTopic} | SSC, Railway GK #shorts`,
-      `${englishTopic} Quiz | Top ${qCount} Questions 🎯 #shorts`,
-      `Top ${qCount} ${englishTopic} MCQ 2026 #shorts`
+    // Clean topic name without trailing "GK" to save characters (e.g. "Indian Polity", "Indian History", "General Science")
+    const cleanTopic = englishTopic.replace(/\s*GK$/i, '').trim();
+
+    const candidates = [
+      `${cleanTopic} Part ${partNumber} | Top ${qCount} Questions 🎯 #shorts`,
+      `${cleanTopic} Part ${partNumber} | Top ${qCount} MCQs 🎯 #shorts`,
+      `${cleanTopic} Part ${partNumber} | Top ${qCount} Qs 🎯 #shorts`,
+      `${cleanTopic} Part ${partNumber} Quiz 🎯 #shorts`
     ];
 
-    const seed = `${strategy?.topic || ''} ${script?.title || ''} ${englishTopic}`;
-    const hash = seed.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0);
-    let title = templates[hash % templates.length];
-
-    if (title.length > 50) {
-      title = `${englishTopic} Quiz | Top ${qCount} Questions #shorts`;
-    }
+    let title = candidates.find(t => t.length <= 50) || candidates[candidates.length - 1];
 
     if (title.length > 50) {
       title = title.slice(0, 41).trim() + ' #shorts';

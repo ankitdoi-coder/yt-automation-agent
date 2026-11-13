@@ -1,13 +1,14 @@
 {
-  "version": "1.0.0",
-  "updatedAt": "2026-11-12T04:15:00.000Z",
-  "comment": "Growth configuration flags for ExamIQ Bharat. Enforces 1x 3-question rapid Short/day during active A/B experiment.",
+  "version": "1.1.0",
+  "updatedAt": "2026-11-13T11:20:00.000Z",
+  "comment": "Growth configuration flags for ExamIQ Bharat. Enforces 10-question rapid Short (~60-75s) with category sequential parts and 1.15x narration speed.",
   "shorts": {
     "titleStyle": "dynamic_curiosity_hook",
-    "targetQuestionCount": 3,
-    "targetDurationSeconds": 30,
+    "targetQuestionCount": 10,
+    "targetDurationSeconds": 65,
     "cleanDescription": true,
-    "pacingSecondsPerQuestion": 4.5
+    "pacingSecondsPerQuestion": 5.5,
+    "voiceSpeed": 1.15
   },
   "longVideos": {
     "targetQuestionCount": 20,

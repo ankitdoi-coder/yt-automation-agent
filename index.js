@@ -522,6 +522,13 @@ class YouTubeAutomationAgent {
       }
     }
 
+    if (body.partNumber !== undefined && body.partNumber !== null) {
+      value.partNumber = Number(body.partNumber);
+    }
+    if (body.category !== undefined && body.category !== null) {
+      value.category = String(body.category).trim();
+    }
+
     return { valid: true, value };
   }
 
@@ -1696,7 +1703,9 @@ Rules:
       await this.db.updateGenerationJob(jobId, { status: 'running', progress: 2, error: null, completedAt: null });
       const result = await this.generateContent(input.topic, input.style, input.length, {
         jobId,
-        strategyContext: input.strategyContext
+        strategyContext: input.strategyContext,
+        partNumber: input.partNumber,
+        category: input.category
       });
       await this.db.updateGenerationJob(jobId, {
         status: 'completed',
@@ -1780,7 +1789,32 @@ Rules:
       }
       generated.requestedStyle = requestedStyle;
       generated.requestedLengthKey = generated.isShort ? 'short' : length;
-      generated.requestedLength = generated.isShort ? '45-55 seconds' : (lengthLabels[length] || lengthLabels.medium);
+      generated.requestedLength = generated.isShort ? '60-75 seconds' : (lengthLabels[length] || lengthLabels.medium);
+
+      // Category Sequential Series Resolution for Shorts
+      if (options.partNumber || strategyContext.partNumber) {
+        generated.partNumber = Number(options.partNumber || strategyContext.partNumber);
+      }
+      if (options.category || strategyContext.category) {
+        generated.category = options.category || strategyContext.category;
+      }
+      if (generated.isShort && !generated.partNumber && this.db?.getNextCategoryPart) {
+        try {
+          const rawText = `${generated.topic || ''} ${generated.angle || ''}`.toLowerCase();
+          let cat = 'static';
+          if (/polity|संविधान|constitution|article|अनुच्छेद/i.test(rawText)) cat = 'polity';
+          else if (/science|विज्ञान|biology|bio|chem|physics|शरीर|vitamin/i.test(rawText)) cat = 'science';
+          else if (/history|इतिहास|मौर्य|गुप्त|1857|मुगल/i.test(rawText)) cat = 'history';
+          else if (/geography|भूगोल|river|dam|नदी|बांध|पर्वत/i.test(rawText)) cat = 'geography';
+
+          const partInfo = await this.db.getNextCategoryPart(cat);
+          generated.partNumber = partInfo.nextPart;
+          generated.category = cat;
+          this.logger.info(`Assigned Category "${cat}" Part ${generated.partNumber} to Short`);
+        } catch (_partErr) {
+          generated.partNumber = 1;
+        }
+      }
       generated.angle = strategyContext.angle || generated.angle;
       generated.planRationale = strategyContext.rationale || null;
       generated.targetAudience = strategyContext.audience || profile.target_audience || generated.targetAudience;

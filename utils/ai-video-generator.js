@@ -2463,7 +2463,7 @@ class AIVideoGenerator {
       String(script.metadata?.strategy?.context || '') + ' ' +
       String(script.metadata?.rawRequest || '')
     ).match(/(?:part|भाग)\s*[:#-]?\s*(\d+)/i);
-    const partNumber = partMatch ? partMatch[1] : (quiz.part || script.partNumber || '1');
+    const partNumber = Number(script.partNumber || quiz.part || (partMatch ? partMatch[1] : 1));
 
     const isShort = Boolean(
       script.isShort ||
@@ -2473,7 +2473,7 @@ class AIVideoGenerator {
       String(script.metadata?.strategy?.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
       String(script.metadata?.strategy?.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
     );
-    let shortQuestionLimit = 3;
+    let shortQuestionLimit = 10;
     try {
       const growthPath = path.resolve(__dirname, '..', 'config', 'growth.json');
       if (require('fs').existsSync(growthPath)) {
@@ -2516,9 +2516,11 @@ class AIVideoGenerator {
     // First slide: Title slide for long-form, Curiosity Hook slide for Shorts (critical to stop feed swiping)
     if (isShort) {
       const { numberToHindiWords } = require('./quiz-narration');
+      const targetCorrectWords = actualCount >= 7 ? 'सात' : 'दो';
+      const targetCorrectNum = actualCount >= 7 ? '7' : '2';
       const hookText = script.hook?.text || (language === 'hi'
-        ? `दम है तो ${numberToHindiWords(actualCount) || actualCount} में से दो सही करके दिखाओ!`
-        : `Can you get 2 out of ${actualCount} right? Let's test your knowledge!`);
+        ? `दम है तो ${numberToHindiWords(actualCount) || actualCount} में से ${targetCorrectWords} सही करके दिखाओ!`
+        : `Can you get ${targetCorrectNum} out of ${actualCount} right? Let's test your knowledge!`);
       slides.push({
         kind: isNoImageShort ? 'shortQuizCleanHook' : 'shortQuizHook',
         index: 1,
@@ -2530,6 +2532,7 @@ class AIVideoGenerator {
         channelLogo: channelLogoUri,
         language,
         subjectHindi,
+        partNumber,
         noImages: isNoImageShort,
         headline: hookText,
         narrationText: hookText,
@@ -2741,9 +2744,28 @@ class AIVideoGenerator {
               ]);
             } else {
               // Convert raw TTS output to normalized 24kHz mono PCM WAV
+              // For rapid-fire Shorts, accelerate narration slightly (~1.15x) to fit 10 questions in 60-75s
+              const isShortSlide = Boolean(String(slide.kind || '').startsWith('shortQuiz') || script.isShort);
+              let voiceSpeed = 1.0;
+              if (isShortSlide) {
+                try {
+                  const gp = path.resolve(__dirname, '..', 'config', 'growth.json');
+                  if (require('fs').existsSync(gp)) {
+                    voiceSpeed = Number(JSON.parse(require('fs').readFileSync(gp, 'utf8')).shorts?.voiceSpeed) || 1.15;
+                  } else {
+                    voiceSpeed = 1.15;
+                  }
+                } catch (_) {
+                  voiceSpeed = 1.15;
+                }
+              }
+              const speedFilters = (isShortSlide && voiceSpeed && voiceSpeed !== 1.0)
+                ? ['-filter:a', `atempo=${voiceSpeed}`]
+                : [];
               try {
                 await runFFmpeg([
                   '-y', '-i', rawPath,
+                  ...speedFilters,
                   '-ar', '24000', '-ac', '1',
                   '-c:a', 'pcm_s16le',
                   rawWavPath
@@ -3209,7 +3231,7 @@ ${options}
                 ${logoHtml}
                 <div class="short-header-title">ExamIQ Bharat</div>
             </div>
-            <div class="short-header-badge">${slide.isCommentChallenge ? 'COMMENT CHALLENGE' : 'GK QUIZ'}</div>
+            <div class="short-header-badge">${slide.isCommentChallenge ? 'COMMENT CHALLENGE' : (slide.partNumber ? `PART ${slide.partNumber}` : 'GK QUIZ')}</div>
         </div>
         <div class="short-visual-container">
             ${visualHtml}
@@ -3237,9 +3259,11 @@ ${optionsHtml}
     const answerIndex = Number.isInteger(question.answerIndex) ? question.answerIndex : -1;
     const subjectHindi = slide.subjectHindi || 'सामान्य ज्ञान';
     const channelName = slide.channel || process.env.CHANNEL_NAME || 'ExamIQ Bharat';
+    const partSuffix = slide.partNumber ? ` • भाग ${slide.partNumber}` : '';
+    const topBadgeText = `${subjectHindi}${partSuffix}`;
 
     if (isHook) {
-      const hookTitle = slide.headline || slide.narrationText || 'दम है तो 3 में से 2 सही करके दिखाओ!';
+      const hookTitle = slide.headline || slide.narrationText || 'दम है तो 10 में से 7 सही करके दिखाओ!';
       return `
     <div class="slide quiz-short clean${active}">
         <div class="watermark-bg">
@@ -3252,12 +3276,12 @@ ${optionsHtml}
         <div class="quiz-clean-container" style="justify-content: center; text-align: center;">
             <div class="top-pill-badge" style="margin-bottom: 24px;">
                 <span class="book-icon">📚</span>
-                <span class="top-badge-text">${this.escapeHtml(subjectHindi)}</span>
+                <span class="top-badge-text">${this.escapeHtml(topBadgeText)}</span>
                 <span class="book-icon">📚</span>
             </div>
             <div class="sub-header-strip" style="background: #dc2626; margin-bottom: 36px;">
                 <span class="strip-emoji">🔥</span>
-                <span class="strip-text">GK CHALLENGE</span>
+                <span class="strip-text">${slide.partNumber ? `PART ${slide.partNumber} • GK CHALLENGE` : 'GK CHALLENGE'}</span>
                 <span class="strip-emoji">🔥</span>
             </div>
             <div style="background: #f8fafc; border: 4px solid #1e293b; border-radius: 28px; padding: 48px 36px; box-shadow: 0 16px 36px rgba(0,0,0,0.15); margin: 20px 0;">
@@ -3311,10 +3335,10 @@ ${optionsHtml}
         </div>
 
         <div class="quiz-clean-container">
-            <!-- 1. Top Pill Badge: 📚 सामान्य ज्ञान 📚 -->
+            <!-- 1. Top Pill Badge: 📚 सामान्य ज्ञान • भाग 1 📚 -->
             <div class="top-pill-badge">
                 <span class="book-icon">📚</span>
-                <span class="top-badge-text">${this.escapeHtml(subjectHindi)}</span>
+                <span class="top-badge-text">${this.escapeHtml(topBadgeText)}</span>
                 <span class="book-icon">📚</span>
             </div>
 

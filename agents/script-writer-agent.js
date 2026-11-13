@@ -424,7 +424,7 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
         const val = Number(match[1]);
         if (val >= 3 && val <= 10) return val;
       }
-      return 3;
+      return 10;
     }
     const text = `${strategy.topic || ''} ${strategy.angle || ''}`;
     const topMatch = text.match(/\btop\s*(\d{1,3})\b/i);
@@ -538,7 +538,7 @@ Rewrite the full script fixing every one of these problems. Return only the JSON
       String(strategy?.contentType || strategy?.requestedStyle || '').includes('quiz_short')
     );
     const shortsCuriosityRule = isShort
-      ? `\n17. SHORTS HIGH-CURIOSITY NCERT RULE (~30s TARGET): For this ${totalQuestions}-question Short, choose surprising, high-curiosity NCERT Class 6-12 exam concepts (e.g. unexpected human-body superlatives like largest internal organ or mature RBCs lacking a nucleus, vitamin chemical names/clotting like Vitamin K, key Constitutional Articles, or high-frequency exam traps). Keep every question crisp (7-14 words) and every option concise (1-4 words) so all ${totalQuestions} questions + hook + challenge fit cleanly inside 28-30 seconds. Make Q${totalQuestions} (the final question) especially intriguing for the end-of-video Comment Challenge!`
+      ? `\n17. SHORTS HIGH-CURIOSITY NCERT RULE (~60-70s TARGET): For this ${totalQuestions}-question Short, choose surprising, high-curiosity NCERT Class 6-12 exam concepts (e.g. unexpected human-body superlatives like largest internal organ or mature RBCs lacking a nucleus, vitamin chemical names/clotting like Vitamin K, key Constitutional Articles, or high-frequency exam traps). Keep every question crisp (7-12 words) and every option concise (1-3 words) so all ${totalQuestions} questions + hook + challenge fit cleanly inside 60-70 seconds. Make Q${totalQuestions} (the final question) especially intriguing for the end-of-video Comment Challenge!`
       : '';
     const languageLine = language === 'hi'
       ? 'Write every question, option, explanation and header text in Hindi using proper Devanagari script. IMPORTANT: On-screen questions and options must write all numbers and dates as numeric digits (e.g. 17, 28 फरवरी 1928, 1947, 360, अनुच्छेद 324) and NOT spelled out as Hindi words. Write continuous, natural Hindi words with correct matras.'
@@ -750,15 +750,15 @@ Return only the valid JSON, no markdown outside, no commentary.`;
       String(strategy.contentType || '').toLowerCase() === 'quiz_short_no_image' ||
       String(strategy.requestedStyle || '').toLowerCase() === 'quiz_short_no_image'
     );
-    const secondsPerQuestion = isShort ? 5 : (language === 'hi' ? 8 : 7);
+    const secondsPerQuestion = isShort ? 5.5 : (language === 'hi' ? 8 : 7);
     const durationSeconds = isShort
-      ? Math.min(42, Math.max(20, Math.round(questions.length * secondsPerQuestion) + 4))
+      ? Math.min(85, Math.max(25, Math.round(questions.length * secondsPerQuestion) + 4))
       : Math.round(questions.length * secondsPerQuestion) + 4;
     const subject = meta?.subject || this.deriveQuizSubject(strategy.topic);
     const subjectHindi = meta?.subjectHindi || this.deriveQuizSubjectHindi(strategy.topic, subject);
     const actualCount = questions.length;
 
-    // Extract Part number if provided in topic, raw request, context or title
+    // Extract Part number if provided in strategy, topic, raw request, context or title
     const textToScan = [
       strategy.topic,
       strategy.context,
@@ -766,7 +766,7 @@ Return only the valid JSON, no markdown outside, no commentary.`;
       strategy.title
     ].filter(Boolean).join(' ');
     const partMatch = textToScan.match(/(?:part|भाग)\s*[:#-]?\s*(\d+)/i);
-    const partNumber = partMatch ? parseInt(partMatch[1], 10) : 1;
+    const partNumber = Number(strategy.partNumber) || (partMatch ? parseInt(partMatch[1], 10) : 1);
 
     // Dynamically replace any hardcoded count with the actualCount
     let finalTitle = meta?.title || `Top ${actualCount} ${subject} Question and answer`;
@@ -777,9 +777,11 @@ Return only the valid JSON, no markdown outside, no commentary.`;
     }
 
     const { numberToHindiWords } = require('../utils/quiz-narration');
+    const targetCorrectWords = actualCount >= 7 ? 'सात' : 'दो';
+    const targetCorrectNum = actualCount >= 7 ? '7' : '2';
     const shortHookText = language === 'hi'
-      ? `दम है तो ${numberToHindiWords(actualCount) || actualCount} में से दो सही करके दिखाओ!`
-      : `Can you get 2 out of ${actualCount} right? Let's test your knowledge!`;
+      ? `दम है तो ${numberToHindiWords(actualCount) || actualCount} में से ${targetCorrectWords} सही करके दिखाओ!`
+      : `Can you get ${targetCorrectNum} out of ${actualCount} right? Let's test your knowledge!`;
     const introText = isShort ? shortHookText : introNarration(subjectHindi, actualCount, language);
     const fullScript = isShort
       ? formatShortQuizScript(questions, language, { hook: shortHookText })

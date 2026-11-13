@@ -43,3 +43,7 @@ timestamp,video_id,content_type,variant_id,question_count,title_style,title,stat
 2026-11-13T05:22:06.079Z,testUploadedShortId,long_form,dedup_20q,20,standard,Test Short #shorts,uploaded,14-day growth algorithm recovery trial
 2026-11-13T05:23:43.678Z,provenance-video,long_form,dedup_20q,20,standard,Evidence-aware automation,uploaded,14-day growth algorithm recovery trial
 2026-11-13T05:24:11.390Z,youtube-now,long_form,dedup_20q,20,standard,Publish now,uploaded,14-day growth algorithm recovery trial
+2026-11-13T11:17:20.347Z,provenance-video,long_form,dedup_20q,20,standard,Evidence-aware automation,uploaded,14-day growth algorithm recovery trial
+2026-11-13T11:17:42.502Z,youtube-now,long_form,dedup_20q,20,standard,Publish now,uploaded,14-day growth algorithm recovery trial
+2026-11-13T11:30:22.327Z,provenance-video,long_form,dedup_20q,20,standard,Evidence-aware automation,uploaded,14-day growth algorithm recovery trial
+2026-11-13T11:31:06.185Z,youtube-now,long_form,dedup_20q,20,standard,Publish now,uploaded,14-day growth algorithm recovery trial

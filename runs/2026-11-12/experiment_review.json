@@ -1,8 +1,8 @@
 {
-  "checkedAt": "2026-11-13T04:20:30.744Z",
+  "checkedAt": "2026-11-13T10:58:13.374Z",
   "channel": {
     "title": "ExamIQ",
-    "viewCount": "4724",
+    "viewCount": "5114",
     "subscriberCount": "8",
     "videoCount": "131"
   },
@@ -13,7 +13,7 @@
       "publishedAt": "2026-11-13T04:14:47Z",
       "duration": "PT36S",
       "privacyStatus": "public",
-      "views": 1,
+      "views": 13,
       "likes": 0,
       "comments": 1
     },
@@ -23,7 +23,7 @@
       "publishedAt": "2026-11-13T04:13:27Z",
       "duration": "PT24S",
       "privacyStatus": "public",
-      "views": 1,
+      "views": 8,
       "likes": 0,
       "comments": 0
     },
@@ -33,7 +33,7 @@
       "publishedAt": "2026-11-12T16:02:24Z",
       "duration": "PT29S",
       "privacyStatus": "public",
-      "views": 352,
+      "views": 358,
       "likes": 4,
       "comments": 5
     },
@@ -53,7 +53,7 @@
       "publishedAt": "2026-11-12T03:00:17Z",
       "duration": "PT25S",
       "privacyStatus": "public",
-      "views": 19,
+      "views": 20,
       "likes": 0,
       "comments": 0
     },
@@ -73,7 +73,7 @@
       "publishedAt": "2026-11-11T11:25:11Z",
       "duration": "PT30S",
       "privacyStatus": "public",
-      "views": 1027,
+      "views": 1030,
       "likes": 0,
       "comments": 1
     },
@@ -83,7 +83,7 @@
       "publishedAt": "2026-11-11T03:00:18Z",
       "duration": "PT23S",
       "privacyStatus": "public",
-      "views": 24,
+      "views": 26,
       "likes": 0,
       "comments": 0
     },
@@ -93,7 +93,7 @@
       "publishedAt": "2026-11-10T14:00:28Z",
       "duration": "PT29S",
       "privacyStatus": "public",
-      "views": 16,
+      "views": 17,
       "likes": 0,
       "comments": 0
     },
@@ -655,11 +655,11 @@
       0
     ],
     [
-      "IBB55fS9d4s",
+      "nIMla_5-n6Q",
       1,
       0,
-      0,
-      0,
+      3,
+      0.36,
       0,
       0,
       0,
@@ -677,11 +677,11 @@
       0
     ],
     [
-      "nIMla_5-n6Q",
+      "IBB55fS9d4s",
       1,
       0,
-      3,
-      0.36,
+      0,
+      0,
       0,
       0,
       0,

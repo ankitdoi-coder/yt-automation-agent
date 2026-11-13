@@ -34,7 +34,7 @@ const SCHEDULE_SLOTS = [
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
-    defaultTopic: 'General Science: Human Body & Biology Important Questions | Top 3 Science GK Shorts'
+    defaultTopic: 'General Science: Human Body & Biology Important Questions | Top 10 Science GK Shorts'
   },
   {
     id: 'slot2',
@@ -43,29 +43,29 @@ const SCHEDULE_SLOTS = [
     style: 'quiz_short_no_image',
     length: 'short',
     contentType: 'quiz_short_no_image',
-    defaultTopic: 'Indian Polity & Constitution: Fundamental Rights & Key Articles | Top 3 Polity GK Shorts'
+    defaultTopic: 'Indian Polity & Constitution: Fundamental Rights & Key Articles | Top 10 Polity GK Shorts'
   }
 ];
 
-// High-Yield 3-Question Shorts Topic Pools (no 50-question long-form strings on 30s Shorts)
+// High-Yield 10-Question Shorts Topic Pools (Sequential Parts across High-Demand Exam Categories)
 const SLOT_TOPIC_POOLS = {
   slot1: [
-    'General Science: Human Body & Biology Important Questions | Top 3 Science GK Shorts',
-    'Vitamin, Chemical Names & Deficiency Diseases | Top 3 General Science GK Shorts',
-    'Human Blood Circulation, Heart & Organs | Top 3 Biology GK Shorts',
-    'Acids, Bases, pH Scale & Everyday Chemistry | Top 3 Chemistry GK Shorts',
-    'SI Units, Physics Inventions & Laws | Top 3 Physics GK Shorts',
-    'Indian Polity: Fundamental Rights & Key Constitutional Articles | Top 3 Polity GK Shorts',
-    'Cell Biology, Genetics & Human Diseases | Top 3 Science GK Shorts'
+    'General Science: Human Body & Biology Important Questions | Top 10 Science GK Shorts',
+    'Vitamin, Chemical Names & Deficiency Diseases | Top 10 General Science GK Shorts',
+    'Human Blood Circulation, Heart & Organs | Top 10 Biology GK Shorts',
+    'Acids, Bases, pH Scale & Everyday Chemistry | Top 10 Chemistry GK Shorts',
+    'SI Units, Physics Inventions & Laws | Top 10 Physics GK Shorts',
+    'Indian Polity: Fundamental Rights & Key Constitutional Articles | Top 10 Polity GK Shorts',
+    'Cell Biology, Genetics & Human Diseases | Top 10 Science GK Shorts'
   ],
   slot2: [
-    'Indian Polity & Constitution: Key Articles & Amendments | Top 3 Polity GK Shorts',
-    'Modern Indian History: 1857 Revolt & Freedom Struggle | Top 3 History GK Shorts',
-    'Static GK: National Parks, Tiger Reserves & Wildlife Sanctuaries | Top 3 Static GK Shorts',
-    'Indian Geography: Major Rivers, Dams & Mountain Passes | Top 3 Geography GK Shorts',
-    'Ancient History: Maurya, Gupta Empire & Harappan Civilization | Top 3 History GK Shorts',
-    'Famous Books & Authors + Classical Dances of India | Top 3 Static GK Shorts',
-    'First in India & Important Constitutional Schedules | Top 3 Static GK Shorts'
+    'Indian Polity & Constitution: Key Articles & Amendments | Top 10 Polity GK Shorts',
+    'Modern Indian History: 1857 Revolt & Freedom Struggle | Top 10 History GK Shorts',
+    'Static GK: National Parks, Tiger Reserves & Wildlife Sanctuaries | Top 10 Static GK Shorts',
+    'Indian Geography: Major Rivers, Dams & Mountain Passes | Top 10 Geography GK Shorts',
+    'Ancient History: Maurya, Gupta Empire & Harappan Civilization | Top 10 History GK Shorts',
+    'Famous Books & Authors + Classical Dances of India | Top 10 Static GK Shorts',
+    'First in India & Important Constitutional Schedules | Top 10 Static GK Shorts'
   ],
   slot3: [
     'Static GK Marathon: भारत के राष्ट्रीय उद्यान, लोक नृत्य, नदियां व बांध: 50 प्रश्न | Static GK Class',
@@ -76,15 +76,24 @@ const SLOT_TOPIC_POOLS = {
     'भारतीय इतिहास के 50 महत्वपूर्ण युद्ध, संधियां व राष्ट्रीय आंदोलन | History GK Marathon'
   ],
   slot4: [
-    'Books and Authors Important Questions | Top 3 Static GK Shorts',
-    'National Parks of India Important Questions | Top 3 Static GK Shorts',
-    'Classical Dances and Festivals of India | Top 3 Static GK Shorts',
-    'Indian Constitution Important Articles | Top 3 Polity GK Shorts',
-    'First in India (Male & Female) GK | Top 3 Static GK Shorts',
-    'Major Dams and River Cities of India | Top 3 Geography GK Shorts',
-    'Gupta and Maurya Empire Important Questions | Top 3 History GK Shorts'
+    'Books and Authors Important Questions | Top 10 Static GK Shorts',
+    'National Parks of India Important Questions | Top 10 Static GK Shorts',
+    'Classical Dances and Festivals of India | Top 10 Static GK Shorts',
+    'Indian Constitution Important Articles | Top 10 Polity GK Shorts',
+    'First in India (Male & Female) GK | Top 10 Static GK Shorts',
+    'Major Dams and River Cities of India | Top 10 Geography GK Shorts',
+    'Gupta and Maurya Empire Important Questions | Top 10 History GK Shorts'
   ]
 };
+
+function detectCategory(topic) {
+  const t = String(topic || '').toLowerCase();
+  if (/polity|संविधान|constitution|article|अनुच्छेद/i.test(t)) return 'polity';
+  if (/science|विज्ञान|biology|bio|chem|physics|शरीर|vitamin/i.test(t)) return 'science';
+  if (/history|इतिहास|मौर्य|गुप्त|1857|मुगल/i.test(t)) return 'history';
+  if (/geography|भूगोल|river|dam|नदी|बांध|पर्वत/i.test(t)) return 'geography';
+  return 'static';
+}
 
 function getSlotDefaultTopic(slot) {
   const pool = SLOT_TOPIC_POOLS[slot.id];
@@ -125,13 +134,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/science|विज्ञान|bio|biology|chem|physics/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - Biology & Human Body: Top 3 Science GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Biology & Human Body: Top 10 Science GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - Physics & Chemistry: Top 3 Science GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Physics & Chemistry: Top 10 Science GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - रसायन विज्ञान व भौतिक विज्ञान: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - Scientific Inventions & Units: Top 3 GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Scientific Inventions & Units: Top 10 GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -141,13 +150,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/static|विविध|पुस्तक|author|book|उद्यान|park|dance|नृत्य|त्यौहार|festival/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - Books, Parks & Static GK: Top 3 Shorts');
+        return formatSlotTopic(cleanBase, ' - Books, Parks & Static GK: Top 10 Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - National Parks, Folk Dances & Heritage: Top 3 Static GK Shorts');
+        return formatSlotTopic(cleanBase, ' - National Parks, Folk Dances & Heritage: Top 10 Static GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - लोक नृत्य, प्रमुख त्यौहार व दिवस: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - First in India: Top 3 Static GK Shorts');
+        return formatSlotTopic(cleanBase, ' - First in India: Top 10 Static GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -157,13 +166,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/history|इतिहास|संविधान|polity/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - Maurya, Gupta & 1857 Revolt: Top 3 History GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Maurya, Gupta & 1857 Revolt: Top 10 History GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - Fundamental Rights & Constitutional Articles: Top 3 Polity GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Fundamental Rights & Constitutional Articles: Top 10 Polity GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - आधुनिक भारत का इतिहास एवं भारतीय संविधान: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - Key Indian Constitution Articles: Top 3 Polity GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Key Indian Constitution Articles: Top 10 Polity GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -173,13 +182,13 @@ function resolveSlotTopic(slot, baseTopic) {
   if (/geography|भूगोल/i.test(cleanBase)) {
     switch (slot.id) {
       case 'slot1':
-        return formatSlotTopic(cleanBase, ' - Major Dams, Rivers & Lakes: Top 3 Geography GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Major Dams, Rivers & Lakes: Top 10 Geography GK Shorts');
       case 'slot2':
-        return formatSlotTopic(cleanBase, ' - Mountain Passes, National Parks & Borders: Top 3 Geography GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Mountain Passes, National Parks & Borders: Top 10 Geography GK Shorts');
       case 'slot3':
         return formatSlotTopic(cleanBase, ' - विश्व का भूगोल, सौरमंडल व महाद्वीप: 50 महत्वपूर्ण प्रश्न | Long Class 2');
       case 'slot4':
-        return formatSlotTopic(cleanBase, ' - Indian States & Passes: Top 3 GK Shorts');
+        return formatSlotTopic(cleanBase, ' - Indian States & Passes: Top 10 GK Shorts');
       default:
         return formatSlotTopic(cleanBase, ` (${slot.name})`);
     }
@@ -188,13 +197,13 @@ function resolveSlotTopic(slot, baseTopic) {
   // General custom topic - give distinct sub-angles per slot
   switch (slot.id) {
     case 'slot1':
-      return formatSlotTopic(cleanBase, ': Top 3 Rapid-Fire Exam GK Questions #shorts');
+      return formatSlotTopic(cleanBase, ': Top 10 Rapid-Fire Exam GK Questions #shorts');
     case 'slot2':
-      return formatSlotTopic(cleanBase, ': Top 3 Most Repeated Exam Questions #shorts');
+      return formatSlotTopic(cleanBase, ': Top 10 Most Repeated Exam Questions #shorts');
     case 'slot3':
       return formatSlotTopic(cleanBase, ': भाग 2 - 50 अति महत्वपूर्ण प्रश्न (शाम की प्राइम क्लास)');
     case 'slot4':
-      return formatSlotTopic(cleanBase, ': Top 3 Difficult GK Questions #shorts');
+      return formatSlotTopic(cleanBase, ': Top 10 Difficult GK Questions #shorts');
     default:
       return formatSlotTopic(cleanBase, ` - ${slot.name}`);
   }
@@ -347,10 +356,21 @@ async function run() {
 
     try {
       const slotTopic = resolveSlotTopic(slot, process.env.VIDEO_TOPIC);
+      const isShortSlot = Boolean(slot.length === 'short' || String(slot.style || '').includes('short'));
+      const cat = detectCategory(slotTopic);
+      const partInfo = isShortSlot && agent.db?.getNextCategoryPart
+        ? await agent.db.getNextCategoryPart(cat)
+        : null;
+      const partNumber = partInfo ? partInfo.nextPart : 1;
+
+      logger.info(`📌 Category: ${cat.toUpperCase()} | Sequential Part Counter: Part ${partNumber}`);
+
       const job = await agent.startGenerationJob({
         topic: slotTopic,
         style: slot.style,
         length: slot.length,
+        partNumber,
+        category: cat,
         source: 'scheduler'
       });
 
@@ -410,6 +430,16 @@ async function run() {
         const statusMsg = directPublic
           ? `PUBLIC NOW: ${publishResult.youtubeUrl || publishResult.youtubeId}`
           : `SCHEDULED for ${slot.timeIST} IST: ${publishResult.youtubeUrl || publishResult.youtubeId}`;
+
+        // Advance sequential category part counter in DB upon successful upload
+        if (isShortSlot && agent.db?.incrementCategoryPart) {
+          try {
+            await agent.db.incrementCategoryPart(cat, publishResult.youtubeId || null);
+            logger.success(`📈 Category "${cat}" advanced in DB (now at Part ${partNumber})`);
+          } catch (incErr) {
+            logger.warn(`Could not advance category part counter: ${incErr.message}`);
+          }
+        }
 
         logger.success(`🎉 Video Uploaded! ${statusMsg}`);
         results.push({

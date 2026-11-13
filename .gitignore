@@ -94,3 +94,4 @@ data/thumbnails/
 # Facebook Reels temp and output
 facebook/output/
 facebook/temp/
+.agents/teamwork/
