@@ -123,7 +123,8 @@
     "hist_dandi_03",
     "math_prime_03",
     "pol_rights_count_08",
-    "geo_oil_05"
+    "geo_oil_05",
+    "geo_suez_06"
   ],
   "uploads": [
     {
@@ -1164,6 +1165,17 @@
       "deliveryMode": "ZERNIO_API",
       "uploadedAt": "2026-11-13T15:59:10.567Z",
       "answer": "A) वेनेजुएला (303 अरब बैरल से अधिक)"
+    },
+    {
+      "id": "geo_suez_06",
+      "category": "geopolitics",
+      "topic": "वैश्विक व्यापार (Global Trade)",
+      "title": "भूमध्य सागर को लाल सागर से कौन सी नहर जोड़ती है?",
+      "fbVideoId": null,
+      "zernioPostId": "6af74a707e5a1ea2f6be9520",
+      "deliveryMode": "ZERNIO_API",
+      "uploadedAt": "2026-11-13T17:36:19.596Z",
+      "answer": "C) स्वेज नहर (मिस्र / Egypt)"
     }
   ]
 }
