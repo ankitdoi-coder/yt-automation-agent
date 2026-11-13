@@ -124,7 +124,8 @@
     "math_prime_03",
     "pol_rights_count_08",
     "geo_oil_05",
-    "geo_suez_06"
+    "geo_suez_06",
+    "pol_pm_age_06"
   ],
   "uploads": [
     {
@@ -1176,6 +1177,17 @@
       "deliveryMode": "ZERNIO_API",
       "uploadedAt": "2026-11-13T17:36:19.596Z",
       "answer": "C) स्वेज नहर (मिस्र / Egypt)"
+    },
+    {
+      "id": "pol_pm_age_06",
+      "category": "polity",
+      "topic": "प्रधानमंत्री (Prime Minister of India)",
+      "title": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
+      "fbVideoId": null,
+      "zernioPostId": "6af779c1d8b4ab2dde593076",
+      "deliveryMode": "ZERNIO_API",
+      "uploadedAt": "2026-11-13T20:58:50.178Z",
+      "answer": "D) 25 वर्ष (लोकसभा सदस्य के लिए)"
     }
   ]
 }
