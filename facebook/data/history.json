@@ -121,7 +121,8 @@
     "math_percent_10",
     "stat_ports_23",
     "hist_dandi_03",
-    "math_prime_03"
+    "math_prime_03",
+    "pol_rights_count_08"
   ],
   "uploads": [
     {
@@ -1140,6 +1141,17 @@
       "deliveryMode": "ZERNIO_API",
       "uploadedAt": "2026-11-12T21:32:11.334Z",
       "answer": "B) 2 (एकमात्र सम अभाज्य संख्या)"
+    },
+    {
+      "id": "pol_rights_count_08",
+      "category": "polity",
+      "topic": "मौलिक अधिकार (Fundamental Rights)",
+      "title": "भारतीय संविधान में वर्तमान में कितने मौलिक अधिकार हैं?",
+      "fbVideoId": "2339355990167746",
+      "zernioPostId": "6af6f422e4628c5352dff210",
+      "deliveryMode": "ZERNIO_API",
+      "uploadedAt": "2026-11-13T11:28:04.657Z",
+      "answer": "A) 6 मौलिक अधिकार (भाग 3)"
     }
   ]
 }
