@@ -1342,6 +1342,8 @@ class AIVideoGenerator {
             durations: renderDurations,
             transition: 'cut',
             animateProgress: isShort,
+            slidesData: slides,
+            isShort,
             width: isShort ? 1080 : 1920
           }
         : {};
@@ -1408,12 +1410,66 @@ class AIVideoGenerator {
         if (options.animateProgress) {
           const animDuration = Math.max(1, perSlideDurations.reduce((sum, d) => sum + d, 0));
           const progressWidth = Number(options.width) || 1080;
+          const slidesData = Array.isArray(options.slidesData) ? options.slidesData : [];
+
+          const filters = [];
+          filters.push('[0:v]fps=30,format=yuv420p[v0]');
+          let prev = 'v0';
+          let filterIdx = 1;
+
+          let elapsed = 0;
+          for (let i = 0; i < perSlideDurations.length; i++) {
+            const dur = Number(perSlideDurations[i]);
+            const ts = elapsed;
+            const te = ts + dur;
+            const slide = slidesData[i] || {};
+            const isQuestion = String(slide.kind || '').toLowerCase().includes('question');
+            const isAnswer = String(slide.kind || '').toLowerCase().includes('answer');
+
+            if (isQuestion && dur >= 0.5) {
+              // 1. Dynamic Countdown Timer Track & Shrinking Crimson Bar on Question Slides
+              const trackOut = `v${filterIdx++}`;
+              filters.push(`[${prev}]drawbox=x=54:y=620:w=970:h=14:color=#cbd5e1@0.75:t=fill:enable='between(t,${ts.toFixed(3)},${te.toFixed(3)})'[${trackOut}]`);
+              prev = trackOut;
+
+              const barOut = `v${filterIdx++}`;
+              filters.push(`[${prev}]drawbox=x=54:y=620:w='max(0,970*(1-(t-${ts.toFixed(3)})/${dur.toFixed(3)}))':h=14:color=#dc2626@0.95:t=fill:enable='between(t,${ts.toFixed(3)},${te.toFixed(3)})'[${barOut}]`);
+              prev = barOut;
+            } else if (isAnswer && !slide.isCommentChallenge && dur >= 0.2) {
+              // 2. 0.16s Soft Reward Highlight Flash on Answer Reveal (matches "Ding!" chime)
+              const flashOut = `v${filterIdx++}`;
+              filters.push(`[${prev}]drawbox=x=0:y=0:w=iw:h=ih:color=white@0.16:t=fill:enable='between(t,${ts.toFixed(3)},${(ts + 0.16).toFixed(3)})'[${flashOut}]`);
+              prev = flashOut;
+            }
+
+            // 3. Quick 0.08s micro-dip transition between slides for clean TV-game-show cuts
+            if (i > 0 && ts > 0.1) {
+              const dipOut = `v${filterIdx++}`;
+              filters.push(`[${prev}]drawbox=x=0:y=0:w=iw:h=ih:color=black@0.2:t=fill:enable='between(t,${(ts - 0.04).toFixed(3)},${(ts + 0.04).toFixed(3)})'[${dipOut}]`);
+              prev = dipOut;
+            }
+
+            elapsed += dur;
+          }
+
+          // 4. Top Animated Progress Bar with Glowing Gold Indicator Head
+          const progBg = `v${filterIdx++}`;
+          filters.push(`[${prev}]drawbox=x=0:y=0:w=iw:h=16:color=#0f172a@0.6:t=fill[${progBg}]`);
+          prev = progBg;
+
+          const progFill = `v${filterIdx++}`;
+          filters.push(`[${prev}]drawbox=x=0:y=0:w='iw*(t/${animDuration.toFixed(3)})':h=16:color=#2563eb@0.95:t=fill[${progFill}]`);
+          prev = progFill;
+
+          const progHead = `v${filterIdx++}`;
+          filters.push(`[${prev}]drawbox=x='max(0,iw*(t/${animDuration.toFixed(3)})-14)':y=0:w=14:h=16:color=#facc15@1:t=fill[${progHead}]`);
+          prev = progHead;
+
           await runFFmpeg([
             '-y',
             '-f', 'concat', '-safe', '0', '-i', concatListPath,
-            '-f', 'lavfi', '-i', `color=c=#2563eb:s=${progressWidth}x12:r=30:d=${(animDuration + 0.5).toFixed(3)}`,
-            '-filter_complex', `[0:v]fps=30,drawbox=x=0:y=0:w=iw:h=12:color=#e2e8f0:t=fill[bg];[bg][1:v]overlay=x='-w+(t/${animDuration.toFixed(3)})*w':y=0:shortest=1,format=yuv420p[v]`,
-            '-map', '[v]',
+            '-filter_complex', filters.join(';'),
+            '-map', `[${prev}]`,
             '-c:v', 'libx264',
             '-preset', 'veryfast',
             videoPath
@@ -2196,7 +2252,7 @@ class AIVideoGenerator {
             align-items: center;
             justify-content: center;
             gap: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 4px 18px rgba(234, 179, 8, 0.25), 0 4px 12px rgba(0, 0, 0, 0.12);
         }
         .top-pill-badge .book-icon {
             font-size: 46px;
@@ -2313,8 +2369,8 @@ class AIVideoGenerator {
         /* Correct Answer Reveal Highlight (High-Trust Vivid Green Pill) */
         .clean-opt-item.correct-reveal {
             background: #dcfce7 !important;
-            border: 4.5px solid #16a34a !important;
-            box-shadow: 0 4px 18px rgba(22, 163, 74, 0.25) !important;
+            border: 5px solid #16a34a !important;
+            box-shadow: 0 8px 26px rgba(22, 163, 74, 0.35) !important;
         }
         .clean-opt-item.correct-reveal .opt-prefix,
         .clean-opt-item.correct-reveal .opt-content {
@@ -3319,7 +3375,7 @@ ${optionsHtml}
 
       return `                <div class="${rowClasses.join(' ')}">
                     <span class="opt-prefix">${optLetter})</span>
-                    <span class="opt-content">${this.escapeHtml(option)}</span>
+                    <span class="opt-content">${this.escapeHtml(option)}${isCorrect ? ' <span class="check-mark" style="color:#16a34a; font-weight:900; margin-left:8px;">✓</span>' : ''}</span>
                 </div>`;
     }).join('\n');
 
@@ -3361,8 +3417,9 @@ ${optionsHtml}
             <div class="quiz-timer-strip revealed">
                 <span class="timer-badge" style="background: #fef08a; color: #854d0e; font-size: 38px; font-weight: 900; border: 3px solid #eab308; box-shadow: 0 4px 12px rgba(234, 179, 8, 0.3);">💬 सवाल नंबर ${qNum} का जवाब कमेंट में दें!</span>
             </div>` : (!isAnswer ? `
-            <div class="quiz-timer-strip answering">
+            <div class="quiz-timer-strip answering" style="flex-direction: column; align-items: flex-start; gap: 8px;">
                 <span class="timer-badge" style="background: #e0f2fe; color: #0369a1; font-weight: 800;">🤔 सोचिए और उत्तर दीजिए</span>
+                <div class="timer-track-slot" style="width: 100%; height: 14px; border-radius: 7px; background: #e2e8f0;"></div>
             </div>` : `
             <div class="quiz-timer-strip revealed">
                 <span class="timer-badge correct">✅ सही उत्तर</span>
