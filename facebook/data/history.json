@@ -129,7 +129,8 @@
     "stat_pass_14",
     "sci_dna_structure_18",
     "geo_hormuz_07",
-    "pol_president_age_05"
+    "pol_president_age_05",
+    "stat_border_06"
   ],
   "uploads": [
     {
@@ -1248,6 +1249,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-14T10:50:25.759Z",
       "answer": "C) 35 वर्ष (Article 58)"
+    },
+    {
+      "id": "stat_border_06",
+      "category": "static_gk",
+      "topic": "अंतरराष्ट्रीय सीमाएं (Indian Borders)",
+      "title": "भारत की सबसे लंबी थल सीमा किस पड़ोसी देश से लगती है?",
+      "fbVideoId": null,
+      "zernioPostId": "6af8b45cfe83f3b7b49260b0",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-14T19:20:32.686Z",
+      "answer": "C) बांग्लादेश (4,096.7 किमी)"
     }
   ]
 }
