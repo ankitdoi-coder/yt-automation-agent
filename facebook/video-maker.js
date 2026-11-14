@@ -137,13 +137,16 @@ class FacebookVideoMaker {
     const correctLetter = (item.correctOption || 'A').toUpperCase();
     const explanation = this._escapeXml(item.explanation || '');
 
-    // Central subtle watermark — faint SS-style watermark (10% opacity)
+    // Central subtle watermark (matching Exam IQ Bharat branding: 🎓 EXAM IQ BHARAT)
     const logoEmbed = this.logoBase64
       ? `<image href="data:image/png;base64,${this.logoBase64}" x="290" y="800" width="500" height="500" opacity="0.08" />`
       : `
-        <g opacity="0.07" transform="translate(540, 1050)">
-          <text x="0" y="0" font-family="'Noto Sans', Arial, sans-serif" font-size="80" font-weight="900" fill="#888888" text-anchor="middle" transform="rotate(-20)">S</text>
-          <text x="0" y="90" font-family="'Noto Sans', Arial, sans-serif" font-size="38" font-weight="900" fill="#888888" text-anchor="middle" transform="rotate(-20)">EXAM IQ BHARAT</text>
+        <g opacity="0.09" transform="translate(540, 960)">
+          <circle cx="0" cy="0" r="260" fill="none" stroke="#000000" stroke-width="6" stroke-dasharray="16 12"/>
+          <circle cx="0" cy="0" r="220" fill="none" stroke="#000000" stroke-width="3"/>
+          <text x="0" y="-40" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="70" text-anchor="middle">🎓</text>
+          <text x="0" y="45" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="50" font-weight="900" fill="#000000" text-anchor="middle">EXAM IQ BHARAT</text>
+          <text x="0" y="110" font-family="Arial, sans-serif" font-size="22" font-weight="800" fill="#64748b" text-anchor="middle" letter-spacing="4">LEARN • PRACTICE • SCORE</text>
         </g>
       `;
 
@@ -165,6 +168,8 @@ class FacebookVideoMaker {
     <svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
         <!-- topic: ${topic} -->
+        <!-- hook: ${hookBar} -->
+        <!-- examiqbharat -->
         <filter id="btnShadow" x="-10%" y="-10%" width="130%" height="130%">
           <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.18"/>
         </filter>
@@ -272,18 +277,35 @@ class FacebookVideoMaker {
         </g>
       ` : ''}
 
+      <!-- Fact / Explanation Card (during Frame 3) -->
+      ${!isCommentChallenge && isAnswer ? `
+        <g filter="url(#softShadow)">
+          <rect x="60" y="1210" width="960" height="160" rx="18" fill="#f8fafc" stroke="#38bdf8" stroke-width="2.5"/>
+          <text x="540" y="1252" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="26" font-weight="900" fill="#0369a1" text-anchor="middle">
+            💡 परीक्षा तथ्य (Exam Fact)
+          </text>
+          <text x="540" y="1298" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="bold" fill="#15803d" text-anchor="middle">
+            ✅ सही जवाब: ${this._escapeXml(item.answerText || '')}
+          </text>
+          ${explanation ? `
+          <text x="540" y="1340" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="22" font-weight="500" fill="#334155" text-anchor="middle">
+            ${explanation.length > 60 ? explanation.slice(0, 60) + '...' : explanation}
+          </text>` : ''}
+        </g>
+      ` : ''}
+
       <!-- ═══════════════════════════════════════════════
            BOTTOM BRAND BAR (matches Smart Study Plus reference image)
            White canvas background!
-           Left: Pink box with red border + examiqbharat (yellow with black outline)
+           Left: Pink box with red border + Exam IQ Bharat (yellow with black outline)
            Right: 🔔 bell + red FOLLOW button + animated hand cursor
            ═══════════════════════════════════════════════ -->
       <g>
         <!-- Left: Pink Brand Box (Reels Safe Zone at y=1430, height=105 -> y+h=1535 <= 1560) -->
         <rect x="60" y="1430" width="510" height="105" rx="14" fill="#FF5376" stroke="#B71C1C" stroke-width="4"/>
-        <text x="315" y="1502" font-family="'Noto Sans', 'Nirmala UI', Arial, sans-serif"
-              font-size="48" font-weight="900" fill="#FFE600" stroke="#000000" stroke-width="3"
-              text-anchor="middle" paint-order="stroke fill">examiqbharat</text>
+        <text x="315" y="1502" font-family="'Arial Black', 'Impact', 'Noto Sans', sans-serif"
+              font-size="44" font-weight="900" font-style="italic" fill="#FFE600" stroke="#000000" stroke-width="3"
+              text-anchor="middle" paint-order="stroke fill" data-channel="examiqbharat">Exam IQ Bharat</text>
 
         <!-- Right: Bell icon + Red FOLLOW pill + Hand cursor -->
         ${showFollowBtn ? `
