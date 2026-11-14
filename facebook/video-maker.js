@@ -256,13 +256,17 @@ class FacebookVideoMaker {
       <!-- 6. Fact / Explanation Card (during Frame 3) -->
       ${!isCommentChallenge && isAnswer ? `
         <g filter="url(#softShadow)">
-          <rect x="60" y="1270" width="960" height="135" rx="18" fill="#f8fafc" stroke="#38bdf8" stroke-width="2.5"/>
-          <text x="540" y="1312" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="900" fill="#0369a1" text-anchor="middle">
+          <rect x="60" y="1255" width="960" height="150" rx="18" fill="#f8fafc" stroke="#38bdf8" stroke-width="2.5"/>
+          <text x="540" y="1295" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="26" font-weight="900" fill="#0369a1" text-anchor="middle">
             💡 परीक्षा तथ्य (Exam Fact)
           </text>
-          <text x="540" y="1362" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="bold" fill="#15803d" text-anchor="middle">
+          <text x="540" y="1338" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="26" font-weight="bold" fill="#15803d" text-anchor="middle">
             ✅ सही जवाब: ${this._escapeXml(item.answerText || '')}
           </text>
+          ${explanation ? `
+          <text x="540" y="1378" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="22" font-weight="500" fill="#334155" text-anchor="middle">
+            ${explanation.length > 60 ? explanation.slice(0, 60) + '...' : explanation}
+          </text>` : ''}
         </g>
       ` : ''}
 
