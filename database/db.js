@@ -2914,11 +2914,11 @@ class Database {
     if (!Array.isArray(videos) || videos.length === 0) return await this.getAllCategorySeries();
 
     const catPatterns = {
-      science: /\b(science|विज्ञान|biology|physics|chemistry|जीव\s*विज्ञान|भौतिक|रसायन)\b/i,
-      polity: /\b(polity|संविधान|constitution|article|अनुच्छेद|संसद|राष्ट्रपति)\b/i,
-      history: /\b(history|इतिहास|मौर्य|गुप्त|मुगल|1857|हड़प्पा|सिंधु)\b/i,
-      geography: /\b(geography|भूगोल|river|dam|नदी|बांध|पर्वत|दर्रा|झील)\b/i,
-      static: /\b(static|विविध|national park|राष्ट्रीय उद्यान|dance|नृत्य|त्यौहार|दिवस|first in india)\b/i
+      science: /(?:science|विज्ञान|biology|physics|chemistry|जीव\s*विज्ञान|भौतिक|रसायन)/i,
+      polity: /(?:polity|संविधान|constitution|article|अनुच्छेद|संसद|राष्ट्रपति)/i,
+      history: /(?:history|इतिहास|मौर्य|गुप्त|मुगल|1857|हड़प्पा|सिंधु)/i,
+      geography: /(?:geography|भूगोल|river|dam|नदी|बांध|पर्वत|दर्रा|झील)/i,
+      static: /(?:static|विविध|national park|राष्ट्रीय उद्यान|dance|नृत्य|त्यौहार|दिवस|first in india)/i
     };
 
     const maxPartsFound = {};
@@ -2929,7 +2929,7 @@ class Database {
       if (!title) continue;
 
       // Extract Part number from title (e.g. "Part 2", "Part 1", "भाग 2", "Part-2")
-      const partMatch = title.match(/\b(?:part|भाग)\s*[-:]?\s*(\d+)\b/i);
+      const partMatch = title.match(/(?:part|भाग)\s*[-:]?\s*(\d+)/i);
       if (!partMatch) continue;
 
       const partNum = parseInt(partMatch[1], 10);

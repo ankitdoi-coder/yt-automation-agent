@@ -33,10 +33,61 @@ function normalizeTags(input) {
   return unique;
 }
 
+function enforceEnglishShortTitle(title, metadata = {}) {
+  let cleaned = cleanText(title);
+  const isShort = /#shorts?\b/i.test(cleaned) ||
+    metadata?.isShort === true ||
+    String(metadata?.contentType || '').includes('short') ||
+    String(metadata?.style || '').includes('short');
+
+  if (!isShort) {
+    return cleaned;
+  }
+
+  // Strictly enforce 100% English title: Zero Hindi / Devanagari words allowed
+  if (/[\u0900-\u097F]/.test(cleaned)) {
+    const partMatch = cleaned.match(/(?:part|भाग)\s*[-:]?\s*(\d+)/i);
+    const partNum = partMatch ? partMatch[1] : '1';
+    const qMatch = cleaned.match(/(?:top|टॉप)\s*(\d+)/i) || cleaned.match(/(\d+)\s*(?:mcq|questions|प्रश्न)/i);
+    const qCount = qMatch ? qMatch[1] : '10';
+
+    let catName = 'Static GK';
+    if (/(?:science|विज्ञान|biology|physics|chemistry|जीव\s*विज्ञान|भौतिक|रसायन)/i.test(cleaned)) {
+      catName = 'General Science';
+    } else if (/(?:polity|संविधान|constitution|article|अनुच्छेद|संसद|राष्ट्रपति)/i.test(cleaned)) {
+      catName = 'Indian Polity';
+    } else if (/(?:history|इतिहास|मौर्य|गुप्त|मुगल|1857|हड़प्पा|सिंधु)/i.test(cleaned)) {
+      catName = 'Indian History';
+    } else if (/(?:geography|भूगोल|river|dam|नदी|बांध|पर्वत|दर्रा|झील)/i.test(cleaned)) {
+      catName = 'Indian Geography';
+    }
+
+    cleaned = `${catName} Part ${partNum} | Top ${qCount} MCQs 🎯 #shorts`;
+  }
+
+  // Strip any accidental Devanagari characters
+  cleaned = cleaned.replace(/[\u0900-\u097F]/g, '').replace(/\s+/g, ' ').trim();
+  if (!/#shorts?\b/i.test(cleaned)) {
+    cleaned = (cleaned.slice(0, 41).trim() + ' #shorts').trim();
+  }
+
+  return cleaned.slice(0, MAX_TITLE_LENGTH);
+}
+
 function normalizeYouTubeMetadata(metadata = {}) {
   const snippet = metadata.snippet || metadata.seo || metadata;
+  let rawTitle = cleanText(snippet.title);
+  const isShort = /#shorts?\b/i.test(rawTitle) ||
+    metadata?.isShort === true ||
+    snippet?.isShort === true ||
+    String(metadata?.contentType || snippet?.contentType || '').includes('short');
+
+  if (isShort) {
+    rawTitle = enforceEnglishShortTitle(rawTitle, metadata);
+  }
+
   return {
-    title: cleanText(snippet.title).slice(0, MAX_TITLE_LENGTH),
+    title: rawTitle.slice(0, MAX_TITLE_LENGTH),
     description: removeControlCharacters(snippet.description).slice(0, MAX_DESCRIPTION_LENGTH).trim(),
     tags: normalizeTags(snippet.tags),
     categoryId: String(snippet.categoryId ?? snippet.metadata?.category ?? process.env.YOUTUBE_CATEGORY_ID ?? '27').trim(),
@@ -77,6 +128,7 @@ module.exports = {
   MAX_DESCRIPTION_LENGTH,
   MAX_TAGS_LENGTH,
   normalizeTags,
+  enforceEnglishShortTitle,
   normalizeYouTubeMetadata,
   validateYouTubeMetadata,
   assertValidYouTubeMetadata

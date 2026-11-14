@@ -442,6 +442,14 @@ async function run() {
           if (directPublic) {
             delete entry.metadata.publishAt;
           }
+          // Strictly enforce 100% English title for YouTube Shorts
+          if (isShortSlot && (/[\u0900-\u097F]/.test(entry.title || '') || /[\u0900-\u097F]/.test(entry.metadata?.seo?.title || ''))) {
+            const { enforceEnglishShortTitle } = require('../utils/youtube-metadata-validator');
+            entry.title = enforceEnglishShortTitle(entry.title || entry.metadata?.seo?.title, entry.metadata);
+            if (entry.metadata?.seo) {
+              entry.metadata.seo.title = entry.title;
+            }
+          }
           await agent.db.saveScheduleEntry(entry);
         }
         if (Array.isArray(agent.agents.publishing.publishQueue)) {

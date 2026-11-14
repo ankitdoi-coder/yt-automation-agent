@@ -302,13 +302,24 @@ ${timestampsText}
   }
 
   buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
-    // Generate clean English title (< 50 chars) for YouTube Shorts (No Devanagari Hindi words)
+    // Generate strictly 100% English title (< 50 chars) for YouTube Shorts (Zero Devanagari / Hindi words)
     const qCount = script?.quiz?.totalQuestions || script?.quiz?.questions?.length || strategy?.targetQuestionCount || 10;
-    const { englishTopic = 'Static GK' } = this.extractTopicAndCategory(script, strategy);
+    const { englishTopic = 'Static GK', category = 'static' } = this.extractTopicAndCategory(script, strategy);
     const partNumber = Number(script?.partNumber || script?.quiz?.part || strategy?.partNumber) || 1;
 
-    // Clean topic name without trailing "GK" to save characters (e.g. "Indian Polity", "Indian History", "General Science")
-    const cleanTopic = englishTopic.replace(/\s*GK$/i, '').trim();
+    // Strict English Category Mapping
+    const englishCategoryNames = {
+      science: 'General Science',
+      polity: 'Indian Polity',
+      history: 'Indian History',
+      geography: 'Indian Geography',
+      static: 'Static GK'
+    };
+
+    let cleanTopic = englishCategoryNames[category] || englishTopic.replace(/\s*GK$/i, '').trim();
+    if (/[\u0900-\u097F]/.test(cleanTopic)) {
+      cleanTopic = englishCategoryNames[category] || 'Static GK';
+    }
 
     const candidates = [
       `${cleanTopic} Part ${partNumber} | Top ${qCount} Questions 🎯 #shorts`,
@@ -322,6 +333,9 @@ ${timestampsText}
     if (title.length > 50) {
       title = title.slice(0, 41).trim() + ' #shorts';
     }
+
+    // Absolute enforcement: strip any Hindi/Devanagari characters
+    title = title.replace(/[\u0900-\u097F]/g, '').replace(/\s+/g, ' ').trim();
 
     return title;
   }

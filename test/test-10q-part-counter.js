@@ -95,8 +95,18 @@ async function runTests() {
     assert(title.length <= 50, `Title "${title}" must be <= 50 characters (was ${title.length})`);
     assert(title.includes('#shorts'), `Title "${title}" must include #shorts`);
     assert(title.includes(`Part ${tc.part}`), `Title "${title}" must include Part ${tc.part}`);
+    assert(!/[\u0900-\u097F]/.test(title), `Title "${title}" must NOT contain any Hindi / Devanagari characters`);
   }
-  console.log('  ✅ All SEO Short titles verified <= 50 characters with Part number!');
+
+  // Test enforceEnglishShortTitle with direct Hindi Devanagari input
+  const { enforceEnglishShortTitle } = require('../utils/youtube-metadata-validator');
+  const hindiRaw = 'सामान्य विज्ञान भाग 2 | टॉप 10 MCQ 🎯 #shorts';
+  const converted = enforceEnglishShortTitle(hindiRaw, { isShort: true });
+  console.log(`  Enforced English Title from Hindi: "${converted}"`);
+  assert.strictEqual(converted, 'General Science Part 2 | Top 10 MCQs 🎯 #shorts');
+  assert(!/[\u0900-\u097F]/.test(converted), 'Enforced title must have zero Devanagari characters');
+
+  console.log('  ✅ All SEO Short titles strictly 100% English verified <= 50 characters with Part number!');
 
   // Test 3: Slide Generation & Presentation (10 Questions, Clean Typography, Badges)
   console.log('\n3. Testing Slide Generation for 10 Questions...');

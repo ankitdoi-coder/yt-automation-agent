@@ -3,7 +3,7 @@ const fs = require('fs').promises;
 const fsSync = require('fs');
 const path = require('path');
 const { Logger } = require('../utils/logger');
-const { assertValidYouTubeMetadata } = require('../utils/youtube-metadata-validator');
+const { assertValidYouTubeMetadata, enforceEnglishShortTitle } = require('../utils/youtube-metadata-validator');
 const { logExperimentVideo } = require('../utils/growth-experiment-tracker');
 
 class PublishingSchedulingAgent {
@@ -205,7 +205,14 @@ class PublishingSchedulingAgent {
     }
     const safeMetadata = validation.value;
     
-    // Prepare video metadata
+    // Strictly enforce 100% English title for YouTube Shorts (Zero Hindi words allowed)
+    const isShort = /#shorts?\b/i.test(safeMetadata.title || '') ||
+      metadata?.isShort === true ||
+      metadata?.length === 'short' ||
+      String(metadata?.contentType || '').includes('short');
+    if (isShort) {
+      safeMetadata.title = enforceEnglishShortTitle(safeMetadata.title, metadata);
+    }
     const requestedPrivacy = metadata.privacyStatus || process.env.DEFAULT_PRIVACY_STATUS || 'public';
     const scheduledFor = new Date(scheduleEntry.publishTime);
     const publishNow = options.publishNow === true ||
