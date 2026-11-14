@@ -125,7 +125,10 @@
     "pol_rights_count_08",
     "geo_oil_05",
     "geo_suez_06",
-    "pol_pm_age_06"
+    "pol_pm_age_06",
+    "stat_pass_14",
+    "sci_dna_structure_18",
+    "geo_hormuz_07"
   ],
   "uploads": [
     {
@@ -1188,6 +1191,48 @@
       "deliveryMode": "ZERNIO_API",
       "uploadedAt": "2026-11-13T20:58:50.178Z",
       "answer": "D) 25 वर्ष (लोकसभा सदस्य के लिए)"
+    },
+    {
+      "id": "stat_pass_14",
+      "category": "static_gk",
+      "topic": "पर्वतीय दर्रे (Mountain Passes)",
+      "title": "दुनिया की सबसे ऊंची मोटर वाहन चलाने योग्य सड़क किस दर्रे पर है?",
+      "fbVideoId": null,
+      "zernioPostId": "6af7fe6df405cea7d77f891d",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-14T06:24:27.129Z",
+      "answer": "C) उमलिंग ला (लद्दाख - 19,024 फीट)"
+    },
+    {
+      "id": "sci_dna_structure_18",
+      "category": "general_science",
+      "topic": "आनुवंशिकी (DNA Genetics)",
+      "title": "डीएनए की द्विकुंडलिनी संरचना (Double Helix) की खोज किसने की थी?",
+      "fbVideoId": null,
+      "zernioPostId": "6af7feacc0ce029c25230123",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-14T06:25:17.600Z",
+      "answer": "D) जेम्स वाटसन और फ्रांसिस क्रिक (1953)"
+    },
+    {
+      "id": "geo_hormuz_07",
+      "category": "geopolitics",
+      "topic": "अंतरराष्ट्रीय जलडमरूमध्य (Straits)",
+      "title": "दुनिया के 20% कच्चे तेल का परिवहन किस जलडमरूमध्य से होता है?",
+      "fbVideoId": null,
+      "zernioPostId": "6af7fee0c0ce029c2523032e",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 42,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-14T06:26:15.029Z",
+      "answer": "D) हॉर्मुज जलडमरूमध्य (Strait of Hormuz)"
     }
   ]
 }
