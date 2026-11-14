@@ -1,17 +1,17 @@
 {
-  "repurposedAt": "2026-11-14T05:39:18.147Z",
+  "repurposedAt": "2026-11-14T06:05:48.854Z",
   "sourceItem": {
-    "id": "geo_oil_05",
-    "title": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
-    "topic": "ऊर्जा व भू-राजनीति (Global Energy)",
-    "category": "geopolitics",
-    "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?"
+    "id": "pol_pm_age_06",
+    "title": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
+    "topic": "प्रधानमंत्री (Prime Minister of India)",
+    "category": "polity",
+    "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?"
   },
   "platformHooks": {
     "youtube": {
       "platform": "youtube",
-      "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
-      "adaptedHook": "India Global Energy GK Quiz | UPSC",
+      "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
+      "adaptedHook": "India Prime Minister of India GK Quiz | UPSC",
       "strategy": {
         "maxChars": 70,
         "preferKeywordFirst": true,
@@ -21,8 +21,8 @@
     },
     "instagram": {
       "platform": "instagram",
-      "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
-      "adaptedHook": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥",
+      "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
+      "adaptedHook": "97% UPSC students fail karte hain yeh Polity/Constitution",
       "strategy": {
         "maxChars": 65,
         "preferKeywordFirst": false,
@@ -32,8 +32,8 @@
     },
     "facebook": {
       "platform": "facebook",
-      "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
-      "adaptedHook": "Can you answer this? Global Energy Quiz | Comment your",
+      "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
+      "adaptedHook": "Can you answer this? Prime Minister of India Quiz | Comment",
       "strategy": {
         "maxChars": 60,
         "preferKeywordFirst": false,
@@ -43,10 +43,10 @@
     }
   },
   "instagramDelivery": {
-    "overlayHookText": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥",
-    "caption": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़रूर बताएं और अपनी तैयारी चेक करें!\n\n👇 जवाब कमेंट करें!\n\n#StaticGK #IndiaGK #SSCExam #UPSC #GKQuiz #ExamIQBharat #CurrentAffairs",
-    "foldPreview": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़र",
-    "hashtags": "#StaticGK #IndiaGK #SSCExam #UPSC #GKQuiz #ExamIQBharat #CurrentAffairs",
+    "overlayHookText": "97% UPSC students fail karte hain yeh Polity/Constitution",
+    "caption": "97% UPSC students fail karte hain yeh Polity/Constitution\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़रूर बताएं और अपनी तैयारी चेक करें!\n\n👇 जवाब कमेंट करें!\n\n#IndianPolity #Constitution #UPSC #SSCExam #Polity #GKQuiz #ExamIQBharat #IndiaGK",
+    "foldPreview": "97% UPSC students fail karte hain yeh Polity/Constitution\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़रू",
+    "hashtags": "#IndianPolity #Constitution #UPSC #SSCExam #Polity #GKQuiz #ExamIQBharat #IndiaGK",
     "recommendedScheduleIST": "20:00 IST (Peak Instagram Reels Traffic)"
   }
 }

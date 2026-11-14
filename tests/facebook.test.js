@@ -331,16 +331,16 @@ async function runTests() {
 
     const svgQ = maker._buildSVG({ item: mockItem });
     assert.ok(svgQ.includes('width="1080" height="1920"'));
-    assert.ok(svgQ.includes('भू-राजनीति'));
-    assert.ok(svgQ.includes('Exam IQ Bharat'));
-    assert.ok(svgQ.includes('को Follow करें'));
+    assert.ok(svgQ.includes('भू-राजनीति'));       // topic in SVG defs comment
+    assert.ok(svgQ.includes('examiqbharat'));      // new footer channel name
+    assert.ok(svgQ.includes('FOLLOW'));             // new FOLLOW button (was "को Follow करें")
 
     const svgTimer = maker._buildSVG({ item: mockItem, timerText: '⏳ सोचो! 3.. 2.. 1.. 🎯' });
     assert.ok(svgTimer.includes('⏳ सोचो! 3.. 2.. 1.. 🎯'));
 
     const svgAns = maker._buildSVG({ item: mockItem, isAnswer: true });
     assert.ok(svgAns.includes('Correct Option B Highlighted'));
-    assert.ok(svgAns.includes('💡 परीक्षा तथ्य (Exam Fact)'));
+    assert.ok(svgAns.includes('✓'), 'Answer slide should show green checkmark on correct option');
 
     const svgChallenge = maker._buildSVG({ item: mockItem, isCommentChallenge: true });
     assert.ok(svgChallenge.includes('💬 Comment Your Answer (कमेंट चैलेंज)'));
@@ -552,7 +552,7 @@ async function runTests() {
     const maker = new FacebookVideoMaker();
     const { EXAM_GK_QUESTIONS } = require('../facebook/content-vault');
     const svg = maker._buildSVG({ item: EXAM_GK_QUESTIONS[0], isCommentChallenge: true });
-    // Extract footer rect y and height: rect x="60" y="1430" width="510" height="105"
+    // Pink brand footer box at x="60" y="1430" width="510" height="105"
     const match = svg.match(/<rect x="60" y="(\d+)" width="510" height="(\d+)"/);
     assert.ok(match, 'Footer banner rect must exist');
     const y = parseInt(match[1], 10);

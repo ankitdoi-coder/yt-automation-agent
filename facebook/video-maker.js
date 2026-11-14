@@ -113,7 +113,18 @@ class FacebookVideoMaker {
       .replace(/'/g, '&apos;');
   }
 
-  _buildSVG({ item, isAnswer = false, timerText = null, isCommentChallenge = false }) {
+  _buildHandSVG() {
+    return `
+    <svg width="120" height="130" viewBox="0 0 120 130" xmlns="http://www.w3.org/2000/svg">
+      <line x1="20" y1="10" x2="6" y2="0" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+      <line x1="32" y1="4" x2="32" y2="-10" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+      <line x1="44" y1="10" x2="58" y2="0" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+      <path d="M 32 15 C 27 15 24 19 24 24 L 24 65 L 18 59 C 13 54 6 56 3 61 C 0 66 1 73 6 77 L 26 98 C 32 104 38 110 46 110 L 75 110 C 85 110 90 102 90 92 L 90 60 C 90 54 84 52 80 54 C 80 48 74 46 69 48 C 68 43 62 41 57 43 L 57 24 C 57 19 54 15 49 15 C 44 15 41 19 41 24 L 41 48 L 38 48 L 38 24 C 38 19 35 15 32 15 Z" fill="#FFFFFF" stroke="#000000" stroke-width="4.5" stroke-linejoin="round"/>
+    </svg>
+    `;
+  }
+
+  _buildSVG({ item, isAnswer = false, timerText = null, isCommentChallenge = false, partNum = 1, showFollowBtn = true, showHandInSvg = true }) {
     const topic = this._escapeXml(item.topic || 'सामान्य ज्ञान • भाग 1');
     const hookBar = this._escapeXml(item.englishHook || item.hookBar || 'परीक्षा में बार बार पूछे जाने वाले सवाल');
     const options = Array.isArray(item.options) ? item.options : [
@@ -126,15 +137,13 @@ class FacebookVideoMaker {
     const correctLetter = (item.correctOption || 'A').toUpperCase();
     const explanation = this._escapeXml(item.explanation || '');
 
-    // Central subtle watermark (matching YouTube Shorts style: 🎓 EXAM IQ BHARAT)
+    // Central subtle watermark — faint SS-style watermark (10% opacity)
     const logoEmbed = this.logoBase64
-      ? `<image href="data:image/png;base64,${this.logoBase64}" x="340" y="740" width="400" height="400" opacity="0.10" />`
+      ? `<image href="data:image/png;base64,${this.logoBase64}" x="290" y="800" width="500" height="500" opacity="0.08" />`
       : `
-        <g opacity="0.09" transform="translate(540, 940)">
-          <circle cx="0" cy="0" r="280" fill="none" stroke="#000000" stroke-width="6" stroke-dasharray="16 12"/>
-          <text x="0" y="-40" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="70" text-anchor="middle">🎓</text>
-          <text x="0" y="45" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="52" font-weight="900" fill="#000000" text-anchor="middle">EXAM IQ BHARAT</text>
-          <text x="0" y="115" font-family="Arial, sans-serif" font-size="24" font-weight="800" fill="#64748b" text-anchor="middle" letter-spacing="4">LEARN • PRACTICE • SCORE</text>
+        <g opacity="0.07" transform="translate(540, 1050)">
+          <text x="0" y="0" font-family="'Noto Sans', Arial, sans-serif" font-size="80" font-weight="900" fill="#888888" text-anchor="middle" transform="rotate(-20)">S</text>
+          <text x="0" y="90" font-family="'Noto Sans', Arial, sans-serif" font-size="38" font-weight="900" fill="#888888" text-anchor="middle" transform="rotate(-20)">EXAM IQ BHARAT</text>
         </g>
       `;
 
@@ -143,163 +152,164 @@ class FacebookVideoMaker {
       ? item.questionLines.map(l => this._escapeXml(l.replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, '')))
       : [this._escapeXml((item.question || item.title).replace(/[\uD83C][\uDDE6-\uDDFF][\uD83C][\uDDE6-\uDDFF]/g, ''))];
 
+    // Question font sizing — matches reference: bold red, centered, 2-3 lines
+    const qFontSize = questionLines.length > 2 ? 52 : 60;
+    const qStartY = questionLines.length > 2 ? 390 : 410;
+    const qLineHeight = questionLines.length > 2 ? 72 : 80;
+
+    // Options — plain (A) text, no box, left-aligned, black; answer slide: green ✓ on correct
+    const optStartY = qStartY + (questionLines.length * qLineHeight) + 60;
+    const optLineHeight = Math.min(118, Math.max(96, Math.floor((1420 - optStartY) / 4)));
+
     return `
     <svg width="1080" height="1920" viewBox="0 0 1080 1920" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
       <defs>
-        <!-- Gradients -->
-        <linearGradient id="topPillGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stop-color="#bef264" />
-          <stop offset="100%" stop-color="#facc15" />
-        </linearGradient>
-        <filter id="softShadow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="6" stdDeviation="10" flood-color="#000000" flood-opacity="0.10"/>
+        <!-- topic: ${topic} -->
+        <filter id="btnShadow" x="-10%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#000000" flood-opacity="0.18"/>
         </filter>
-        <filter id="greenGlow" x="-10%" y="-10%" width="120%" height="120%">
-          <feDropShadow dx="0" dy="6" stdDeviation="12" flood-color="#16a34a" flood-opacity="0.35"/>
+        <filter id="headerShadow" x="0%" y="0%" width="100%" height="130%">
+          <feDropShadow dx="0" dy="5" stdDeviation="6" flood-color="#000000" flood-opacity="0.12"/>
         </filter>
       </defs>
 
-      <!-- Clean White Canvas (Exact match to YouTube Shorts clean style) -->
+      <!-- ═══════════════════════════════════════════════
+           BACKGROUND — Pure white
+           ═══════════════════════════════════════════════ -->
       <rect width="1080" height="1920" fill="#FFFFFF"/>
 
-      <!-- Central Channel Watermark -->
+      <!-- Faint center watermark -->
       ${logoEmbed}
 
-      <!-- 1. Top Pill Badge: 📚 सामान्य ज्ञान • भाग 1 📚 (Exact YT Shorts #e4f932 Pill) -->
-      <g filter="url(#softShadow)">
-        <rect x="120" y="85" width="840" height="96" rx="48" fill="#e4f932" stroke="#111111" stroke-width="4.5"/>
-        <text x="540" y="152" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="46" font-weight="900" fill="#000000" text-anchor="middle" letter-spacing="0.5">
-          📚 ${topic} 📚
-        </text>
+      <!-- ═══════════════════════════════════════════════
+           TOP YELLOW HEADER BAR (matches reference image)
+           Height: 220px, color: #FFD800
+           ═══════════════════════════════════════════════ -->
+      <g filter="url(#headerShadow)">
+        <rect x="0" y="0" width="1080" height="220" fill="#FFD800"/>
+
+        <!-- Left media icons: ⏸ pause circle + 🔊 volume circle -->
+        <circle cx="130" cy="110" r="52" fill="#756b5a" opacity="0.65"/>
+        <text x="130" y="126" font-family="Arial, sans-serif" font-size="40" text-anchor="middle" fill="#ffffff">⏸</text>
+
+        <circle cx="280" cy="110" r="52" fill="#756b5a" opacity="0.65"/>
+        <text x="280" y="125" font-family="Arial, sans-serif" font-size="38" text-anchor="middle" fill="#ffffff">🔊</text>
+
+        <!-- Right decorative menu circle -->
+        <circle cx="950" cy="110" r="52" fill="#756b5a" opacity="0.65"/>
+        <text x="950" y="125" font-family="Arial, sans-serif" font-size="36" text-anchor="middle" fill="#ffffff">⋮</text>
+
+        <!-- Center title: Most General Knowledge\nQuestions part N -->
+        <text x="540" y="92" font-family="Arial, 'Noto Sans', sans-serif"
+              font-size="50" font-weight="900" fill="#000000" text-anchor="middle">Most General Knowledge</text>
+        <text x="540" y="160" font-family="Arial, 'Noto Sans', sans-serif"
+              font-size="50" font-weight="900" fill="#000000" text-anchor="middle">Questions part ${partNum}</text>
       </g>
 
-      <!-- 2. Blue Sub-header Bar: 🤯 परीक्षा में बार बार पूछे जाने वाले सवाल 🤯 (Exact YT Shorts #1565c0 Strip) -->
-      <g filter="url(#softShadow)">
-        <rect x="60" y="215" width="960" height="90" rx="14" fill="#1565c0"/>
-        <text x="540" y="275" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="42" font-weight="900" fill="#FFFFFF" text-anchor="middle" letter-spacing="0.5">
-          🤯 ${hookBar} 🤯
-        </text>
-      </g>
+      <!-- ═══════════════════════════════════════════════
+           MAIN CONTENT AREA — white, starts at y=220
+           ═══════════════════════════════════════════════ -->
 
-      <!-- 3. Question Block (Exact YT Shorts font-size: 58px; font-weight: 900; font-style: italic; color: #000000) -->
+      <!-- QUESTION: Bold, red/maroon, centered, Hindi -->
       <g>
         ${questionLines.map((line, idx) => `
-          <text x="64" y="${385 + (idx * 75)}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${questionLines.length > 2 ? 50 : 56}" font-weight="900" font-style="italic" fill="#000000">
-            ${idx === 0 && !line.startsWith('1.') ? `1. ${line}` : line}
-          </text>
+          <text x="540" y="${qStartY + (idx * qLineHeight)}"
+                font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif"
+                font-size="${qFontSize}" font-weight="900"
+                fill="#C0392B" text-anchor="middle">${line}</text>
         `).join('')}
       </g>
 
-      <!-- 4. Timer / Status Strip (Exact YT Shorts Timer Strip & Slot) -->
-      ${isCommentChallenge ? `
-        <!-- Comment Challenge Strip -->
-        <g filter="url(#softShadow)">
-          <rect x="60" y="585" width="960" height="76" rx="16" fill="#fef08a" stroke="#ca8a04" stroke-width="3"/>
-          <text x="540" y="638" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="34" font-weight="900" fill="#854d0e" text-anchor="middle">
-            💬 सवाल नंबर 1 का जवाब कमेंट में दें!
-          </text>
-        </g>
-      ` : (!isAnswer ? `
-        <!-- Thinking / Countdown Phase: Badge + 14px Countdown Track Slot -->
-        <g>
-          <rect x="60" y="580" width="400" height="60" rx="14" fill="#e0f2fe"/>
-          <text x="260" y="622" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="30" font-weight="800" fill="#0369a1" text-anchor="middle">
-            ${timerText ? this._escapeXml(timerText) : '🤔 सोचिए और उत्तर दीजिए'}
-          </text>
-          <!-- 14px Track Slot for Animated Countdown Bar -->
-          <rect x="60" y="655" width="960" height="14" rx="7" fill="#e2e8f0"/>
-        </g>
-      ` : `
-        <!-- Answer Revealed Phase: Green Correct Badge -->
-        <g>
-          <rect x="60" y="580" width="280" height="60" rx="14" fill="#dcfce7"/>
-          <text x="200" y="622" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="32" font-weight="900" fill="#15803d" text-anchor="middle">
-            ✅ सही उत्तर
-          </text>
-          <rect x="60" y="655" width="960" height="14" rx="7" fill="#dcfce7"/>
-        </g>
-      `)}
-
-      <!-- 5. Vertical Options List: A) ... B) ... C) ... (Exact YT Shorts clean-opt-item) -->
+      <!-- OPTIONS: (A) text — plain, no box, left-aligned, black -->
       ${options.map((opt, idx) => {
         const isThisCorrect = !isCommentChallenge && isAnswer && (opt.letter === correctLetter);
-        const yPos = 720 + (idx * 135);
+        const yPos = optStartY + (idx * optLineHeight);
         const optLen = String(opt.text || '').length;
-        const optFontSize = optLen > 28 ? 42 : (optLen > 20 ? 46 : 52);
+        const optFontSize = optLen > 32 ? 40 : (optLen > 22 ? 46 : 52);
+        const optColor = isAnswer && !isThisCorrect && !isCommentChallenge ? '#888888' : '#000000';
 
         if (isThisCorrect) {
-          // Highlighted Correct Option (Exact YT Shorts .correct-reveal style: #dcfce7 bg, 5px solid #16a34a)
           return `
           <!-- Correct Option ${opt.letter} Highlighted -->
-          <g filter="url(#greenGlow)">
-            <rect x="60" y="${yPos - 54}" width="960" height="108" rx="22" fill="#dcfce7" stroke="#16a34a" stroke-width="5"/>
-            <text x="96" y="${yPos + 20}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="900" font-style="italic" fill="#14532d">
-              ${opt.letter}) ${this._escapeXml(opt.text)} <tspan fill="#16a34a" font-weight="900">✓</tspan>
-            </text>
-          </g>
+          <text x="90" y="${yPos}"
+                font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif"
+                font-size="${optFontSize}" font-weight="900" fill="#000000">
+            (${opt.letter}) ${this._escapeXml(opt.text)}
+            <tspan fill="#22C55E" font-size="${optFontSize + 8}" font-weight="900"> ✓</tspan>
+          </text>
           `;
         } else {
-          // Standard Option
-          const opacity = isAnswer && !isCommentChallenge ? '0.75' : '1.0';
           return `
-          <!-- Option ${opt.letter} -->
-          <g opacity="${opacity}">
-            <rect x="60" y="${yPos - 54}" width="960" height="108" rx="22" fill="#ffffff" stroke="#e2e8f0" stroke-width="2.5"/>
-            <text x="96" y="${yPos + 20}" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="${optFontSize}" font-weight="900" font-style="italic" fill="#111111">
-              ${opt.letter}) ${this._escapeXml(opt.text)}
-            </text>
-          </g>
+          <!-- Option (${opt.letter}) -->
+          <text x="90" y="${yPos}"
+                font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif"
+                font-size="${optFontSize}" font-weight="900" fill="${optColor}">
+            (${opt.letter}) ${this._escapeXml(opt.text)}
+          </text>
           `;
         }
       }).join('')}
 
-      <!-- 6. Fact / Explanation Card (during Frame 3) -->
-      ${!isCommentChallenge && isAnswer ? `
-        <g filter="url(#softShadow)">
-          <rect x="60" y="1255" width="960" height="150" rx="18" fill="#f8fafc" stroke="#38bdf8" stroke-width="2.5"/>
-          <text x="540" y="1295" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="26" font-weight="900" fill="#0369a1" text-anchor="middle">
-            💡 परीक्षा तथ्य (Exam Fact)
-          </text>
-          <text x="540" y="1338" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="26" font-weight="bold" fill="#15803d" text-anchor="middle">
-            ✅ सही जवाब: ${this._escapeXml(item.answerText || '')}
-          </text>
-          ${explanation ? `
-          <text x="540" y="1378" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="22" font-weight="500" fill="#334155" text-anchor="middle">
-            ${explanation.length > 60 ? explanation.slice(0, 60) + '...' : explanation}
-          </text>` : ''}
-        </g>
+      <!-- Timer countdown track (shown on question/timer slides) -->
+      ${!isAnswer && !isCommentChallenge ? `
+        <rect x="60" y="1380" width="960" height="12" rx="6" fill="#e2e8f0"/>
+        ${timerText ? `<text x="90" y="1368" font-family="'Noto Sans Devanagari', Arial, sans-serif" font-size="28" font-weight="700" fill="#0369a1">${this._escapeXml(timerText)}</text>` : ''}
       ` : ''}
 
+      <!-- Comment Challenge card (shown when isCommentChallenge=true) -->
       ${isCommentChallenge ? `
-        <g filter="url(#softShadow)">
-          <rect x="60" y="1260" width="960" height="150" rx="20" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
-          <text x="540" y="1302" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="900" fill="#ea580c" text-anchor="middle">
+        <g>
+          <rect x="60" y="1180" width="960" height="210" rx="18" fill="#fff7ed" stroke="#ea580c" stroke-width="3"/>
+          <text x="540" y="1225" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="28" font-weight="900" fill="#ea580c" text-anchor="middle">
             💬 Comment Your Answer (कमेंट चैलेंज)
           </text>
-          <text x="540" y="1355" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="34" font-weight="900" fill="#9a3412" text-anchor="middle">
+          <text x="540" y="1282" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="34" font-weight="900" fill="#9a3412" text-anchor="middle">
             👉 अपना सही उत्तर कमेंट में बताएं! 🏆
           </text>
-          <text x="540" y="1395" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="24" font-weight="bold" fill="#431407" text-anchor="middle">
+          <text x="540" y="1332" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="24" font-weight="bold" fill="#431407" text-anchor="middle">
             देखते हैं कितने लोग इसका सही जवाब जानते हैं!
           </text>
         </g>
       ` : ''}
 
-      <!-- 7. Bottom Split Footer (Exact YT Shorts split footer, safe zone y=1430) -->
-      <g filter="url(#softShadow)">
-        <!-- Left Box: Yellow Channel Name -->
-        <rect x="60" y="1430" width="510" height="105" rx="18" fill="#facc15"/>
-        <text x="315" y="1500" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="44" font-weight="900" fill="#000000" text-anchor="middle">
-          Exam IQ Bharat
-        </text>
+      <!-- ═══════════════════════════════════════════════
+           BOTTOM BRAND BAR (matches Smart Study Plus reference image)
+           White canvas background!
+           Left: Pink box with red border + examiqbharat (yellow with black outline)
+           Right: 🔔 bell + red FOLLOW button + animated hand cursor
+           ═══════════════════════════════════════════════ -->
+      <g>
+        <!-- Left: Pink Brand Box (Reels Safe Zone at y=1430, height=105 -> y+h=1535 <= 1560) -->
+        <rect x="60" y="1430" width="510" height="105" rx="14" fill="#FF5376" stroke="#B71C1C" stroke-width="4"/>
+        <text x="315" y="1502" font-family="'Noto Sans', 'Nirmala UI', Arial, sans-serif"
+              font-size="48" font-weight="900" fill="#FFE600" stroke="#000000" stroke-width="3"
+              text-anchor="middle" paint-order="stroke fill">examiqbharat</text>
 
-        <!-- Right Box: Follow on Facebook (Facebook Blue #1877F2 with 'f' logo) -->
-        <rect x="590" y="1430" width="430" height="105" rx="18" fill="#1877F2"/>
-        <circle cx="636" cy="1482" r="24" fill="#FFFFFF"/>
-        <text x="636" y="1494" font-family="Arial, sans-serif" font-size="32" font-weight="900" fill="#1877F2" text-anchor="middle">f</text>
-        <text x="815" y="1498" font-family="'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif" font-size="36" font-weight="900" fill="#FFFFFF" text-anchor="middle">
-          को Follow करें 🔔
-        </text>
+        <!-- Right: Bell icon + Red FOLLOW pill + Hand cursor -->
+        ${showFollowBtn ? `
+        <!-- Bell 🔔 -->
+        <text x="655" y="1502" font-family="'Apple Color Emoji', 'Segoe UI Emoji', Arial" font-size="52">🔔</text>
+
+        <!-- Red FOLLOW button pill -->
+        <g filter="url(#btnShadow)">
+          <rect x="725" y="1445" width="275" height="78" rx="39" fill="#E50914" stroke="#B71C1C" stroke-width="2"/>
+          <text x="862" y="1499" font-family="Arial, 'Noto Sans', sans-serif"
+                font-size="38" font-weight="900" fill="#ffffff" text-anchor="middle">FOLLOW</text>
+        </g>
+
+        <!-- Hand Cursor tapping FOLLOW button (included in SVG for static previews) -->
+        ${showHandInSvg && !isAnswer ? `
+        <g transform="translate(860, 1485)">
+          <line x1="20" y1="10" x2="6" y2="0" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+          <line x1="32" y1="4" x2="32" y2="-10" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+          <line x1="44" y1="10" x2="58" y2="0" stroke="#000000" stroke-width="4" stroke-linecap="round"/>
+          <path d="M 32 15 C 27 15 24 19 24 24 L 24 65 L 18 59 C 13 54 6 56 3 61 C 0 66 1 73 6 77 L 26 98 C 32 104 38 110 46 110 L 75 110 C 85 110 90 102 90 92 L 90 60 C 90 54 84 52 80 54 C 80 48 74 46 69 48 C 68 43 62 41 57 43 L 57 24 C 57 19 54 15 49 15 C 44 15 41 19 41 24 L 41 48 L 38 48 L 38 24 C 38 19 35 15 32 15 Z" fill="#FFFFFF" stroke="#000000" stroke-width="4.5" stroke-linejoin="round"/>
+        </g>
+        ` : ''}
+        ` : ''}
+
+        <!-- Bottom progress line -->
+        <line x1="0" y1="1914" x2="1080" y2="1914" stroke="#FF5376" stroke-width="6"/>
       </g>
     </svg>
     `;
@@ -325,6 +335,7 @@ class FacebookVideoMaker {
     const f1Png = `${prefix}_f1.png`;
     const f2Png = `${prefix}_f2.png`;
     const f3Png = `${prefix}_f3.png`;
+    const handPng = `${prefix}_hand.png`;
 
     const seg1 = `${prefix}_seg1.mp4`;
     const seg2 = `${prefix}_seg2.mp4`;
@@ -376,10 +387,18 @@ class FacebookVideoMaker {
 
       const itemWithImage = { ...item, imageBase64, imageMime };
 
-      console.log(`[VideoMaker] Rendering educational frames matching Exam IQ layout...`);
-      const svg1 = this._buildSVG({ item: itemWithImage });
-      const svg2 = this._buildSVG({ item: itemWithImage, timerText });
-      const svg3 = this._buildSVG({ item: itemWithImage, isAnswer: !isCommentChallenge, isCommentChallenge });
+      // Derive part number from item index (1-based) or item.partNum
+      const partNum = opts.partNum || item.partNum || (typeof opts.index === 'number' ? opts.index + 1 : 1);
+
+      console.log(`[VideoMaker] Rendering educational frames matching Exam IQ layout (part ${partNum})...`);
+      // Seg1: Question slide — pink box examiqbharat + red FOLLOW button (hand overlaid via animation)
+      const svg1 = this._buildSVG({ item: itemWithImage, partNum, showFollowBtn: true, showHandInSvg: false });
+      // Seg2: Timer slide — FOLLOW btn visible, timerText shown
+      const svg2 = this._buildSVG({ item: itemWithImage, timerText, partNum, showFollowBtn: true, showHandInSvg: false });
+      // Seg3: Answer slide — clean answer reveal with green checkmark ✓
+      const svg3 = this._buildSVG({ item: itemWithImage, isAnswer: !isCommentChallenge, isCommentChallenge, partNum, showFollowBtn: false, showHandInSvg: false });
+
+      await sharp(Buffer.from(this._buildHandSVG())).png().toFile(handPng);
 
       await sharp(Buffer.from(svg1)).png().toFile(f1Png);
       await sharp(Buffer.from(svg2)).png().toFile(f2Png);
@@ -389,16 +408,19 @@ class FacebookVideoMaker {
       const d2 = await ffmpeg.getMediaDuration(timerAudio);
       const d3 = await ffmpeg.getMediaDuration(ansAudio);
 
-      console.log(`[VideoMaker] Rendering FFmpeg segments with suspense BGM & tick-tock SFX (${(d1 + d2 + d3).toFixed(1)}s total)...`);
+      console.log(`[VideoMaker] Rendering FFmpeg segments with animated thumb click & audio effects (${(d1 + d2 + d3).toFixed(1)}s total)...`);
 
-      // Segment 1: Question + subtle quiz suspense BGM + 0.08s micro-dip transition into timer
-      const s1DipFilter = `drawbox=x=0:y=0:w=iw:h=ih:color=black@0.22:t=fill:enable='between(t,${Math.max(0, d1 - 0.08).toFixed(3)},${d1.toFixed(3)})'`;
+      // Segment 1: Question + animated thumb clicking FOLLOW button + subtle quiz suspense BGM
+      const tapAnimY = `'1485-18*abs(sin(3.14159*t*1.5))'`;
+      const tapPulse = `drawbox=x=725:y=1445:w=275:h=78:color=white@0.32:t=fill:enable='lt(mod(t,0.67),0.12)'`;
+      const s1DipFilter = `${tapPulse},drawbox=x=0:y=0:w=iw:h=ih:color=black@0.22:t=fill:enable='between(t,${Math.max(0, d1 - 0.08).toFixed(3)},${d1.toFixed(3)})'`;
       if (this.audioAssets?.bgmPath && fs.existsSync(this.audioAssets.bgmPath)) {
         await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
           '-i', qAudio,
           '-stream_loop', '-1', '-i', this.audioAssets.bgmPath,
-          '-filter_complex', `[0:v]fps=30,format=yuv420p,${s1DipFilter}[vout];[2:a]volume=0.14[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]`,
+          '-loop', '1', '-t', String(d1), '-i', handPng,
+          '-filter_complex', `[0:v][3:v]overlay=x=860:y=${tapAnimY}:enable='between(t,0,${d1.toFixed(3)})',fps=30,format=yuv420p,${s1DipFilter}[vout];[2:a]volume=0.14[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]`,
           '-map', '[vout]', '-map', '[aout]',
           '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
@@ -408,7 +430,8 @@ class FacebookVideoMaker {
         await ffmpeg.runFFmpeg([
           '-y', '-loop', '1', '-t', String(d1), '-i', f1Png,
           '-i', qAudio,
-          '-filter_complex', `[0:v]fps=30,format=yuv420p,${s1DipFilter}[vout]`,
+          '-loop', '1', '-t', String(d1), '-i', handPng,
+          '-filter_complex', `[0:v][2:v]overlay=x=860:y=${tapAnimY}:enable='between(t,0,${d1.toFixed(3)})',fps=30,format=yuv420p,${s1DipFilter}[vout]`,
           '-map', '[vout]', '-map', '1:a',
           '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
           '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
@@ -417,8 +440,8 @@ class FacebookVideoMaker {
       }
 
       // Segment 2: Timer + countdown tick-tock SFX + suspense BGM
-      // Motion Transition: Dynamic countdown bar shrinking across the 14px track at y=655 + micro-flash before reveal
-      const s2BarFilter = `drawbox=x=60:y=655:w='max(0,960*(1-t/${d2.toFixed(3)}))':h=14:color=#dc2626@0.95:t=fill,drawbox=x=0:y=0:w=iw:h=ih:color=white@0.20:t=fill:enable='between(t,${Math.max(0, d2 - 0.08).toFixed(3)},${d2.toFixed(3)})'`;
+      // Dynamic countdown bar shrinking across the 12px track at y=1380
+      const s2BarFilter = `drawbox=x=60:y=1380:w='max(0,960*(1-t/${d2.toFixed(3)}))':h=12:color=#dc2626@0.95:t=fill,drawbox=x=0:y=0:w=iw:h=ih:color=white@0.20:t=fill:enable='between(t,${Math.max(0, d2 - 0.08).toFixed(3)},${d2.toFixed(3)})'`;
       if (this.audioAssets?.tickTockPath && fs.existsSync(this.audioAssets.tickTockPath)) {
         const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
         const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
@@ -494,7 +517,7 @@ class FacebookVideoMaker {
       return finalMp4;
     } finally {
       // Clean up temporary files
-      const tempFiles = [qAudio, timerAudio, ansAudio, f1Png, f2Png, f3Png, seg1, seg2, seg3, concatList];
+      const tempFiles = [qAudio, timerAudio, ansAudio, f1Png, f2Png, f3Png, handPng, seg1, seg2, seg3, concatList];
       for (const file of tempFiles) {
         if (fs.existsSync(file)) {
           try { fs.unlinkSync(file); } catch (_) {}
