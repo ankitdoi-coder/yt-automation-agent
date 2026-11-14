@@ -128,7 +128,8 @@
     "pol_pm_age_06",
     "stat_pass_14",
     "sci_dna_structure_18",
-    "geo_hormuz_07"
+    "geo_hormuz_07",
+    "pol_president_age_05"
   ],
   "uploads": [
     {
@@ -1233,6 +1234,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-14T06:26:15.029Z",
       "answer": "D) हॉर्मुज जलडमरूमध्य (Strait of Hormuz)"
+    },
+    {
+      "id": "pol_president_age_05",
+      "category": "polity",
+      "topic": "भारत के राष्ट्रपति (President of India)",
+      "title": "भारत का राष्ट्रपति बनने के लिए न्यूनतम आयु क्या होनी चाहिए?",
+      "fbVideoId": null,
+      "zernioPostId": "6af83cccb4c091a0ee791bcb",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-14T10:50:25.759Z",
+      "answer": "C) 35 वर्ष (Article 58)"
     }
   ]
 }
