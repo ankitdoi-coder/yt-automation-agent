@@ -311,13 +311,23 @@ async function run() {
         const playlistRes = await youtube.playlistItems.list({
           part: 'snippet',
           playlistId: uploadsPlaylistId,
-          maxResults: 15
+          maxResults: 50
         });
         recentUploads = playlistRes?.data?.items || [];
       }
     }
   } catch (err) {
     logger.warn(`Could not check recent YouTube uploads for deduplication: ${err.message}`);
+  }
+
+  // Live sync category parts with YouTube uploads to guarantee sequential non-repeating numbers
+  if (recentUploads.length > 0 && agent.db?.syncWithChannelVideos) {
+    try {
+      await agent.db.syncWithChannelVideos(recentUploads);
+      logger.info('🔄 Live synchronized category series part numbers with YouTube channel uploads!');
+    } catch (syncErr) {
+      logger.warn(`Could not sync category series with channel uploads: ${syncErr.message}`);
+    }
   }
 
   const results = [];
@@ -355,9 +365,34 @@ async function run() {
     logger.info(`────────────────────────────────────────────────────────────`);
 
     try {
-      const slotTopic = resolveSlotTopic(slot, process.env.VIDEO_TOPIC);
+      // Prevent back-to-back duplicate categories: check last uploaded Short on channel
+      const lastShort = recentUploads.find(item => {
+        const title = (item.snippet?.title || '').toLowerCase();
+        return title.includes('#short') || /top\s*\d+|mcq|gk/i.test(title);
+      });
+      const lastCat = lastShort ? detectCategory(lastShort.snippet?.title) : null;
+
+      let slotTopic = resolveSlotTopic(slot, process.env.VIDEO_TOPIC);
+      let cat = detectCategory(slotTopic);
+
+      // If slotTopic would repeat the exact same category as the last upload, rotate to alternate high-demand category!
+      if (lastCat && cat === lastCat && !process.env.VIDEO_TOPIC) {
+        const categoryCycle = ['polity', 'science', 'history', 'geography', 'static'];
+        const currentIdx = categoryCycle.indexOf(cat);
+        const nextCat = categoryCycle[(currentIdx + 1) % categoryCycle.length];
+        logger.info(`🔄 Last upload was "${cat}". Alternating category to "${nextCat}" to prevent consecutive category fatigue.`);
+        const altTopics = {
+          polity: 'Indian Polity & Constitution: Fundamental Rights & Key Articles | Top 10 Polity GK Shorts',
+          science: 'General Science: Human Body & Biology Important Questions | Top 10 Science GK Shorts',
+          history: 'Indian History: Modern India & 1857 Revolt Important Questions | Top 10 History GK Shorts',
+          geography: 'Indian Geography: Major Rivers, Dams & Mountain Passes | Top 10 Geography GK Shorts',
+          static: 'Static GK: National Parks, Tiger Reserves & Wildlife Sanctuaries | Top 10 Static GK Shorts'
+        };
+        slotTopic = altTopics[nextCat] || slotTopic;
+        cat = nextCat;
+      }
+
       const isShortSlot = Boolean(slot.length === 'short' || String(slot.style || '').includes('short'));
-      const cat = detectCategory(slotTopic);
       const partInfo = isShortSlot && agent.db?.getNextCategoryPart
         ? await agent.db.getNextCategoryPart(cat)
         : null;

@@ -7,37 +7,63 @@ const { ScriptWriterAgent } = require('../agents/script-writer-agent');
 async function runTests() {
   console.log('🧪 Starting 10-Question Rapid Short & Category Sequential Part Counter Tests...\n');
 
-  // Test 1: Category Series Sequential Parts in Database
-  console.log('1. Testing Category Series Sequential Part Counting...');
+  // Backup category_series.json to restore after test
+  const fs = require('fs');
+  const path = require('path');
+  const jsonPath = path.join(__dirname, '..', 'data', 'category_series.json');
+  const backupJson = fs.existsSync(jsonPath) ? fs.readFileSync(jsonPath, 'utf8') : null;
+
+  // Test 1: Category Series Sequential Parts in Database & Live Channel Sync
+  console.log('1. Testing Category Series Sequential Part Counting & Channel Sync...');
   const db = new Database();
   await db.initialize();
 
   // Test polity Part sequence
-  const polity1 = await db.getNextCategoryPart('polity');
-  assert.strictEqual(polity1.category, 'polity');
-  assert.strictEqual(polity1.nextPart, 1, 'First part of polity should be 1');
-
-  // Test science Part sequence
-  const science1 = await db.getNextCategoryPart('science');
-  assert.strictEqual(science1.category, 'science');
-  assert.strictEqual(science1.nextPart, 1, 'First part of science should be 1');
+  const polityInit = await db.getNextCategoryPart('polity');
+  assert.strictEqual(polityInit.category, 'polity');
+  const initialPolityPart = polityInit.nextPart;
 
   // Increment polity
   await db.incrementCategoryPart('polity', 'test_vid_p1');
-  const polity2 = await db.getNextCategoryPart('polity');
-  assert.strictEqual(polity2.currentPart, 1);
-  assert.strictEqual(polity2.nextPart, 2, 'Second part of polity must be strictly 2');
+  const polityAfter = await db.getNextCategoryPart('polity');
+  assert.strictEqual(polityAfter.nextPart, initialPolityPart + 1, 'Next part of polity must be strictly +1');
 
-  // Ensure science didn't jump (must stay at part 1)
-  const scienceCheck = await db.getNextCategoryPart('science');
-  assert.strictEqual(scienceCheck.nextPart, 1, 'Science part must not be affected by polity increment');
+  // Test science Part sequence
+  const scienceInit = await db.getNextCategoryPart('science');
+  assert.strictEqual(scienceInit.category, 'science');
+  const initialSciencePart = scienceInit.nextPart;
 
   // Increment science
   await db.incrementCategoryPart('science', 'test_vid_s1');
-  const science2 = await db.getNextCategoryPart('science');
-  assert.strictEqual(science2.nextPart, 2, 'Second part of science must be strictly 2');
+  const scienceAfter = await db.getNextCategoryPart('science');
+  assert.strictEqual(scienceAfter.nextPart, initialSciencePart + 1, 'Next part of science must be strictly +1');
 
-  console.log('  ✅ Database category sequential counter verified (Polity 1->2, Science 1->2 independently)!');
+  // Test Live Channel Sync with sample uploaded video titles (e.g. Part 10 on channel)
+  const sampleChannelUploads = [
+    { snippet: { title: 'General Science Part 10 | Top 10 MCQs 🎯 #shorts', resourceId: { videoId: 'sync_vid_10' } } },
+    { snippet: { title: 'Indian Polity Part 4 | Top 10 MCQs 🎯 #shorts', resourceId: { videoId: 'sync_vid_4' } } }
+  ];
+  await db.syncWithChannelVideos(sampleChannelUploads);
+
+  const scienceSynced = await db.getNextCategoryPart('science');
+  assert(scienceSynced.currentPart >= 10, 'Science current part must be synced to at least 10');
+  assert.strictEqual(scienceSynced.nextPart, scienceSynced.currentPart + 1, 'Next science part must be currentPart + 1');
+
+  const politySynced = await db.getNextCategoryPart('polity');
+  assert(politySynced.currentPart >= 4, 'Polity current part must be synced to at least 4');
+  assert.strictEqual(politySynced.nextPart, politySynced.currentPart + 1, 'Next polity part must be currentPart + 1');
+
+  // Restore category_series.json and clean up DB
+  if (backupJson) {
+    fs.writeFileSync(jsonPath, backupJson, 'utf8');
+    const parsed = JSON.parse(backupJson);
+    for (const [k, v] of Object.entries(parsed)) {
+      await db.executeQuery('UPDATE category_series SET current_part = ? WHERE category = ?', [v.currentPart, k]);
+    }
+  }
+  await db.close();
+
+  console.log('  ✅ Database category sequential counter & live channel sync verified!');
 
   // Test 2: SEO Title Generation (< 50 chars, Clean English, Part counter, #shorts)
   console.log('\n2. Testing SEO Short Title Generation (< 50 chars constraint)...');

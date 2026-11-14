@@ -722,18 +722,33 @@ class Database {
       ]
     );
 
-    // Seed default category series for sequential part tracking
+    // Seed default category series for sequential part tracking from persistent JSON or defaults
+    const jsonPath = path.join(__dirname, '..', 'data', 'category_series.json');
+    let fileSeries = {};
+    try {
+      const fsSync = require('fs');
+      if (fsSync.existsSync(jsonPath)) {
+        fileSeries = JSON.parse(fsSync.readFileSync(jsonPath, 'utf8'));
+      }
+    } catch (_) {}
+
     const defaultCategorySeries = [
       ['polity', 'Indian Polity', 'भारतीय संविधान', 0],
-      ['science', 'General Science', 'सामान्य विज्ञान', 0],
+      ['science', 'General Science', 'सामान्य विज्ञान', 2],
       ['history', 'Indian History', 'भारत का इतिहास', 0],
       ['geography', 'Indian Geography', 'भारत का भूगोल', 0],
       ['static', 'Static GK', 'सामान्य ज्ञान (GK)', 0]
     ];
-    for (const [cat, name, nameHi, part] of defaultCategorySeries) {
+    for (const [cat, name, nameHi, defaultPart] of defaultCategorySeries) {
+      const persistedPart = fileSeries[cat]?.currentPart !== undefined ? Number(fileSeries[cat].currentPart) : defaultPart;
+      const lastVid = fileSeries[cat]?.lastVideoId || null;
       await this.executeQuery(
-        'INSERT OR IGNORE INTO category_series (category, display_name, display_name_hi, current_part) VALUES (?, ?, ?, ?)',
-        [cat, name, nameHi, part]
+        `INSERT INTO category_series (category, display_name, display_name_hi, current_part, last_video_id)
+         VALUES (?, ?, ?, ?, ?)
+         ON CONFLICT(category) DO UPDATE SET
+           current_part = MAX(category_series.current_part, excluded.current_part),
+           last_video_id = COALESCE(excluded.last_video_id, category_series.last_video_id)`,
+        [cat, name, nameHi, persistedPart, lastVid]
       );
     }
   }
@@ -2806,17 +2821,21 @@ class Database {
     const norm = String(categoryKey || 'static').toLowerCase().trim();
     let row = await this.getRow('SELECT * FROM category_series WHERE category = ?', [norm]);
     if (!row) {
-      const name = defaultName || norm.charAt(0).toUpperCase() + norm.slice(1);
-      const nameHi = defaultNameHi || name;
+      const jsonMap = this.loadCategorySeriesJsonSync();
+      const fromJson = jsonMap[norm];
+      const startPart = fromJson?.currentPart !== undefined ? Number(fromJson.currentPart) : 0;
+      const name = defaultName || fromJson?.displayName || norm.charAt(0).toUpperCase() + norm.slice(1);
+      const nameHi = defaultNameHi || fromJson?.displayNameHi || name;
+
       await this.executeQuery(
-        'INSERT OR IGNORE INTO category_series (category, display_name, display_name_hi, current_part) VALUES (?, ?, ?, 0)',
-        [norm, name, nameHi]
+        'INSERT OR IGNORE INTO category_series (category, display_name, display_name_hi, current_part) VALUES (?, ?, ?, ?)',
+        [norm, name, nameHi, startPart]
       );
       row = await this.getRow('SELECT * FROM category_series WHERE category = ?', [norm]) || {
         category: norm,
         display_name: name,
         display_name_hi: nameHi,
-        current_part: 0
+        current_part: startPart
       };
     }
     const currentPart = Number(row.current_part || 0);
@@ -2841,11 +2860,104 @@ class Database {
        WHERE category = ?`,
       [videoId, norm]
     );
-    return await this.getRow('SELECT * FROM category_series WHERE category = ?', [norm]);
+    const updated = await this.getRow('SELECT * FROM category_series WHERE category = ?', [norm]);
+    await this.persistCategorySeriesToJson();
+    return updated;
   }
 
   async getAllCategorySeries() {
     return await this.getAllRows('SELECT * FROM category_series ORDER BY category ASC');
+  }
+
+  loadCategorySeriesJsonSync() {
+    try {
+      const fsSync = require('fs');
+      const jsonPath = path.join(__dirname, '..', 'data', 'category_series.json');
+      if (fsSync.existsSync(jsonPath)) {
+        return JSON.parse(fsSync.readFileSync(jsonPath, 'utf8'));
+      }
+    } catch (_) {}
+    return {};
+  }
+
+  async persistCategorySeriesToJson() {
+    try {
+      const rows = await this.getAllCategorySeries();
+      const jsonPath = path.join(__dirname, '..', 'data', 'category_series.json');
+      let currentJson = {};
+      try {
+        const raw = await fs.readFile(jsonPath, 'utf8');
+        currentJson = JSON.parse(raw);
+      } catch (_) {}
+
+      for (const r of rows) {
+        currentJson[r.category] = {
+          category: r.category,
+          displayName: r.display_name,
+          displayNameHi: r.display_name_hi,
+          currentPart: Number(r.current_part || 0),
+          lastVideoId: r.last_video_id || currentJson[r.category]?.lastVideoId || null,
+          updatedAt: r.updated_at || new Date().toISOString()
+        };
+      }
+
+      await fs.mkdir(path.dirname(jsonPath), { recursive: true });
+      await fs.writeFile(jsonPath, JSON.stringify(currentJson, null, 2), 'utf8');
+      this.logger.info(`Persisted category series state to ${jsonPath}`);
+    } catch (err) {
+      this.logger.warn(`Could not persist category_series.json: ${err.message}`);
+    }
+  }
+
+  // Live Sync category part counter directly with actual YouTube channel uploads
+  async syncWithChannelVideos(videos = []) {
+    if (!Array.isArray(videos) || videos.length === 0) return await this.getAllCategorySeries();
+
+    const catPatterns = {
+      science: /\b(science|विज्ञान|biology|physics|chemistry|जीव\s*विज्ञान|भौतिक|रसायन)\b/i,
+      polity: /\b(polity|संविधान|constitution|article|अनुच्छेद|संसद|राष्ट्रपति)\b/i,
+      history: /\b(history|इतिहास|मौर्य|गुप्त|मुगल|1857|हड़प्पा|सिंधु)\b/i,
+      geography: /\b(geography|भूगोल|river|dam|नदी|बांध|पर्वत|दर्रा|झील)\b/i,
+      static: /\b(static|विविध|national park|राष्ट्रीय उद्यान|dance|नृत्य|त्यौहार|दिवस|first in india)\b/i
+    };
+
+    const maxPartsFound = {};
+
+    for (const item of videos) {
+      const title = String(item.snippet?.title || item.title || '').trim();
+      const videoId = item.snippet?.resourceId?.videoId || item.id || null;
+      if (!title) continue;
+
+      // Extract Part number from title (e.g. "Part 2", "Part 1", "भाग 2", "Part-2")
+      const partMatch = title.match(/\b(?:part|भाग)\s*[-:]?\s*(\d+)\b/i);
+      if (!partMatch) continue;
+
+      const partNum = parseInt(partMatch[1], 10);
+      if (!partNum || isNaN(partNum)) continue;
+
+      for (const [cat, regex] of Object.entries(catPatterns)) {
+        if (regex.test(title)) {
+          if (!maxPartsFound[cat] || partNum > maxPartsFound[cat].part) {
+            maxPartsFound[cat] = { part: partNum, videoId };
+          }
+          break;
+        }
+      }
+    }
+
+    for (const [cat, data] of Object.entries(maxPartsFound)) {
+      await this.executeQuery(
+        `UPDATE category_series
+         SET current_part = MAX(current_part, ?),
+             last_video_id = COALESCE(?, last_video_id),
+             updated_at = CURRENT_TIMESTAMP
+         WHERE category = ?`,
+        [data.part, data.videoId, cat]
+      );
+    }
+
+    await this.persistCategorySeriesToJson();
+    return await this.getAllCategorySeries();
   }
 
   // Production readiness

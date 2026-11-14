@@ -1,0 +1,42 @@
+{
+  "science": {
+    "category": "science",
+    "displayName": "General Science",
+    "displayNameHi": "सामान्य विज्ञान",
+    "currentPart": 2,
+    "lastVideoId": "7hn0HrMEcHQ",
+    "updatedAt": "2026-11-14 07:17:26"
+  },
+  "polity": {
+    "category": "polity",
+    "displayName": "Indian Polity",
+    "displayNameHi": "भारतीय संविधान",
+    "currentPart": 0,
+    "lastVideoId": "sync_vid_4",
+    "updatedAt": "2026-11-14 07:12:12"
+  },
+  "history": {
+    "category": "history",
+    "displayName": "Indian History",
+    "displayNameHi": "भारत का इतिहास",
+    "currentPart": 0,
+    "lastVideoId": null,
+    "updatedAt": "2026-11-13 11:19:55"
+  },
+  "geography": {
+    "category": "geography",
+    "displayName": "Indian Geography",
+    "displayNameHi": "भारत का भूगोल",
+    "currentPart": 0,
+    "lastVideoId": null,
+    "updatedAt": "2026-11-13 11:19:55"
+  },
+  "static": {
+    "category": "static",
+    "displayName": "Static GK",
+    "displayNameHi": "सामान्य ज्ञान (GK)",
+    "currentPart": 0,
+    "lastVideoId": null,
+    "updatedAt": "2026-11-13 11:19:55"
+  }
+}
