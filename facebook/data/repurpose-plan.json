@@ -1,0 +1,52 @@
+{
+  "repurposedAt": "2026-11-14T05:39:18.147Z",
+  "sourceItem": {
+    "id": "geo_oil_05",
+    "title": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
+    "topic": "ऊर्जा व भू-राजनीति (Global Energy)",
+    "category": "geopolitics",
+    "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?"
+  },
+  "platformHooks": {
+    "youtube": {
+      "platform": "youtube",
+      "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
+      "adaptedHook": "India Global Energy GK Quiz | UPSC",
+      "strategy": {
+        "maxChars": 70,
+        "preferKeywordFirst": true,
+        "preferHindi": false,
+        "preferEmoji": false
+      }
+    },
+    "instagram": {
+      "platform": "instagram",
+      "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
+      "adaptedHook": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥",
+      "strategy": {
+        "maxChars": 65,
+        "preferKeywordFirst": false,
+        "preferHindi": true,
+        "preferEmoji": true
+      }
+    },
+    "facebook": {
+      "platform": "facebook",
+      "originalHook": "दुनिया में कच्चे तेल का सबसे बड़ा प्रमाणित भंडार किस देश में है?",
+      "adaptedHook": "Can you answer this? Global Energy Quiz | Comment your",
+      "strategy": {
+        "maxChars": 60,
+        "preferKeywordFirst": false,
+        "preferHindi": false,
+        "preferEmoji": true
+      }
+    }
+  },
+  "instagramDelivery": {
+    "overlayHookText": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥",
+    "caption": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़रूर बताएं और अपनी तैयारी चेक करें!\n\n👇 जवाब कमेंट करें!\n\n#StaticGK #IndiaGK #SSCExam #UPSC #GKQuiz #ExamIQBharat #CurrentAffairs",
+    "foldPreview": "97% UPSC students fail karte hain yeh Geography sawaal! 🔥\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़र",
+    "hashtags": "#StaticGK #IndiaGK #SSCExam #UPSC #GKQuiz #ExamIQBharat #CurrentAffairs",
+    "recommendedScheduleIST": "20:00 IST (Peak Instagram Reels Traffic)"
+  }
+}

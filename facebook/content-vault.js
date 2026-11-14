@@ -112,6 +112,9 @@ class ContentVault {
         fbVideoId: resolvedFbVideoId,
         zernioPostId: uploadRes?.zernioPostId || null,
         deliveryMode: uploadRes?.deliveryMode || 'FACEBOOK_API',
+        platform: uploadRes?.platform || (uploadRes?.instagram ? 'both' : (uploadRes?.fbVideoId ? 'facebook' : null)),
+        hookScore: item.hookScore || null,
+        hookFormula: item.hookFormula || null,
         uploadedAt: new Date().toISOString(),
         answer: item.answerText,
       });

@@ -263,6 +263,66 @@
     "\\bfor (anyone|everyone|people) who\\b",
     "\\byou specifically\\b"
    ]
-  }
- ]
-}
+  },
+   {
+    "id": "percent-fail-hindi",
+    "name": "Percent Fail Hindi",
+    "shape": "X% log yeh sawaal galat karte hain — kya aap kar sakte ho sahi?",
+    "example": "99% log Railway GK ka yeh sawaal galat karte hain — kya aap sahi karenge?",
+    "fails_when": "Number must feel real. Use 97% not 100%.",
+    "match": [
+     "\\b(99|97|95)%\\b",
+     "\\b(log|logon)\\b",
+     "galat karte"
+    ]
+   },
+   {
+    "id": "ias-favorite",
+    "name": "IAS Favorite",
+    "shape": "IAS/SSC topper ko bhi yeh nahi pata tha",
+    "example": "IAS topper bhi yeh sawaal pehle baar mein galat karte hain. Aap?",
+    "fails_when": "Must mention a real exam (IAS/SSC/Railway).",
+    "match": [
+     "\\b(IAS|SSC|UPSC|Railway)\\b",
+     "topper",
+     "(galat|fail)"
+    ]
+   },
+   {
+    "id": "30-second-test",
+    "name": "30 Second Test",
+    "shape": "30 second mein jawab do — agar sahi, tum exam crack karoge",
+    "example": "30 second mein batao — Bharat ka sabse bada bandargah kaunsa hai?",
+    "fails_when": "Must have a time limit.",
+    "match": [
+     "\\b(30|60|10)\\s*second",
+     "mein batao",
+     "jawab do"
+    ]
+   },
+   {
+    "id": "shocking-fact-hindi",
+    "name": "Shocking Fact Hindi",
+    "shape": "Kya aap jaante ho — [fact] — yeh exam mein aata hai",
+    "example": "Kya aap jaante ho? India mein 28 nahi, 29 rajya the pehle — yeh SSC mein aata hai!",
+    "fails_when": "Fact must be verifiable and exam-relevant.",
+    "match": [
+     "Kya aap jaante",
+     "exam mein aata",
+     "\\b(SSC|Railway|UPSC)\\b"
+    ]
+   },
+   {
+    "id": "only-toppers-know",
+    "name": "Only Toppers Know",
+    "shape": "Sirf top 1% students ko pata hoga yeh",
+    "example": "Sirf top 1% SSC students ko pata hai India ka pehla Governor General kaun tha",
+    "fails_when": "Claim must feel achievable but rare.",
+    "match": [
+     "top (1|5)%",
+     "sirf.*pata",
+     "students.*jaante"
+    ]
+   }
+  ]
+ }

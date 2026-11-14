@@ -25,6 +25,7 @@ const {
   createExportBundle,
   sendToTelegram,
 } = require('./export-deliverer');
+const { selectBestHook } = require('../utils/instagram-hook-engine');
 
 /**
  * Resolves delivery mode from CLI flags or environment.
@@ -127,8 +128,17 @@ async function runFacebookReelsAutomation(options = {}) {
       console.log('----------------------------------------------------');
 
       try {
+        // Evaluate and select highest-scoring hook formula (Hindi/English/Hinglish)
+        const hookResult = selectBestHook(item);
+        if (hookResult && hookResult.hookText) {
+          item.englishHook = hookResult.hookText;
+          item.hookScore = hookResult.score;
+          item.hookFormula = hookResult.winningHook ? hookResult.winningHook.formula : null;
+          console.log(`🎯 Algorithmic Hook Selected [Score: ${hookResult.score}, Formula: ${item.hookFormula || 'Custom'}]: "${item.englishHook}"`);
+        }
+
         const metadata = buildReelMetadata(item);
-        const enrichedItem = { ...item, englishHook: metadata.englishHook };
+        const enrichedItem = { ...item, englishHook: metadata.englishHook, hookScore: item.hookScore, hookFormula: item.hookFormula };
 
         const startTime = Date.now();
         const videoPath = await videoMaker.createReel(enrichedItem, { index: i, commentChallenge: true });
@@ -150,6 +160,7 @@ async function runFacebookReelsAutomation(options = {}) {
             description: metadata.description,
             firstComment: metadata.pinnedComment,
             target: socialTarget,
+            item: enrichedItem,
           });
           vault.recordUpload(item, uploadRes);
 

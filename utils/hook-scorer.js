@@ -8,7 +8,9 @@ function loadFormulas() {
   if (cachedFormulas) return cachedFormulas;
   try {
     if (fs.existsSync(FORMULAS_PATH)) {
-      const data = JSON.parse(fs.readFileSync(FORMULAS_PATH, 'utf-8'));
+      let raw = fs.readFileSync(FORMULAS_PATH, 'utf-8');
+      if (raw.charCodeAt(0) === 0xFEFF) raw = raw.slice(1);
+      const data = JSON.parse(raw);
       cachedFormulas = data.hooks || [];
       return cachedFormulas;
     }

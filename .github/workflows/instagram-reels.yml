@@ -34,6 +34,14 @@ on:
           - 'auto'
           - 'zernio'
           - 'export'
+      repurpose:
+        description: 'Repurpose todays YouTube Short for Instagram with re-angled hook?'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 jobs:
   publish-instagram-reels:
@@ -132,10 +140,26 @@ jobs:
           CI: true
           FB_DELIVERY_MODE: ${{ github.event.inputs.delivery_mode || 'auto' }}
         run: |
+          REPURPOSE="${{ github.event.inputs.repurpose || 'false' }}"
+          if [ "$REPURPOSE" = "true" ]; then
+            echo "🔄 Repurpose Mode enabled: adapting latest YouTube Short for Instagram..."
+            node scripts/repurpose-daily.js
+          fi
+
           COUNT="${{ github.event.inputs.count || '1' }}"
           MODE="${{ github.event.inputs.delivery_mode || 'auto' }}"
           echo "🚀 Starting Instagram Reels Agent (Mode: $MODE, Count: $COUNT)..."
           node facebook/fb-runner.js --count "$COUNT" --instagram
+
+      - name: Generate Weekly Content Calendar (Sunday Only)
+        if: steps.env_setup.outputs.should_run == 'true'
+        run: |
+          DAY=$(date +%u)
+          if [ "$DAY" = "7" ]; then
+            echo "📅 Sunday detected: Generating 7-day optimized GK content calendar..."
+            node -e "const {generateWeeklyCalendar} = require('./facebook/content-calendar'); const cal = generateWeeklyCalendar(); const fs = require('fs'); fs.writeFileSync('facebook/data/weekly-calendar.json', JSON.stringify(cal, null, 2), 'utf8');"
+            echo "✅ Weekly calendar saved to facebook/data/weekly-calendar.json"
+          fi
 
       - name: Upload Ready-to-Schedule Reels Artifact (Export Fallback)
         if: steps.env_setup.outputs.should_run == 'true' && (github.event.inputs.delivery_mode == 'export' || steps.env_setup.outputs.has_zernio != 'true')
@@ -146,16 +170,16 @@ jobs:
           if-no-files-found: ignore
           retention-days: 30
 
-      - name: Commit Updated Upload History
+      - name: Commit Updated Upload History & Plans
         if: steps.env_setup.outputs.should_run == 'true'
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add facebook/data/history.json facebook/data/learned_preferences.json || true
+          git add facebook/data/history.json facebook/data/learned_preferences.json facebook/data/outlier-report.json facebook/data/weekly-calendar.json facebook/data/repurpose-plan.json || true
           if git diff --staged --quiet; then
-            echo "No history changes to commit"
+            echo "No history or data changes to commit"
           else
-            git commit -m "chore(instagram): update reels delivery history [skip ci]"
+            git commit -m "chore(instagram): update reels delivery history and content plans [skip ci]"
             git pull --rebase --autostash origin main || true
             git push origin HEAD || true
           fi

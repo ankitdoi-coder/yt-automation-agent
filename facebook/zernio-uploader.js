@@ -21,6 +21,9 @@ const fs = require('fs');
 const path = require('path');
 const axios = require('axios');
 
+const { humanizeCaption } = require('../utils/caption-humanizer');
+const { autoFixCaption, lintCaption } = require('../utils/caption-linter');
+
 const DEFAULT_ZERNIO_BASE_URL = 'https://zernio.com/api/v1';
 
 /**
@@ -344,12 +347,44 @@ class ZernioUploader {
   }
 
   /**
+   * Cleans, humanizes, and optimizes captions for mobile fold breaks.
+   */
+  _prepareCaption(rawCaption, { platform = 'generic', item = {} } = {}) {
+    let caption = String(rawCaption || '').trim();
+    if (!caption) return caption;
+
+    // 1. Humanize: strip ChatGPT/AI tells
+    const humanized = humanizeCaption(caption);
+    if (humanized.changesCount > 0) {
+      console.log(`[ZernioUploader] ✍️ Caption humanized: ${humanized.changesCount} AI tells removed`);
+      caption = humanized.humanized;
+    }
+
+    // 2. Lint and auto-fix for Instagram fold break (~125 chars)
+    if (platform === 'instagram' || platform === 'both') {
+      const lintResult = lintCaption(caption);
+      if (!lintResult.passed) {
+        console.log(`[ZernioUploader] ⚠️ Caption fold warnings: ${lintResult.issues.concat(lintResult.warnings).join(', ')}`);
+        const fixed = autoFixCaption(caption, item);
+        if (fixed.fixed) {
+          caption = fixed.caption;
+          console.log(`[ZernioUploader] ✅ Caption auto-fixed: ${fixed.changes.join(', ')}`);
+        }
+      }
+      console.log(`[ZernioUploader] 📱 Instagram fold preview (${Math.min(caption.length, 125)} chars): "${caption.slice(0, 125)}"`);
+    }
+
+    return caption;
+  }
+
+  /**
    * Publishes a vertical video as a public Facebook Reel.
    */
-  async publishFacebookReel(videoPath, { title, description, firstComment } = {}) {
+  async publishFacebookReel(videoPath, { title, description, firstComment, item = {} } = {}) {
     const accountId = await this.resolveFacebookAccountId();
     const { publicUrl } = await this.uploadVideoMedia(videoPath);
-    const content = description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat #Reels';
+    const rawContent = description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat #Reels';
+    const content = this._prepareCaption(rawContent, { platform: 'facebook', item });
 
     const strategies = [];
     if (firstComment) {
@@ -429,10 +464,11 @@ class ZernioUploader {
   /**
    * Publishes a vertical video as a public Instagram Reel.
    */
-  async publishInstagramReel(videoPath, { title, description, firstComment, shareToFeed = true } = {}) {
+  async publishInstagramReel(videoPath, { title, description, firstComment, shareToFeed = true, item = {} } = {}) {
     const accountId = await this.resolveInstagramAccountId();
     const { publicUrl } = await this.uploadVideoMedia(videoPath);
-    const content = description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat #Reels';
+    const rawContent = description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat #Reels';
+    const content = this._prepareCaption(rawContent, { platform: 'instagram', item });
 
     const strategies = [];
     if (firstComment) {
@@ -521,10 +557,11 @@ class ZernioUploader {
   /**
    * Publishes a vertical video to BOTH Facebook and Instagram simultaneously in a single upload.
    */
-  async publishMultiReel(videoPath, { title, description, firstComment, shareToFeed = true, targets = ['facebook', 'instagram'] } = {}) {
+  async publishMultiReel(videoPath, { title, description, firstComment, shareToFeed = true, targets = ['facebook', 'instagram'], item = {} } = {}) {
     console.log(`[ZernioUploader] 🌐 Publishing Reel across platforms: ${targets.join(', ')}...`);
     const { publicUrl } = await this.uploadVideoMedia(videoPath);
-    const content = description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat #Reels';
+    const rawContent = description || title || 'सामान्य ज्ञान GK Quiz | Exam IQ Bharat #Reels';
+    const content = this._prepareCaption(rawContent, { platform: 'both', item });
 
     const platformEntries = [];
     const resolvedTargets = [];
