@@ -130,7 +130,8 @@
     "sci_dna_structure_18",
     "geo_hormuz_07",
     "pol_president_age_05",
-    "stat_border_06"
+    "stat_border_06",
+    "math_clock_05"
   ],
   "uploads": [
     {
@@ -1263,6 +1264,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-14T19:20:32.686Z",
       "answer": "C) बांग्लादेश (4,096.7 किमी)"
+    },
+    {
+      "id": "math_clock_05",
+      "category": "math_quiz",
+      "topic": "घड़ी का कोण (Clock Angles)",
+      "title": "घड़ी में ठीक 3:00 बजे दोनों सुइयों के बीच कितने डिग्री का कोण होता है?",
+      "fbVideoId": null,
+      "zernioPostId": "6af9957028e0a7da3d3e4102",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-15T11:20:51.223Z",
+      "answer": "C) 90° (समकोण / Right Angle)"
     }
   ]
 }

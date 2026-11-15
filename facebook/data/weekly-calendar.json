@@ -1,0 +1,170 @@
+[
+  {
+    "day": 1,
+    "dayName": "Monday",
+    "date": "2026-11-09",
+    "platform": "YouTube Shorts / Instagram Reels",
+    "category": "geography",
+    "examFocus": "SSC",
+    "suggestedTopic": "भारत की प्रमुख नदियाँ (Indian Rivers)",
+    "hookFormula": "percent-fail",
+    "posts": {
+      "morning": {
+        "time": "09:00 IST",
+        "topic": "भारत की प्रमुख नदियाँ (Indian Rivers)",
+        "examFocus": "SSC",
+        "hookFormula": "percent-fail"
+      },
+      "evening": {
+        "time": "20:00 IST",
+        "topic": "भारत के बंदरगाह (Major Ports of India)",
+        "examFocus": "SSC",
+        "hookFormula": "ias-favorite"
+      }
+    }
+  },
+  {
+    "day": 2,
+    "dayName": "Tuesday",
+    "date": "2026-11-10",
+    "platform": "YouTube Shorts / Instagram Reels",
+    "category": "history",
+    "examFocus": "Railway",
+    "suggestedTopic": "दाण्डी मार्च (Dandi March 1930)",
+    "hookFormula": "30-second-test",
+    "posts": {
+      "morning": {
+        "time": "09:00 IST",
+        "topic": "दाण्डी मार्च (Dandi March 1930)",
+        "examFocus": "Railway",
+        "hookFormula": "30-second-test"
+      },
+      "evening": {
+        "time": "20:00 IST",
+        "topic": "भारत का प्रथम स्वतंत्रता संग्राम 1857",
+        "examFocus": "Railway",
+        "hookFormula": "only-toppers-know"
+      }
+    }
+  },
+  {
+    "day": 3,
+    "dayName": "Wednesday",
+    "date": "2026-11-11",
+    "platform": "YouTube Shorts / Instagram Reels",
+    "category": "polity",
+    "examFocus": "UPSC",
+    "suggestedTopic": "मौलिक अधिकार (Fundamental Rights — All 6)",
+    "hookFormula": "shocking-fact-hindi",
+    "posts": {
+      "morning": {
+        "time": "09:00 IST",
+        "topic": "मौलिक अधिकार (Fundamental Rights — All 6)",
+        "examFocus": "UPSC",
+        "hookFormula": "shocking-fact-hindi"
+      },
+      "evening": {
+        "time": "20:00 IST",
+        "topic": "राज्यपाल की शक्तियाँ (Powers of Governor)",
+        "examFocus": "UPSC",
+        "hookFormula": "question-challenge"
+      }
+    }
+  },
+  {
+    "day": 4,
+    "dayName": "Thursday",
+    "date": "2026-11-12",
+    "platform": "YouTube Shorts / Instagram Reels",
+    "category": "science",
+    "examFocus": "SSC",
+    "suggestedTopic": "मानव शरीर के तथ्य (Human Body Science Facts)",
+    "hookFormula": "ias-favorite",
+    "posts": {
+      "morning": {
+        "time": "09:00 IST",
+        "topic": "मानव शरीर के तथ्य (Human Body Science Facts)",
+        "examFocus": "SSC",
+        "hookFormula": "ias-favorite"
+      },
+      "evening": {
+        "time": "20:00 IST",
+        "topic": "भौतिकी के नियम (Laws of Physics — Newton)",
+        "examFocus": "SSC",
+        "hookFormula": "exam-countdown"
+      }
+    }
+  },
+  {
+    "day": 5,
+    "dayName": "Friday",
+    "date": "2026-11-13",
+    "platform": "YouTube Shorts / Instagram Reels",
+    "category": "static",
+    "examFocus": "Police",
+    "suggestedTopic": "भारत के राष्ट्रीय प्रतीक (National Symbols of India)",
+    "hookFormula": "only-toppers-know",
+    "posts": {
+      "morning": {
+        "time": "09:00 IST",
+        "topic": "भारत के राष्ट्रीय प्रतीक (National Symbols of India)",
+        "examFocus": "Police",
+        "hookFormula": "only-toppers-know"
+      },
+      "evening": {
+        "time": "20:00 IST",
+        "topic": "महत्वपूर्ण तारीखें (Important Days & Dates)",
+        "examFocus": "Police",
+        "hookFormula": "percent-fail"
+      }
+    }
+  },
+  {
+    "day": 6,
+    "dayName": "Saturday",
+    "date": "2026-11-14",
+    "platform": "YouTube Shorts / Instagram Reels",
+    "category": "math",
+    "examFocus": "Railway",
+    "suggestedTopic": "प्रतिशत ट्रिक (Percentage Tricks for Exam)",
+    "hookFormula": "question-challenge",
+    "posts": {
+      "morning": {
+        "time": "09:00 IST",
+        "topic": "प्रतिशत ट्रिक (Percentage Tricks for Exam)",
+        "examFocus": "Railway",
+        "hookFormula": "question-challenge"
+      },
+      "evening": {
+        "time": "20:00 IST",
+        "topic": "अभाज्य संख्याएँ (Prime Numbers Tricks)",
+        "examFocus": "Railway",
+        "hookFormula": "30-second-test"
+      }
+    }
+  },
+  {
+    "day": 7,
+    "dayName": "Sunday",
+    "date": "2026-11-15",
+    "platform": "YouTube Shorts / Instagram Reels",
+    "category": "mixed",
+    "examFocus": "UPSC",
+    "suggestedTopic": "साप्ताहिक GK रिवीजन — Geography + History",
+    "hookFormula": "exam-countdown",
+    "posts": {
+      "morning": {
+        "time": "09:00 IST",
+        "topic": "साप्ताहिक GK रिवीजन — Geography + History",
+        "examFocus": "UPSC",
+        "hookFormula": "exam-countdown"
+      },
+      "evening": {
+        "time": "20:00 IST",
+        "topic": "UPSC प्रीलिम्स के 10 महत्वपूर्ण प्रश्न",
+        "examFocus": "UPSC",
+        "hookFormula": "shocking-fact-hindi"
+      }
+    }
+  }
+]
