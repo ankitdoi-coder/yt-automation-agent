@@ -131,7 +131,8 @@
     "geo_hormuz_07",
     "pol_president_age_05",
     "stat_border_06",
-    "math_clock_05"
+    "math_clock_05",
+    "sci_water_density_17"
   ],
   "uploads": [
     {
@@ -1278,6 +1279,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-15T11:20:51.223Z",
       "answer": "C) 90° (समकोण / Right Angle)"
+    },
+    {
+      "id": "sci_water_density_17",
+      "category": "general_science",
+      "topic": "जल का असामान्य प्रसार (Anomalous Expansion)",
+      "title": "जल का अधिकतम घनत्व किस तापमान पर होता है?",
+      "fbVideoId": null,
+      "zernioPostId": "6afa0ddde5712efc6ef6593b",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-15T19:54:58.521Z",
+      "answer": "C) 4°C पर (आयतन न्यूनतम होता है)"
     }
   ]
 }
