@@ -132,7 +132,8 @@
     "pol_president_age_05",
     "stat_border_06",
     "math_clock_05",
-    "sci_water_density_17"
+    "sci_water_density_17",
+    "sci_vitamind_07"
   ],
   "uploads": [
     {
@@ -1293,6 +1294,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-15T19:54:58.521Z",
       "answer": "C) 4°C पर (आयतन न्यूनतम होता है)"
+    },
+    {
+      "id": "sci_vitamind_07",
+      "category": "general_science",
+      "topic": "विटामिन और पोषण (Vitamins)",
+      "title": "धूप से हमारे शरीर में कौन सा विटामिन संश्लेषित होता है?",
+      "fbVideoId": null,
+      "zernioPostId": "6afaee2c873f0abd05bcaaf1",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 42,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-16T11:51:54.052Z",
+      "answer": "B) विटामिन D (कैल्सिफेरॉल)"
     }
   ]
 }
