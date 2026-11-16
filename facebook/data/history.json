@@ -133,7 +133,8 @@
     "stat_border_06",
     "math_clock_05",
     "sci_water_density_17",
-    "sci_vitamind_07"
+    "sci_vitamind_07",
+    "math_even_prime_14"
   ],
   "uploads": [
     {
@@ -1308,6 +1309,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-16T11:51:54.052Z",
       "answer": "B) विटामिन D (कैल्सिफेरॉल)"
+    },
+    {
+      "id": "math_even_prime_14",
+      "category": "math_quiz",
+      "topic": "सम अभाज्य संख्या (Even Prime)",
+      "title": "पूरी गणित में एकमात्र 'सम अभाज्य संख्या' (Even Prime) कौन सी है?",
+      "fbVideoId": null,
+      "zernioPostId": "6afb9186f06fdc2ea1fbc3fb",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-16T23:29:03.867Z",
+      "answer": "D) 2 (Two)"
     }
   ]
 }
