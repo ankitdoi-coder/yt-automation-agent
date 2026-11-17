@@ -134,7 +134,8 @@
     "math_clock_05",
     "sci_water_density_17",
     "sci_vitamind_07",
-    "math_even_prime_14"
+    "math_even_prime_14",
+    "geo_un_veto_08"
   ],
   "uploads": [
     {
@@ -1323,6 +1324,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-16T23:29:03.867Z",
       "answer": "D) 2 (Two)"
+    },
+    {
+      "id": "geo_un_veto_08",
+      "category": "geopolitics",
+      "topic": "संयुक्त राष्ट्र (United Nations)",
+      "title": "संयुक्त राष्ट्र सुरक्षा परिषद में कितने देशों के पास वीटो पावर है?",
+      "fbVideoId": null,
+      "zernioPostId": "6afc44df20f445b1bc636a34",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-17T12:14:00.128Z",
+      "answer": "B) 5 देश (अमेरिका, रूस, चीन, ब्रिटेन, फ्रांस)"
     }
   ]
 }
