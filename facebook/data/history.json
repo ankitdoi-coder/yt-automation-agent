@@ -137,7 +137,8 @@
     "math_even_prime_14",
     "geo_un_veto_08",
     "geo_dollar_12",
-    "stat_dam_02"
+    "stat_dam_02",
+    "math_age_logic_13"
   ],
   "uploads": [
     {
@@ -1368,6 +1369,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-18T12:03:44.619Z",
       "answer": "C) टिहरी बांध (ऊंचाई: 260.5 मीटर, उत्तराखंड)"
+    },
+    {
+      "id": "math_age_logic_13",
+      "category": "math_quiz",
+      "topic": "आयु पहेली (Age Problems)",
+      "title": "पिता पुत्र से 3 गुना बड़ा है, दोनों का योग 60 है तो पुत्र की आयु क्या है?",
+      "fbVideoId": null,
+      "zernioPostId": "6afe22b2dfb344620f58ddd3",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-18T22:12:40.161Z",
+      "answer": "C) 15 वर्ष (पुत्र: 15, पिता: 45)"
     }
   ]
 }
