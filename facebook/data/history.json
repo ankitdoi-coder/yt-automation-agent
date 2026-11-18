@@ -136,7 +136,8 @@
     "sci_vitamind_07",
     "math_even_prime_14",
     "geo_un_veto_08",
-    "geo_dollar_12"
+    "geo_dollar_12",
+    "stat_dam_02"
   ],
   "uploads": [
     {
@@ -1353,6 +1354,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-17T22:32:20.285Z",
       "answer": "B) अमेरिकी डॉलर (लगभग 58% वैश्विक भंडार)"
+    },
+    {
+      "id": "stat_dam_02",
+      "category": "static_gk",
+      "topic": "भारतीय बांध (Indian Dams)",
+      "title": "भारत का सबसे ऊंचा बांध कौन सा है?",
+      "fbVideoId": null,
+      "zernioPostId": "6afd93dd3b5e97c0866123f1",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-18T12:03:44.619Z",
+      "answer": "C) टिहरी बांध (ऊंचाई: 260.5 मीटर, उत्तराखंड)"
     }
   ]
 }
