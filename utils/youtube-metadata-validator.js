@@ -62,13 +62,16 @@ function enforceEnglishShortTitle(title, metadata = {}) {
       catName = 'Indian Geography';
     }
 
-    cleaned = `${catName} Part ${partNum} | Top ${qCount} MCQs 🎯 #shorts`;
+    cleaned = `${catName} Part ${partNum} | ${catName} Question Answers | GK Questions Quiz #shorts`;
   }
 
   // Strip any accidental Devanagari characters
   cleaned = cleaned.replace(/[\u0900-\u097F]/g, '').replace(/\s+/g, ' ').trim();
   if (!/#shorts?\b/i.test(cleaned)) {
-    cleaned = (cleaned.slice(0, 41).trim() + ' #shorts').trim();
+    if (cleaned.length > 85) {
+      cleaned = cleaned.slice(0, 85).trim();
+    }
+    cleaned = (cleaned + ' #shorts').trim();
   }
 
   return cleaned.slice(0, MAX_TITLE_LENGTH);

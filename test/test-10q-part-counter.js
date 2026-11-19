@@ -65,8 +65,8 @@ async function runTests() {
 
   console.log('  ✅ Database category sequential counter & live channel sync verified!');
 
-  // Test 2: SEO Title Generation (< 50 chars, Clean English, Part counter, #shorts)
-  console.log('\n2. Testing SEO Short Title Generation (< 50 chars constraint)...');
+  // Test 2: SEO Title Generation (70-95 chars, Search Keywords, Clean English, Part counter, #shorts)
+  console.log('\n2. Testing SEO Short Title Generation (~80 chars search-rich constraint)...');
   const seo = new SEOOptimizerAgent();
 
   const testCases = [
@@ -92,21 +92,24 @@ async function runTests() {
     };
     const title = seo.buildExamOptimizedShortTitle(fakeScript, fakeStrategy);
     console.log(`  Generated Title: "${title}" (Length: ${title.length} chars)`);
-    assert(title.length <= 50, `Title "${title}" must be <= 50 characters (was ${title.length})`);
+    assert(title.length <= 95, `Title "${title}" must be <= 95 characters (was ${title.length})`);
+    assert(title.length >= 60, `Title "${title}" should be keyword-rich >= 60 characters (was ${title.length})`);
     assert(title.includes('#shorts'), `Title "${title}" must include #shorts`);
     assert(title.includes(`Part ${tc.part}`), `Title "${title}" must include Part ${tc.part}`);
     assert(!/[\u0900-\u097F]/.test(title), `Title "${title}" must NOT contain any Hindi / Devanagari characters`);
+    assert(/Question Answers|Questions|Quiz/i.test(title), `Title "${title}" must contain search keywords`);
   }
 
   // Test enforceEnglishShortTitle with direct Hindi Devanagari input
   const { enforceEnglishShortTitle } = require('../utils/youtube-metadata-validator');
   const hindiRaw = 'सामान्य विज्ञान भाग 2 | टॉप 10 MCQ 🎯 #shorts';
   const converted = enforceEnglishShortTitle(hindiRaw, { isShort: true });
-  console.log(`  Enforced English Title from Hindi: "${converted}"`);
-  assert.strictEqual(converted, 'General Science Part 2 | Top 10 MCQs 🎯 #shorts');
+  console.log(`  Enforced English Title from Hindi: "${converted}" (Length: ${converted.length} chars)`);
+  assert.strictEqual(converted, 'General Science Part 2 | General Science Question Answers | GK Questions Quiz #shorts');
   assert(!/[\u0900-\u097F]/.test(converted), 'Enforced title must have zero Devanagari characters');
+  assert(converted.length <= 95 && converted.length >= 60, `Enforced title length must be between 60 and 95 (was ${converted.length})`);
 
-  console.log('  ✅ All SEO Short titles strictly 100% English verified <= 50 characters with Part number!');
+  console.log('  ✅ All SEO Short titles strictly 100% English verified ~80 characters with search keywords & Part number!');
 
   // Test 3: Slide Generation & Presentation (10 Questions, Clean Typography, Badges)
   console.log('\n3. Testing Slide Generation for 10 Questions...');
@@ -166,6 +169,7 @@ async function runTests() {
   console.log(`  ✅ Script writer requested question count: ${count}`);
 
   console.log('\n🎉 ALL 10-QUESTION & PART COUNTER TESTS PASSED!');
+  process.exit(0);
 }
 
 runTests().catch(err => {

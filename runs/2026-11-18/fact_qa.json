@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-18",
+  "topic": "Static GK Part 2 — National Parks & Tiger Reserves of India",
+  "qa_gate_passed": true,
+  "total_questions": 10,
+  "verified_count": 10,
+  "checks": [
+    {
+      "number": 1,
+      "question": "भारत का सबसे पहला राष्ट्रीय उद्यान कौन सा है?",
+      "claimed_answer": "B) जिम कॉर्बेट",
+      "independent_verification": "Jim Corbett National Park (Uttarakhand), established 1936 as Hailey National Park — verified via web search & WII.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://en.wikipedia.org/wiki/Jim_Corbett_National_Park"
+    },
+    {
+      "number": 2,
+      "question": "एक सींग वाले गैंडे के लिए कौन सा उद्यान प्रसिद्ध है?",
+      "claimed_answer": "C) काजीरंगा",
+      "independent_verification": "Kaziranga National Park (Assam) hosts the world's largest population of Indian one-horned rhinoceros — UNESCO World Heritage site.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://whc.unesco.org/en/list/337/"
+    },
+    {
+      "number": 3,
+      "question": "एशियाई शेरों के लिए कौन सा राष्ट्रीय उद्यान प्रसिद्ध है?",
+      "claimed_answer": "A) गिर",
+      "independent_verification": "Gir National Park (Gujarat) is the sole natural habitat of Asiatic Lions in the world.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://en.wikipedia.org/wiki/Gir_National_Park"
+    },
+    {
+      "number": 4,
+      "question": "दुनिया का एकमात्र तैरता राष्ट्रीय उद्यान कौन सा है?",
+      "claimed_answer": "B) केबुल लामजाओ",
+      "independent_verification": "Keibul Lamjao National Park on Loktak Lake (Manipur) is the only floating national park in the world — verified via web search.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://en.wikipedia.org/wiki/Keibul_Lamjao_National_Park"
+    },
+    {
+      "number": 5,
+      "question": "क्षेत्रफल में भारत का सबसे बड़ा राष्ट्रीय उद्यान कौन सा है?",
+      "claimed_answer": "B) हेमिस",
+      "independent_verification": "Hemis National Park (Ladakh, ~4,400 sq km) is India's largest national park — verified via web search.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://en.wikipedia.org/wiki/Hemis_National_Park"
+    },
+    {
+      "number": 6,
+      "question": "भारत में 'प्रोजेक्ट टाइगर' की शुरुआत किस वर्ष हुई?",
+      "claimed_answer": "B) 1973",
+      "independent_verification": "Project Tiger was launched on April 1, 1973 from Jim Corbett National Park — verified via web search.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://ntca.gov.in/"
+    },
+    {
+      "number": 7,
+      "question": "भारत में सर्वाधिक राष्ट्रीय उद्यान किस राज्य में हैं?",
+      "claimed_answer": "C) मध्य प्रदेश",
+      "independent_verification": "Madhya Pradesh has the highest number of national parks in India (11) — verified via web search.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://wii.gov.in/"
+    },
+    {
+      "number": 8,
+      "question": "सुंदरबन राष्ट्रीय उद्यान किस राज्य में स्थित है?",
+      "claimed_answer": "B) पश्चिम बंगाल",
+      "independent_verification": "Sundarbans National Park is located in West Bengal (largest mangrove forest, Royal Bengal Tiger).",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://whc.unesco.org/en/list/452/"
+    },
+    {
+      "number": 9,
+      "question": "'दुधवा राष्ट्रीय उद्यान' किस राज्य में स्थित है?",
+      "claimed_answer": "A) उत्तर प्रदेश",
+      "independent_verification": "Dudhwa National Park is located in Lakhimpur Kheri district of Uttar Pradesh — verified via web search.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://en.wikipedia.org/wiki/Dudhwa_National_Park"
+    },
+    {
+      "number": 10,
+      "question": "'साइलेंट वैली' राष्ट्रीय उद्यान किस राज्य में है?",
+      "claimed_answer": "C) केरल",
+      "independent_verification": "Silent Valley National Park is located in Palakkad district of Kerala in the Nilgiri Hills — verified via web search.",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://en.wikipedia.org/wiki/Silent_Valley_National_Park"
+    }
+  ]
+}

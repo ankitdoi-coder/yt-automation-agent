@@ -1,0 +1,49 @@
+{
+  "experiment_id": "exp_20261117_pacing_compression",
+  "date": "2026-11-18",
+  "channel_id": "UCjh63suNzws9XB2sF1xKzyw",
+  "channel_handle": "@examiqbharat",
+  "variable": "duration_and_pacing_compression",
+  "control": {
+    "question_count": 10,
+    "actual_duration_range_seconds": "62-85",
+    "narration_speed": 1.15,
+    "median_views": 66,
+    "avg_apv": 52.3
+  },
+  "variant": {
+    "question_count": 10,
+    "target_duration_seconds": 54,
+    "max_duration_seconds": 58,
+    "narration_speed": 1.25,
+    "pause_between_qa_seconds": 0.3,
+    "title_style": "english_under_50_chars",
+    "part_number_format": "sequential_category_series",
+    "preferred_upload_window_ist": "16:00-21:00"
+  },
+  "success_metric": "averageViewPercentage >= 65% and T+72h views >= 150",
+  "hypothesis": "Keeping 10-question numbered series strictly under 58s (50-54s target via 1.25x TTS and 0.3s cuts) preserves the higher 10Q view floor (66 median) while lifting APV from ~52% toward >=65% so Shorts feed distribution scales past 150+ views.",
+  "sample_size_target": 5,
+  "variant_n_completed": 1,
+  "start_date": "2026-11-17",
+  "decision_date": "2026-11-20",
+  "status": "active",
+  "today_topic": {
+    "allocation": "exploit_70pct",
+    "backlog_id": "tb_static_parks",
+    "category": "static",
+    "part_number": 2,
+    "topic_english": "Static GK",
+    "topic_hindi": "स्टैटिक जीके",
+    "subtopic": "National Parks & Tiger Reserves of India",
+    "title": "Static GK Part 2 | Top 10 MCQs 🎯 #shorts",
+    "backup_explore": {
+      "backlog_id": "tb_geo_rivers",
+      "category": "geography",
+      "part_number": 1,
+      "subtopic": "Major Rivers, Dams & Tributaries",
+      "title": "Indian Geography Part 1 | Top 10 MCQs 🎯 #shorts"
+    }
+  },
+  "last_variant_video_id": "sRAtV92JZzA"
+}

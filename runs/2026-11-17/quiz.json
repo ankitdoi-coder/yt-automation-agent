@@ -1,0 +1,203 @@
+{
+  "title": "Indian Polity Part 2 | Top 10 MCQs 🎯 #shorts",
+  "isShort": true,
+  "subject": "Indian Polity",
+  "subjectHindi": "भारतीय संविधान",
+  "partNumber": 2,
+  "category": "polity",
+  "totalQuestions": 10,
+  "language": "hi",
+  "hook": "दम है तो 10 में से 7 सही करके दिखाओ!",
+  "targetDurationSeconds": 54,
+  "pacingSecondsPerQuestion": 4.5,
+  "pauseAfterQuestionSeconds": 0.3,
+  "audioDesign": {
+    "bgm": "intense_suspense_beat",
+    "chime": "tubular_bell_chime_880hz",
+    "tick_on_short_pause": true,
+    "target_lufs": -14.0,
+    "tts_speed": "1.25x"
+  },
+  "questions": [
+    {
+      "number": 1,
+      "question": "भारतीय संविधान में 'मौलिक कर्तव्य' किस देश के संविधान से लिए गए हैं?",
+      "options": [
+        "A) अमेरिका (USA)",
+        "B) सोवियत संघ (USSR)",
+        "C) आयरलैंड",
+        "D) ब्रिटेन (UK)"
+      ],
+      "answerIndex": 1,
+      "answer": "B) सोवियत संघ (USSR)",
+      "explanation": "42वें संशोधन 1976 द्वारा स्वर्ण सिंह समिति की सिफारिश पर सोवियत संघ (USSR) से मौलिक कर्तव्य लिए गए।",
+      "fact": "Trick: रूस भारत का सच्चा मित्र → मित्र के प्रति कर्तव्य (USSR)!",
+      "source": "NCERT Class 11 Political Science & Lucent GK",
+      "difficulty": "easy",
+      "questionNarration": "पहला सवाल: भारतीय संविधान में मौलिक कर्तव्य किस देश से लिए गए हैं?",
+      "answerNarration": "सही उत्तर है सोवियत संघ।"
+    },
+    {
+      "number": 2,
+      "question": "संविधान के किस अनुच्छेद में 'समान नागरिक संहिता' (UCC) का उल्लेख है?",
+      "options": [
+        "A) अनुच्छेद 40",
+        "B) अनुच्छेद 44",
+        "C) अनुच्छेद 48",
+        "D) अनुच्छेद 50"
+      ],
+      "answerIndex": 1,
+      "answer": "B) अनुच्छेद 44",
+      "explanation": "अनुच्छेद 44 राज्य के नीति निदेशक तत्वों के तहत समान नागरिक संहिता (Uniform Civil Code) का प्रावधान करता है।",
+      "fact": "Trick: 4 और 4 दोनों समान (Equal) → समान नागरिक संहिता (Article 44)!",
+      "source": "Constitution of India, Part IV — Article 44",
+      "difficulty": "easy",
+      "questionNarration": "दूसरा सवाल: संविधान के किस अनुच्छेद में समान नागरिक संहिता का उल्लेख है?",
+      "answerNarration": "सही उत्तर है अनुच्छेद 44।"
+    },
+    {
+      "number": 3,
+      "question": "किस संविधान संशोधन को भारत का 'लघु संविधान' (Mini Constitution) कहा जाता है?",
+      "options": [
+        "A) 42वाँ संशोधन (1976)",
+        "B) 44वाँ संशोधन (1978)",
+        "C) 52वाँ संशोधन (1985)",
+        "D) 73वाँ संशोधन (1992)"
+      ],
+      "answerIndex": 0,
+      "answer": "A) 42वाँ संशोधन (1976)",
+      "explanation": "1976 के 42वें संशोधन द्वारा संविधान में व्यापक बदलाव किए गए और प्रस्तावना में 'समाजवादी, पंथनिरपेक्ष, अखंडता' शब्द जोड़े गए।",
+      "fact": "Trick: 4 + 2 = 6 (1976) → सबसे बड़ा संशोधन = Mini Constitution!",
+      "source": "Constitution (42nd Amendment) Act, 1976",
+      "difficulty": "easy",
+      "questionNarration": "तीसरा सवाल: किस संविधान संशोधन को लघु संविधान कहा जाता है?",
+      "answerNarration": "सही उत्तर है 42वाँ संशोधन।"
+    },
+    {
+      "number": 4,
+      "question": "'संपत्ति के अधिकार' को किस संशोधन द्वारा मौलिक अधिकार से हटाया गया?",
+      "options": [
+        "A) 42वाँ संशोधन",
+        "B) 44वाँ संशोधन",
+        "C) 61वाँ संशोधन",
+        "D) 86वाँ संशोधन"
+      ],
+      "answerIndex": 1,
+      "answer": "B) 44वाँ संशोधन",
+      "explanation": "44वें संशोधन 1978 द्वारा संपत्ति के अधिकार को मौलिक अधिकार से हटाकर अनुच्छेद 300A के तहत कानूनी अधिकार बनाया गया।",
+      "fact": "Trick: 44वें संशोधन ने संपत्ति के अधिकार को केवल कानूनी अधिकार बनाया।",
+      "source": "Constitution (44th Amendment) Act, 1978 — Article 300A",
+      "difficulty": "medium",
+      "questionNarration": "चौथा सवाल: संपत्ति के अधिकार को किस संशोधन द्वारा हटाया गया था?",
+      "answerNarration": "सही उत्तर है 44वाँ संशोधन।"
+    },
+    {
+      "number": 5,
+      "question": "संसद के दोनों सदनों की संयुक्त बैठक (Joint Sitting) की अध्यक्षता कौन करता है?",
+      "options": [
+        "A) भारत के राष्ट्रपति",
+        "B) उपराष्ट्रपति",
+        "C) लोकसभा अध्यक्ष",
+        "D) प्रधानमंत्री"
+      ],
+      "answerIndex": 2,
+      "answer": "C) लोकसभा अध्यक्ष",
+      "explanation": "अनुच्छेद 108 के तहत राष्ट्रपति संयुक्त बैठक बुलाते हैं, परंतु अनुच्छेद 118(4) के तहत अध्यक्षता लोकसभा अध्यक्ष (Speaker) करते हैं।",
+      "fact": "Note: उपराष्ट्रपति (राज्यसभा सभापति) कभी भी संयुक्त बैठक की अध्यक्षता नहीं करते।",
+      "source": "Constitution of India, Article 108 & 118(4)",
+      "difficulty": "medium",
+      "questionNarration": "पाँचवाँ सवाल: संसद की संयुक्त बैठक की अध्यक्षता कौन करता है?",
+      "answerNarration": "सही उत्तर है लोकसभा अध्यक्ष।"
+    },
+    {
+      "number": 6,
+      "question": "मतदान की न्यूनतम आयु 21 वर्ष से घटाकर 18 वर्ष किस संशोधन द्वारा की गई?",
+      "options": [
+        "A) 61वाँ संशोधन (1989)",
+        "B) 69वाँ संशोधन (1991)",
+        "C) 73वाँ संशोधन (1992)",
+        "D) 91वाँ संशोधन (2003)"
+      ],
+      "answerIndex": 0,
+      "answer": "A) 61वाँ संशोधन (1989)",
+      "explanation": "61वें संविधान संशोधन 1989 द्वारा अनुच्छेद 326 में संशोधन कर मताधिकार की आयु 21 से घटाकर 18 वर्ष की गई।",
+      "fact": "Trick: 61वें संशोधन ने युवाओं को वोट का अधिकार दिया।",
+      "source": "Constitution (61st Amendment) Act, 1988 — Article 326",
+      "difficulty": "medium",
+      "questionNarration": "छठा सवाल: मतदान की आयु 21 से घटाकर 18 वर्ष किस संशोधन द्वारा की गई?",
+      "answerNarration": "सही उत्तर है 61वाँ संशोधन।"
+    },
+    {
+      "number": 7,
+      "question": "भारतीय संविधान की '10वीं अनुसूची' (10th Schedule) का संबंध किससे है?",
+      "options": [
+        "A) पंचायती राज",
+        "B) दलबदल विरोधी कानून",
+        "C) आधिकारिक भाषाएं",
+        "D) नगर पालिकाएं"
+      ],
+      "answerIndex": 1,
+      "answer": "B) दलबदल विरोधी कानून",
+      "explanation": "52वें संविधान संशोधन 1985 द्वारा 10वीं अनुसूची जोड़ी गई, जो दलबदल विरोधी कानून (Anti-Defection Law) से संबंधित है।",
+      "fact": "Trick: 10वीं अनुसूची = दल बदल!",
+      "source": "Constitution (52nd Amendment) Act, 1985 — Tenth Schedule",
+      "difficulty": "medium",
+      "questionNarration": "सातवाँ सवाल: संविधान की 10वीं अनुसूची का संबंध किससे है?",
+      "answerNarration": "सही उत्तर है दलबदल विरोधी कानून।"
+    },
+    {
+      "number": 8,
+      "question": "राष्ट्रपति पर महाभियोग (Impeachment) चलाने की प्रक्रिया किस अनुच्छेद में है?",
+      "options": [
+        "A) अनुच्छेद 52",
+        "B) अनुच्छेद 54",
+        "C) अनुच्छेद 61",
+        "D) अनुच्छेद 72"
+      ],
+      "answerIndex": 2,
+      "answer": "C) अनुच्छेद 61",
+      "explanation": "अनुच्छेद 61 के तहत संविधान के अतिक्रमण पर राष्ट्रपति के विरुद्ध संसद के किसी भी सदन में महाभियोग प्रस्ताव लाया जा सकता है।",
+      "fact": "Note: महाभियोग के लिए 14 दिन पूर्व लिखित सूचना देना अनिवार्य है।",
+      "source": "Constitution of India, Article 61",
+      "difficulty": "hard",
+      "questionNarration": "आठवाँ सवाल: राष्ट्रपति पर महाभियोग की प्रक्रिया किस अनुच्छेद में है?",
+      "answerNarration": "सही उत्तर है अनुच्छेद 61।"
+    },
+    {
+      "number": 9,
+      "question": "संविधान सभा की 'प्रारूप समिति' (Drafting Committee) के अध्यक्ष कौन थे?",
+      "options": [
+        "A) डॉ. राजेंद्र प्रसाद",
+        "B) डॉ. बी.आर. अंबेडकर",
+        "C) पं. जवाहरलाल नेहरू",
+        "D) सरदार पटेल"
+      ],
+      "answerIndex": 1,
+      "answer": "B) डॉ. बी.आर. अंबेडकर",
+      "explanation": "29 अगस्त 1947 को गठित 7 सदस्यीय प्रारूप समिति के अध्यक्ष डॉ. भीमराव अंबेडकर थे।",
+      "fact": "Note: डॉ. राजेंद्र प्रसाद संविधान सभा के स्थायी अध्यक्ष थे, प्रारूप समिति के अध्यक्ष अंबेडकर जी थे।",
+      "source": "Constituent Assembly of India Debates (29 August 1947)",
+      "difficulty": "easy",
+      "questionNarration": "नौवाँ सवाल: संविधान की प्रारूप समिति के अध्यक्ष कौन थे?",
+      "answerNarration": "सही उत्तर है डॉक्टर भीमराव अंबेडकर।"
+    },
+    {
+      "number": 10,
+      "question": "भारत के 'प्रथम मुख्य चुनाव आयुक्त' (First Chief Election Commissioner) कौन थे?",
+      "options": [
+        "A) के.वी.के. सुंदरम",
+        "B) सुकुमार सेन",
+        "C) टी.एन. शेषन",
+        "D) सुनील अरोड़ा"
+      ],
+      "answerIndex": 1,
+      "answer": "B) सुकुमार सेन",
+      "explanation": "सुकुमार सेन 1950 से 1958 तक भारत के पहले मुख्य चुनाव आयुक्त रहे जिन्होंने 1951-52 के ऐतिहासिक प्रथम आम चुनाव कराए।",
+      "fact": "Challenge Question: Comment your answer below!",
+      "source": "Election Commission of India Official Archives",
+      "difficulty": "hard",
+      "questionNarration": "दसवां और आखिरी सवाल: भारत के प्रथम मुख्य चुनाव आयुक्त कौन थे? जवाब कमेंट करें!",
+      "answerNarration": "इसका जवाब कमेंट बॉक्स में बताएं!"
+    }
+  ]
+}

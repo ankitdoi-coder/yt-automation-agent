@@ -173,10 +173,18 @@ async function main() {
   console.log(`Extracted ${qaFrames.length} QA frames for visual verification`);
 
   // Evaluate blocking gates
+  const qCount = Array.isArray(quizData.questions) ? quizData.questions.length : 3;
+  const maxAllowedDuration = expData?.variant?.max_duration_seconds
+    ? Number(expData.variant.max_duration_seconds)
+    : (expData?.variant?.target_duration_seconds
+      ? Math.min(60, Number(expData.variant.target_duration_seconds) + 6)
+      : (qCount > 5 ? 60 : 35));
+  const minAllowedDuration = 15;
+
   const gates = {
     resolution_1080x1920: resolution === '1080x1920',
     vertical_format: isVertical,
-    duration_valid: duration >= 15 && duration <= 35,
+    duration_valid: duration >= minAllowedDuration && duration <= maxAllowedDuration,
     silence_gap_under_1_2s: silence.maxSilence < 1.2,
     loudness_near_14_lufs: lufs >= -19 && lufs <= -10,
     audio_present: true
@@ -202,12 +210,13 @@ async function main() {
   // Metadata JSON (topic-aware, spoiler-free, honest question count)
   const subjectText = String(quizData.subject || 'General Knowledge').trim();
   const subjectTagSlug = subjectText.toLowerCase().replace(/[^a-z0-9]+/g, '') || 'generalknowledge';
-  const qCount = Array.isArray(quizData.questions) ? quizData.questions.length : 3;
+  const targetPassCount = Math.max(2, Math.round(qCount * 0.7));
+  const hookLine = quizData.hook || `दम है तो ${qCount} में से ${targetPassCount} सही करके दिखाओ!`;
   const metadata = {
     title: quizData.title,
     description: `🎯 ${quizData.title}
 
-${subjectText} — दम है तो ${qCount} में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Quiz।
+${subjectText} — ${hookLine} SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Quiz।
 💬 सवाल नंबर ${qCount} का सही जवाब कमेंट में लिखें और वीडियो को 👍 Like जरूर करें!
 🔔 रोज़ाना ऐसे ही तेज GK Tests के लिए ExamIQ Bharat को Subscribe करें।
 

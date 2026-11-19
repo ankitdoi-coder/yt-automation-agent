@@ -302,7 +302,8 @@ ${timestampsText}
   }
 
   buildExamOptimizedShortTitle(script, strategy, brand = 'ExamIQ') {
-    // Generate strictly 100% English title (< 50 chars) for YouTube Shorts (Zero Devanagari / Hindi words)
+    // Generate strictly 100% English title (~75-85 chars) for YouTube Shorts (Zero Devanagari / Hindi words)
+    // Rich with high-intent search keywords: <Topic> Part <N> | <Topic> Question Answers | GK Questions Quiz #shorts
     const qCount = script?.quiz?.totalQuestions || script?.quiz?.questions?.length || strategy?.targetQuestionCount || 10;
     const { englishTopic = 'Static GK', category = 'static' } = this.extractTopicAndCategory(script, strategy);
     const partNumber = Number(script?.partNumber || script?.quiz?.part || strategy?.partNumber) || 1;
@@ -322,16 +323,16 @@ ${timestampsText}
     }
 
     const candidates = [
-      `${cleanTopic} Part ${partNumber} | Top ${qCount} Questions 🎯 #shorts`,
-      `${cleanTopic} Part ${partNumber} | Top ${qCount} MCQs 🎯 #shorts`,
-      `${cleanTopic} Part ${partNumber} | Top ${qCount} Qs 🎯 #shorts`,
-      `${cleanTopic} Part ${partNumber} Quiz 🎯 #shorts`
+      `${cleanTopic} Part ${partNumber} | ${cleanTopic} Question Answers | GK Questions Quiz #shorts`,
+      `${cleanTopic} Part ${partNumber} | ${cleanTopic} Questions | GK Questions Quiz #shorts`,
+      `${cleanTopic} Part ${partNumber} | Top ${qCount} Questions | GK Quiz #shorts`,
+      `${cleanTopic} Part ${partNumber} | Top ${qCount} MCQs #shorts`
     ];
 
-    let title = candidates.find(t => t.length <= 50) || candidates[candidates.length - 1];
+    let title = candidates.find(t => t.length <= 95) || candidates[candidates.length - 1];
 
-    if (title.length > 50) {
-      title = title.slice(0, 41).trim() + ' #shorts';
+    if (title.length > 95) {
+      title = title.slice(0, 85).trim() + ' #shorts';
     }
 
     // Absolute enforcement: strip any Hindi/Devanagari characters

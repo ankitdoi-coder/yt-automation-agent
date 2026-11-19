@@ -15,7 +15,7 @@ const { google } = require('googleapis');
 const { CredentialManager } = require('../utils/credential-manager');
 const { Database } = require('../database/db');
 
-google.options({ timeout: 60000, agent: ipv4Agent });
+google.options({ timeout: 180000, agent: ipv4Agent });
 
 function getIstDateString() {
   return new Date(Date.now() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
@@ -30,7 +30,10 @@ function toIstHour(isoDate) {
 function classifyTitleStyle(title) {
   const hasDevanagari = /[\u0900-\u097F]/.test(title || '');
   if (hasDevanagari) return title.length > 50 ? 'hindi_long' : 'hindi_short';
-  return (title || '').length <= 50 ? 'english_under_50_chars' : 'english_over_50_chars';
+  const len = (title || '').length;
+  if (len > 95) return 'english_over_length';
+  if (len >= 60) return 'english_search_keyword_rich';
+  return 'english_short';
 }
 
 function buildCompactQHint(questionText) {
@@ -112,8 +115,8 @@ async function main() {
   const quizData = fs.existsSync(quizPath) ? JSON.parse(fs.readFileSync(quizPath, 'utf8')) : {};
   const expData = fs.existsSync(experimentPath) ? JSON.parse(fs.readFileSync(experimentPath, 'utf8')) : {};
 
-  if (!metadata.title || metadata.title.length > 50) {
-    throw new Error(`Title exceeds 50-char Shorts limit (${(metadata.title || '').length}): "${metadata.title}"`);
+  if (!metadata.title || metadata.title.length > 95) {
+    throw new Error(`Title exceeds 95-char Shorts limit (${(metadata.title || '').length}): "${metadata.title}"`);
   }
 
   console.log('=== YT-GK UPLOADER ===');
@@ -129,8 +132,8 @@ async function main() {
 
   let quotaUsed = 0;
 
-  // STEP 1: Upload video via videos.insert (1600 quota units)
-  console.log('\n[1/4] Uploading video to YouTube Data API v3...');
+  // STEP 1: Upload video via official YouTube Resumable Upload API (avoids Node 24 PassThrough multipart hang)
+  console.log('\n[1/4] Uploading video to YouTube Data API v3 (resumable Buffer upload)...');
   const requestStatus = {
     privacyStatus: metadata.privacyStatus || 'public',
     selfDeclaredMadeForKids: false,
@@ -140,27 +143,56 @@ async function main() {
     requestStatus.publishAt = metadata.publishAt;
   }
 
-  const uploadRes = await yt.videos.insert({
-    part: 'snippet,status',
-    notifySubscribers: true,
-    requestBody: {
-      snippet: {
-        title: metadata.title,
-        description: metadata.description,
-        tags: metadata.tags || ['Shorts', 'GK Shorts', 'GK Quiz', 'ExamIQ Bharat'],
-        categoryId: String(metadata.categoryId || '27'),
-        defaultLanguage: 'hi',
-        defaultAudioLanguage: 'hi'
-      },
-      status: requestStatus
+  const videoBuffer = fs.readFileSync(videoPath);
+  const accessToken = cm.getYouTubeAuth().credentials.access_token;
+  const initBody = JSON.stringify({
+    snippet: {
+      title: metadata.title,
+      description: metadata.description,
+      tags: metadata.tags || ['Shorts', 'GK Shorts', 'GK Quiz', 'ExamIQ Bharat'],
+      categoryId: String(metadata.categoryId || '27'),
+      defaultLanguage: 'hi',
+      defaultAudioLanguage: 'hi'
     },
-    media: {
-      body: fs.createReadStream(videoPath)
-    }
+    status: requestStatus
   });
+
+  const initRes = await fetch(
+    'https://youtube.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status&notifySubscribers=true',
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json; charset=UTF-8',
+        'X-Upload-Content-Length': String(videoBuffer.length),
+        'X-Upload-Content-Type': 'video/mp4'
+      },
+      body: initBody
+    }
+  );
+  if (!initRes.ok) {
+    throw new Error(`Resumable upload init failed (${initRes.status}): ${await initRes.text()}`);
+  }
+  const uploadUrl = initRes.headers.get('location');
+  if (!uploadUrl) {
+    throw new Error('Resumable upload init returned no Location header');
+  }
+
+  const putRes = await fetch(uploadUrl, {
+    method: 'PUT',
+    headers: {
+      'Content-Length': String(videoBuffer.length),
+      'Content-Type': 'video/mp4'
+    },
+    body: videoBuffer
+  });
+  if (!putRes.ok) {
+    throw new Error(`Resumable video PUT failed (${putRes.status}): ${await putRes.text()}`);
+  }
+  const uploadData = await putRes.json();
   quotaUsed += 1600;
 
-  const videoId = uploadRes.data.id;
+  const videoId = uploadData.id;
   if (!videoId) {
     throw new Error('Upload failed: No video ID returned by YouTube API');
   }
@@ -310,7 +342,38 @@ async function main() {
      ON CONFLICT(video_id, date, measurement_window) DO NOTHING`,
     [`${videoId}_${dateStr}_T+0h`, videoId, dateStr, commentId ? 1 : 0, `yt-gk-uploader_quota_${quotaUsed}`]
   );
+
+  const categoryKey = quizData.category || 'polity';
+  const targetPart = Number(quizData.partNumber || 2);
+  try {
+    await db.executeQuery(
+      `UPDATE category_series
+       SET current_part = MAX(current_part, ?),
+           last_video_id = ?,
+           last_published_at = CURRENT_TIMESTAMP,
+           updated_at = CURRENT_TIMESTAMP
+       WHERE category = ?`,
+      [targetPart, videoId, categoryKey]
+    );
+    await db.persistCategorySeriesToJson();
+    console.log(`Updated category series for ${categoryKey} to Part ${targetPart} and persisted to data/category_series.json`);
+  } catch (seriesErr) {
+    console.warn(`Could not update category_series: ${seriesErr.message}`);
+  }
+
   await db.close();
+
+  // Append to analytics/experiments.csv
+  try {
+    const csvPath = path.resolve('analytics', 'experiments.csv');
+    if (fs.existsSync(csvPath)) {
+      const expLine = `\n${new Date().toISOString()},${videoId},short,${expData.experiment_id || 'exp_pacing_compression'},${qCount},${classifyTitleStyle(metadata.title)},"${metadata.title.replace(/"/g, '""')}",published,"10Q pacing compression, duration: ${durationS}s, quota used: ${quotaUsed}"`;
+      fs.appendFileSync(csvPath, expLine, 'utf8');
+      console.log('Appended experiment record to analytics/experiments.csv');
+    }
+  } catch (csvErr) {
+    console.warn(`Could not append to experiments.csv: ${csvErr.message}`);
+  }
 
   // Save upload receipt
   const receipt = {

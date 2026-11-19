@@ -1,703 +1,792 @@
 {
-  "checkedAt": "2026-11-13T10:58:13.374Z",
+  "checkedAt": "2026-11-18T02:38:50.798Z",
+  "dateRange": {
+    "startDate": "2026-11-04",
+    "endDate": "2026-11-18"
+  },
   "channel": {
+    "id": "UCjh63suNzws9XB2sF1xKzyw",
     "title": "ExamIQ",
-    "viewCount": "5114",
-    "subscriberCount": "8",
-    "videoCount": "131"
+    "viewCount": 5768,
+    "subscriberCount": 8,
+    "videoCount": 140
   },
   "recentVideos": [
     {
+      "id": "sm0JuNJNRZo",
+      "title": "General Science Part 4 | Top 10 MCQs 🎯 #shorts",
+      "description": "🎯 General Science Part 4 | Top 10 MCQs 🎯 #shortsGeneral Science (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-17T20:02:51Z",
+      "durationIso": "PT1M3S",
+      "durationSeconds": 63,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 74,
+      "likes": 0,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 47,
+      "uploadHourIst": 1,
+      "cohort": "historical_short",
+      "analytics": null
+    },
+    {
+      "id": "jIXH1ItufMk",
+      "title": "Indian Polity Part 2 | Top 10 Questions 🎯 #shorts",
+      "description": "🎯 Indian Polity Part 2 | Top 10 Questions 🎯 #shortsIndian Polity GK (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-17T10:49:58Z",
+      "durationIso": "PT1M25S",
+      "durationSeconds": 85,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 47,
+      "likes": 0,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 50,
+      "uploadHourIst": 16,
+      "cohort": "historical_short",
+      "analytics": null
+    },
+    {
+      "id": "xcKa1Ocu0MI",
+      "title": "General Science Part 3 | Top 10 MCQs 🎯 #shorts",
+      "description": "🎯 General Science Part 3 | Top 10 MCQs 🎯 #shortsGeneral Science (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-16T21:09:37Z",
+      "durationIso": "PT1M5S",
+      "durationSeconds": 65,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 70,
+      "likes": 1,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 47,
+      "uploadHourIst": 2,
+      "cohort": "historical_short",
+      "analytics": null
+    },
+    {
+      "id": "pJMhTPIuf28",
+      "title": "Indian Polity Part 1 | Top 10 Questions 🎯 #shorts",
+      "description": "🎯 Indian Polity Part 1 | Top 10 Questions 🎯 #shortsIndian Polity GK (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-16T10:00:50Z",
+      "durationIso": "PT1M2S",
+      "durationSeconds": 62,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 12,
+      "likes": 0,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 50,
+      "uploadHourIst": 15,
+      "cohort": "historical_short",
+      "analytics": null
+    },
+    {
+      "id": "G-KLv51AeRk",
+      "title": "Static GK Part 1 | Top 10 Questions 🎯 #shorts",
+      "description": "🎯 Static GK Part 1 | Top 10 Questions 🎯 #shortsStatic GK (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-15T17:56:46Z",
+      "durationIso": "PT1M10S",
+      "durationSeconds": 70,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 124,
+      "likes": 0,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 46,
+      "uploadHourIst": 23,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 95,
+        "estimatedMinutesWatched": 29,
+        "averageViewDuration": 33,
+        "averageViewPercentage": 48.5,
+        "likes": 0,
+        "comments": 1,
+        "shares": 0,
+        "subscribersGained": 0
+      }
+    },
+    {
+      "id": "LUrbgtKZv6k",
+      "title": "Static GK Part 1 | Top 10 Questions 🎯 #shorts",
+      "description": "🎯 Static GK Part 1 | Top 10 Questions 🎯 #shortsStatic GK (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-15T09:20:12Z",
+      "durationIso": "PT1M5S",
+      "durationSeconds": 65,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 81,
+      "likes": 1,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 46,
+      "uploadHourIst": 14,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 75,
+        "estimatedMinutesWatched": 21,
+        "averageViewDuration": 33,
+        "averageViewPercentage": 52.07999999999999,
+        "likes": 1,
+        "comments": 1,
+        "shares": 0,
+        "subscribersGained": 0
+      }
+    },
+    {
+      "id": "iIJExAXFfDE",
+      "title": "Indian History Part 1 | Top 10 MCQs 🎯 #shorts",
+      "description": "🎯 Indian History Part 1 | Top 10 MCQs 🎯 #shortsIndian History GK (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-14T17:15:54Z",
+      "durationIso": "PT1M15S",
+      "durationSeconds": 75,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 14,
+      "likes": 0,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 46,
+      "uploadHourIst": 22,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 7,
+        "estimatedMinutesWatched": 4,
+        "averageViewDuration": 53,
+        "averageViewPercentage": 71.6,
+        "likes": 0,
+        "comments": 1,
+        "shares": 0,
+        "subscribersGained": 0
+      }
+    },
+    {
+      "id": "MoHnbPtvsAQ",
+      "title": "General Science Part 2 | Top 10 MCQs 🎯 #shorts",
+      "description": "🎯 General Science Part 1 | Top 10 MCQs 🎯 #shortsGeneral Science (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-14T06:26:23Z",
+      "durationIso": "PT57S",
+      "durationSeconds": 57,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 58,
+      "likes": 1,
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 47,
+      "uploadHourIst": 11,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 55,
+        "estimatedMinutesWatched": 14,
+        "averageViewDuration": 28,
+        "averageViewPercentage": 49.34,
+        "likes": 1,
+        "comments": 1,
+        "shares": 0,
+        "subscribersGained": 0
+      }
+    },
+    {
+      "id": "7hn0HrMEcHQ",
+      "title": "General Science Part 1 | Top 10 MCQs 🎯 #shorts",
+      "description": "🎯 General Science Part 1 | Top 10 MCQs 🎯 #shortsGeneral Science (2026) — दम है तो 10 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Test।💬 सवाल नंबर 10 का सही जवाब और अपना स्कोर (10 में से) कमेंट में लिखें!🔔 रोज़ाना ऐसे ही तेज GK Quiz Tests के लिए ExamIQ को Subscribe करें।#shorts #gk #gkinhindi #generalknowledge #gkquiz #ssc #examiqbharat",
+      "publishedAt": "2026-11-13T11:48:14Z",
+      "durationIso": "PT1M",
+      "durationSeconds": 60,
+      "privacyStatus": "public",
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 101,
+      "likes": 2,
+      "comments": 2,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 47,
+      "uploadHourIst": 17,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 98,
+        "estimatedMinutesWatched": 24,
+        "averageViewDuration": 26,
+        "averageViewPercentage": 44.97,
+        "likes": 2,
+        "comments": 2,
+        "shares": 0,
+        "subscribersGained": 0
+      }
+    },
+    {
       "id": "64B11_Tmvcg",
       "title": "Top 30 Indian History GK | SSC, Railway GK #shorts",
+      "description": "🎯 Top 3 Indian History GK | SSC, Railway GK #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. किस मौर्य शासक के शासनकाल में कलंग का युद्ध लड़ा गया था और उसके बाद भारी रक्तपात देखकर उसने युद्ध की नीति का त्याग कर दियाQ2. दिल्ली सल्तनत के किस सुल्तान ने अपनी राजधानी दिल्ली से बदलकर दौलताबाद यानी देवगिरी स्थानांतरित की थीQ3. किस मुगल सम्राट के शासनकाल को वास्तुकला की दृष्टि से 'मुग़लकाल का स्वर्ण युग' कहा जाता है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-13T04:14:47Z",
-      "duration": "PT36S",
+      "durationIso": "PT36S",
+      "durationSeconds": 36,
       "privacyStatus": "public",
-      "views": 13,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 112,
       "likes": 0,
-      "comments": 1
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 50,
+      "uploadHourIst": 9,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 111,
+        "estimatedMinutesWatched": 19,
+        "averageViewDuration": 22,
+        "averageViewPercentage": 61.24000000000001,
+        "likes": 0,
+        "comments": 1,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "NkJDT-HzqVI",
       "title": "Top 150 General Science Questions 🎯 #shorts",
+      "description": "🎯 Top 3 General Science Questions 🎯 #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. कोशिका के किस अंगक को 'आत्मघाती थैली' कहा जाता हैQ2. मानव शरीर की कोशिकाओं में ऊर्जा का निर्माण किस अंगक द्वारा होता हैQ3. पोलियो रोग शरीर के किस अंग को मुख्य रूप से प्रभावित करता है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-13T04:13:27Z",
-      "duration": "PT24S",
+      "durationIso": "PT24S",
+      "durationSeconds": 24,
       "privacyStatus": "public",
-      "views": 8,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 11,
       "likes": 0,
-      "comments": 0
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 44,
+      "uploadHourIst": 9,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 8,
+        "estimatedMinutesWatched": 0,
+        "averageViewDuration": 4,
+        "averageViewPercentage": 18.76,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "UaT3jlVOzI4",
       "title": "Indian Polity Quiz | Top 3 Questions 🎯 #shorts",
+      "description": "🎯 Indian Polity Quiz | Top 3 Questions 🎯 #shorts\n\nIndian Polity — दम है तो 3 में से 2 सही करके दिखाओ! SSC, Railway, Police व UPSC Prelims के लिए Rapid-Fire GK Quiz।\n💬 सवाल नंबर 3 का सही जवाब कमेंट में लिखें और वीडियो को 👍 Like जरूर करें!\n🔔 रोज़ाना ऐसे ही तेज GK Tests के लिए ExamIQ Bharat को Subscribe करें।\n\n#shorts #generalknowledge #gkquiz #indianpolity #sscgk #education #examiqbharat",
       "publishedAt": "2026-11-12T16:02:24Z",
-      "duration": "PT29S",
+      "durationIso": "PT29S",
+      "durationSeconds": 29,
       "privacyStatus": "public",
-      "views": 358,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 407,
       "likes": 4,
-      "comments": 5
+      "comments": 5,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 47,
+      "uploadHourIst": 21,
+      "cohort": "variant_ytgk_rapid",
+      "analytics": {
+        "views": 406,
+        "estimatedMinutesWatched": 63,
+        "averageViewDuration": 20,
+        "averageViewPercentage": 70.89,
+        "likes": 4,
+        "comments": 4,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "w5hQjqDhbkE",
       "title": "Indian History GK Questions | Top GK Quiz #shorts",
+      "description": "🎯 Indian History GK Questions | Top GK Quiz #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. सम्राट अशोक के किस शिलालेख में कलिंग युद्ध के भयानक परिणामों का वर्णन मिलता हैQ2. गुप्त सम्राट समुद्रगुप्त की सैन्य विजयों का विस्तृत वर्णन प्रयाग प्रशस्ति में किसने लिखा थाQ3. दिल्ली में स्थित महरौली का प्रसिद्ध जंग-रोधी लौह स्तंभ किस गुप्त शासक से संबंधित है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-12T05:23:21Z",
-      "duration": "PT30S",
+      "durationIso": "PT30S",
+      "durationSeconds": 30,
       "privacyStatus": "public",
-      "views": 1,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 2,
       "likes": 0,
-      "comments": 0
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 49,
+      "uploadHourIst": 10,
+      "cohort": "historical_short",
+      "analytics": {
+        "views": 1,
+        "estimatedMinutesWatched": 0,
+        "averageViewDuration": 0,
+        "averageViewPercentage": 0,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "WcQIgB8Oi68",
       "title": "Top 3 General Science MCQ 2026 #shorts",
+      "description": "🎯 Top 3 General Science MCQ 2026 #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. मानव शरीर की किस कोशिका को कोशिका की आत्मघाती थैली कहा जाता हैQ2. स्वस्थ मनुष्य के रक्त का सामान्य pH मान लगभग कितना होता हैQ3. विटामिन C का रासायनिक नाम निम्नलिखित में से क्या है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-12T03:00:17Z",
-      "duration": "PT25S",
+      "durationIso": "PT25S",
+      "durationSeconds": 25,
       "privacyStatus": "public",
-      "views": 20,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 24,
       "likes": 0,
-      "comments": 0
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 38,
+      "uploadHourIst": 8,
+      "cohort": "scheduled_autopilot",
+      "analytics": {
+        "views": 23,
+        "estimatedMinutesWatched": 3,
+        "averageViewDuration": 16,
+        "averageViewPercentage": 66.25,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "Zvph4NbtpX4",
       "title": "Top 3 General Science MCQ 2026 #shorts",
+      "description": "🎯 Top 3 General Science MCQ 2026 #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. मानव शरीर में रक्त का शुद्धिकरण मुख्य रूप से किस अंग द्वारा किया जाता हैQ2. मानव रक्त में पाई जाने वाली कौन सी कणिकाएं शरीर की प्रतिरक्षा प्रणाली के लिए जिम्मेदार होती हैंQ3. मानव शरीर की किस ग्रंथि को 'मास्टर ग्रंथि' के रूप में जाना जाता है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-11T14:00:25Z",
-      "duration": "PT28S",
+      "durationIso": "PT28S",
+      "durationSeconds": 28,
       "privacyStatus": "public",
-      "views": 2,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 3,
       "likes": 0,
-      "comments": 0
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 38,
+      "uploadHourIst": 19,
+      "cohort": "scheduled_autopilot",
+      "analytics": {
+        "views": 2,
+        "estimatedMinutesWatched": 0,
+        "averageViewDuration": 4,
+        "averageViewPercentage": 15.629999999999999,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "c-cxf09GBCs",
       "title": "General Science Quiz | Top 3 Questions 🎯 #shorts",
+      "description": "🎯 Test your General Knowledge! Can you answer all 3 correctly?\n\nComment your score below to get pinned! 🏆\nDaily Indian GK Quiz for SSC CGL, Railway NTPC, State Police & UPSC.\n\n#shorts #generalknowledge #gkquiz #generalscience #sciencegk #education",
       "publishedAt": "2026-11-11T11:25:11Z",
-      "duration": "PT30S",
+      "durationIso": "PT30S",
+      "durationSeconds": 30,
       "privacyStatus": "public",
-      "views": 1030,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 1034,
       "likes": 0,
-      "comments": 1
+      "comments": 1,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 49,
+      "uploadHourIst": 16,
+      "cohort": "variant_ytgk_rapid",
+      "analytics": {
+        "views": 1035,
+        "estimatedMinutesWatched": 118,
+        "averageViewDuration": 17,
+        "averageViewPercentage": 57.74,
+        "likes": 0,
+        "comments": 1,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "cK5t0PbkSh4",
       "title": "Top 5 General Science MCQ 2026 #shorts",
+      "description": "🎯 Top 5 General Science MCQ 2026 #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. विटामिन B1 का रासायनिक नाम निम्नलिखित में से क्या हैQ2. स्कर्वी रोग किस विटामिन की कमी के कारण उत्पन्न होता हैQ3. रक्त का थक्का जमने में मुख्य रूप से कौन सा विटामिन सहायक होता हैQ4. किस विटामिन को 'हार्मोन' और 'विटामिन' दोनों माना जाता है तथा यह सूर्य के प्रकाश से बनता हैQ5. रतौंधी रोग किस विटामिन की कमी का परिणाम है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-11T03:00:18Z",
-      "duration": "PT23S",
+      "durationIso": "PT23S",
+      "durationSeconds": 23,
       "privacyStatus": "public",
-      "views": 26,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 27,
       "likes": 0,
-      "comments": 0
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 38,
+      "uploadHourIst": 8,
+      "cohort": "scheduled_autopilot",
+      "analytics": {
+        "views": 26,
+        "estimatedMinutesWatched": 3,
+        "averageViewDuration": 16,
+        "averageViewPercentage": 72.9,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "n9saJgDuKwk",
       "title": "Indian History GK Quiz | Top 3 Questions #shorts",
+      "description": "🎯 Indian History GK Quiz | Top 3 Questions #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. 1857 की क्रांति के समय भारत का गवर्नर जनरल निम्नलिखित में से कौन थाQ2. वर्ष 1928 में बारडोली सत्याग्रह का नेतृत्व मुख्य रूप से किसने किया थाQ3. भारतीय राष्ट्रीय कांग्रेस के पहले अधिवेशन की अध्यक्षता किसने की थी💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-10T14:00:28Z",
-      "duration": "PT29S",
+      "durationIso": "PT29S",
+      "durationSeconds": 29,
       "privacyStatus": "public",
-      "views": 17,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 18,
       "likes": 0,
-      "comments": 0
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 48,
+      "uploadHourIst": 19,
+      "cohort": "scheduled_autopilot",
+      "analytics": {
+        "views": 17,
+        "estimatedMinutesWatched": 3,
+        "averageViewDuration": 20,
+        "averageViewPercentage": 70.2,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "sVkhs-XNjGE",
       "title": "humen blood 🤯",
+      "description": "",
       "publishedAt": "2026-11-10T02:30:54Z",
-      "duration": "PT16S",
+      "durationIso": "PT16S",
+      "durationSeconds": 16,
       "privacyStatus": "public",
-      "views": 33,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 36,
       "likes": 0,
-      "comments": 0
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 14,
+      "uploadHourIst": 8,
+      "cohort": "sound_trend_micro",
+      "analytics": {
+        "views": 33,
+        "estimatedMinutesWatched": 1,
+        "averageViewDuration": 7,
+        "averageViewPercentage": 45.94,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     },
     {
       "id": "4wunaAHed0M",
       "title": "Indian Polity GK Questions | Top GK Quiz #shorts",
+      "description": "🎯 Indian Polity GK Questions | Top GK Quiz #shortsइस GK Shorts वीडियो में हमने प्रतियोगी परीक्षाओं (SSC CGL, GD 2026, Railway NTPC, Police Exam) के लिए अति महत्वपूर्ण और रोचक सामान्य ज्ञान (GK Quiz) के सवाल शामिल किए हैं।📌 इस वीडियो में पूछे गए महत्वपूर्ण सवाल:Q1. भारतीय संविधान का कौन-सा अनुच्छेद भारत के नियंत्रक एवं महालेखापरीक्षक (CAG) की नियुक्ति से संबंधित हैQ2. डॉ. बी. आर. अम्बेडकर ने किस अनुच्छेद को 'संविधान का हृदय और आत्मा' कहा थाQ3. संविधान के किस अनुच्छेद के प्रावधानों के तहत भारत में वित्तीय आपातकाल की घोषणा की जा सकती है💬 आज के टेस्ट में आपका 5 में से कितना स्कोर रहा? कमेंट बॉक्स में जरूर बताएं! 🎯🔔 ऐसे ही रोज़ाना नए GK Tests और Shorts के लिए ExamIQ को Subscribe करें!🔍 Queries Solved:• GK in Hindi• General Knowledge Quiz• Lucent GK Important Questions• Samanya Gyan for Competitive Exams• Viral GK Shorts#shorts #gk #gkinhindi #generalknowledge #gkquiz #lucentgk #examiq",
       "publishedAt": "2026-11-09T04:46:32Z",
-      "duration": "PT36S",
+      "durationIso": "PT36S",
+      "durationSeconds": 36,
       "privacyStatus": "public",
-      "views": 3,
+      "uploadStatus": "processed",
+      "madeForKids": false,
+      "views": 4,
       "likes": 0,
-      "comments": 0
-    },
-    {
-      "id": "PronohAKFDk",
-      "title": "Top 5 General Science | SSC, Railway GK #shorts",
-      "publishedAt": "2026-11-09T04:46:30Z",
-      "duration": "PT33S",
-      "privacyStatus": "public",
-      "views": 9,
-      "likes": 0,
-      "comments": 1
-    },
-    {
-      "id": "OSYujMd9kBc",
-      "title": "General Science Questions | Top GK Quiz #shorts",
-      "publishedAt": "2026-11-08T04:17:04Z",
-      "duration": "PT33S",
-      "privacyStatus": "public",
-      "views": 11,
-      "likes": 0,
-      "comments": 0
-    },
-    {
-      "id": "3wbfQ3AZbfQ",
-      "title": "General Science Quiz | Top 3 Questions 🎯 #shorts",
-      "publishedAt": "2026-11-08T03:00:08Z",
-      "duration": "PT36S",
-      "privacyStatus": "public",
-      "views": 16,
-      "likes": 0,
-      "comments": 0
-    },
-    {
-      "id": "pVAD8rZIiIw",
-      "title": "use this audio 🎧 🤯",
-      "publishedAt": "2026-11-07T07:05:57Z",
-      "duration": "PT11S",
-      "privacyStatus": "public",
-      "views": 1,
-      "likes": 0,
-      "comments": 1
+      "comments": 0,
+      "titleStyle": "english_under_50_chars",
+      "titleLength": 48,
+      "uploadHourIst": 10,
+      "cohort": "unprivated_backlog",
+      "analytics": {
+        "views": 3,
+        "estimatedMinutesWatched": 0,
+        "averageViewDuration": 0,
+        "averageViewPercentage": 0,
+        "likes": 0,
+        "comments": 0,
+        "shares": 0,
+        "subscribersGained": 0
+      }
     }
   ],
-  "analyticsRows": [
-    [
-      "dAy4CZ-hDgU",
-      95,
-      4,
-      9,
-      87.54,
-      3,
-      0,
-      0,
-      0
+  "dailyAnalytics": {
+    "ok": true,
+    "headers": [
+      "day",
+      "views",
+      "estimatedMinutesWatched",
+      "averageViewDuration",
+      "averageViewPercentage",
+      "subscribersGained"
     ],
-    [
-      "1z_JwIZj6NA",
-      57,
-      14,
-      33,
-      80.98,
-      2,
-      0,
-      0,
-      1
-    ],
-    [
-      "jtFxGiaXXBI",
-      52,
-      6,
-      15,
-      33.44,
-      1,
-      0,
-      0,
-      0
-    ],
-    [
-      "R4hYbJi7Gvs",
-      51,
-      7,
-      24,
-      38.25,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "p0vQI2QIdsQ",
-      46,
-      12,
-      37,
-      74.59,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "aQUP9t9n2io",
-      37,
-      4,
-      12,
-      27.060000000000002,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "mUGLCw4x_DE",
-      29,
-      3,
-      13,
-      28.139999999999997,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "sVkhs-XNjGE",
-      29,
-      0,
-      7,
-      45.94,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "lhjhX6-9vJ0",
-      21,
-      3,
-      21,
-      46.14,
-      1,
-      0,
-      0,
-      0
-    ],
-    [
-      "xUDIfAdj7Ec",
-      18,
-      1,
-      9,
-      20.45,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "mFsFMrGBQHU",
-      18,
-      3,
-      16,
-      40.3,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "3wbfQ3AZbfQ",
-      16,
-      3,
-      27,
-      77.35,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "Oo_2WllX7TA",
-      16,
-      3,
-      18,
-      37.1,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "9b6QiWVM2PM",
-      12,
-      4,
-      39,
-      72.08,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "OSYujMd9kBc",
-      11,
-      2,
-      29,
-      89.39,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "MbFYfbtV7JM",
-      11,
-      2,
-      29,
-      71.52,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "Hd4n-Mywh_M",
-      10,
-      5,
-      173,
-      495,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "fLG057gP06I",
-      9,
-      2,
-      22,
-      55.06999999999999,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "PronohAKFDk",
-      9,
-      0,
-      46,
-      140.3,
-      0,
-      1,
-      0,
-      0
-    ],
-    [
-      "0tNEfH0gODo",
-      9,
-      4,
-      99,
-      190.9,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "_ok432LQdrM",
-      7,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "HViq3yUYxzM",
-      5,
-      19,
-      389,
-      34.61,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "l6W5gV5iwWA",
-      5,
-      5,
-      62,
-      6.63,
-      1,
-      0,
-      0,
-      0
-    ],
-    [
-      "qxtPBTFgKrk",
-      4,
-      0,
-      13,
-      1.24,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "Q7cK7Aip6dY",
-      4,
-      0,
-      8,
-      10.23,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "I_IkMNmEKm0",
-      4,
-      1,
-      29,
-      71.22,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "4FEUf4nAvtc",
-      4,
-      0,
-      10,
-      0.88,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "qfBgJprThIw",
-      4,
-      4,
-      83,
-      8.82,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "898wkYFfjVw",
-      3,
-      0,
-      14,
-      36.5,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "WVOhDiBNCVU",
-      3,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "4wunaAHed0M",
-      3,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "vB9dvtd8sQo",
-      2,
-      19,
-      1164,
-      99.96,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "vhjToB26m9Q",
-      2,
-      15,
-      929,
-      85.7,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "cZfncSGyH4I",
-      2,
-      0,
-      12,
-      1.32,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "k2DkdFGOmLI",
-      2,
-      0,
-      2,
-      0.19,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "5rvfYhUCL50",
-      2,
-      3,
-      97,
-      18.15,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "HW_hbL8o5LE",
-      2,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "X8UiH_V4TiQ",
-      2,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "FjAA-ML31Cg",
-      2,
-      0,
-      15,
-      1.27,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "Ny8ExftUGvs",
-      2,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "oOh1s5r_Wlw",
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "vWTF-0HMetk",
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "bZuZdUFhW90",
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "-FyVHjX7DGs",
-      1,
-      1,
-      119,
-      10.39,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "CxvxzW5o-S8",
-      1,
-      15,
-      950,
-      100,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "nIMla_5-n6Q",
-      1,
-      0,
-      3,
-      0.36,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "pVAD8rZIiIw",
-      1,
-      0,
-      6,
-      59.31999999999999,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "IBB55fS9d4s",
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      "aQN-25MEWpw",
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
+    "rows": [
+      [
+        "2026-11-04",
+        64,
+        11,
+        26,
+        14.44,
+        0
+      ],
+      [
+        "2026-11-05",
+        32,
+        4,
+        18,
+        9.37,
+        0
+      ],
+      [
+        "2026-11-06",
+        145,
+        14,
+        17,
+        32.94,
+        0
+      ],
+      [
+        "2026-11-07",
+        90,
+        17,
+        25,
+        11.41,
+        0
+      ],
+      [
+        "2026-11-08",
+        24,
+        2,
+        18,
+        54.25,
+        0
+      ],
+      [
+        "2026-11-09",
+        54,
+        22,
+        91,
+        80.31,
+        0
+      ],
+      [
+        "2026-11-10",
+        5,
+        0,
+        0,
+        0,
+        0
+      ],
+      [
+        "2026-11-11",
+        1066,
+        124,
+        17,
+        58.56,
+        0
+      ],
+      [
+        "2026-11-12",
+        428,
+        83,
+        26,
+        62.1,
+        1
+      ],
+      [
+        "2026-11-13",
+        219,
+        49,
+        26,
+        34.14,
+        0
+      ],
+      [
+        "2026-11-14",
+        108,
+        20,
+        24,
+        49.98,
+        0
+      ],
+      [
+        "2026-11-15",
+        178,
+        53,
+        33,
+        42.03,
+        0
+      ]
     ]
-  ],
-  "trafficRows": []
+  },
+  "overallTraffic": {
+    "ok": true,
+    "headers": [
+      "insightTrafficSourceType",
+      "views",
+      "estimatedMinutesWatched"
+    ],
+    "rows": [
+      [
+        "SHORTS",
+        1973,
+        296
+      ],
+      [
+        "YT_SEARCH",
+        355,
+        47
+      ],
+      [
+        "YT_CHANNEL",
+        39,
+        9
+      ],
+      [
+        "SUBSCRIBER",
+        24,
+        4
+      ],
+      [
+        "RELATED_VIDEO",
+        11,
+        44
+      ],
+      [
+        "NO_LINK_OTHER",
+        4,
+        0
+      ],
+      [
+        "EXT_URL",
+        3,
+        0
+      ],
+      [
+        "NOTIFICATION",
+        2,
+        0
+      ],
+      [
+        "YT_OTHER_PAGE",
+        1,
+        0
+      ],
+      [
+        "PLAYLIST",
+        1,
+        0
+      ]
+    ]
+  },
+  "cCxf09GBCsCheck": {
+    "analytics": {
+      "ok": true,
+      "headers": [
+        "video",
+        "views",
+        "estimatedMinutesWatched",
+        "averageViewDuration",
+        "averageViewPercentage",
+        "likes",
+        "comments",
+        "shares",
+        "subscribersGained"
+      ],
+      "rows": [
+        [
+          "c-cxf09GBCs",
+          1035,
+          118,
+          17,
+          57.74,
+          0,
+          1,
+          0,
+          0
+        ]
+      ]
+    },
+    "traffic": {
+      "ok": true,
+      "headers": [
+        "insightTrafficSourceType",
+        "views",
+        "estimatedMinutesWatched"
+      ],
+      "rows": [
+        [
+          "NO_LINK_OTHER",
+          0,
+          0
+        ],
+        [
+          "YT_CHANNEL",
+          5,
+          0
+        ],
+        [
+          "YT_SEARCH",
+          68,
+          7
+        ],
+        [
+          "SHORTS",
+          962,
+          109
+        ]
+      ]
+    },
+    "comments": [
+      {
+        "id": "UgxsTK9mfC_EA7F7BUl4AaABAg",
+        "author": "@examiqbharat",
+        "text": "🎯 Daily Challenge: Question 3 (Mature RBC में केंद्रक) का सही उत्तर किस-किस को पहले से पता था? अपना स्कोर कमेंट करें! 🏆👇",
+        "publishedAt": "2026-11-11T11:24:53Z",
+        "likeCount": 0
+      }
+    ]
+  },
+  "experimentStatus": {
+    "experimentId": "exp_20261109_rapid_pacing",
+    "decision": "needs more data",
+    "reason": "variant_sample_lt_5",
+    "variantCount": 2,
+    "minSampleRequired": 5,
+    "decisionDate": "2026-11-14"
+  },
+  "dbSummary": {
+    "experimentsCount": 1,
+    "videoMetricsCount": 91,
+    "videoFeaturesCount": 33,
+    "topicBacklogCount": 10,
+    "legacyGrowthExperimentsCount": 0
+  }
 }

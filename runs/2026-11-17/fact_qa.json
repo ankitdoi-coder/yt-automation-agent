@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-17",
+  "topic": "Indian Polity Part 2",
+  "qa_gate_passed": true,
+  "total_questions": 10,
+  "verified_count": 10,
+  "checks": [
+    {
+      "number": 1,
+      "question": "भारतीय संविधान में 'मौलिक कर्तव्य' किस देश के संविधान से लिए गए हैं?",
+      "claimed_answer": "B) सोवियत संघ (USSR)",
+      "independent_verification": "B) सोवियत संघ (USSR) - 42nd Amendment Act 1976 added Article 51A under Part IVA on Swaran Singh Committee recommendation",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 2,
+      "question": "संविधान के किस अनुच्छेद में 'समान नागरिक संहिता' (UCC) का उल्लेख है?",
+      "claimed_answer": "B) अनुच्छेद 44",
+      "independent_verification": "B) अनुच्छेद 44 - Directive Principles of State Policy (Part IV), Article 44 mandates Uniform Civil Code",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 3,
+      "question": "किस संविधान संशोधन को भारत का 'लघु संविधान' (Mini Constitution) कहा जाता है?",
+      "claimed_answer": "A) 42वाँ संशोधन (1976)",
+      "independent_verification": "A) 42वाँ संशोधन (1976) - 42nd Amendment 1976 made extensive changes and added 'Socialist, Secular, Integrity' to Preamble",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 4,
+      "question": "'संपत्ति के अधिकार' को किस संशोधन द्वारा मौलिक अधिकार से हटाया गया?",
+      "claimed_answer": "B) 44वाँ संशोधन",
+      "independent_verification": "B) 44वाँ संशोधन - 44th Amendment 1978 removed Right to Property from Part III (Art 19(1)(f) & Art 31) to Art 300A as legal right",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 5,
+      "question": "संसद के दोनों सदनों की संयुक्त बैठक (Joint Sitting) की अध्यक्षता कौन करता है?",
+      "claimed_answer": "C) लोकसभा अध्यक्ष",
+      "independent_verification": "C) लोकसभा अध्यक्ष - Convened by President under Article 108, presided by Speaker of Lok Sabha under Article 118(4)",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 6,
+      "question": "मतदान की न्यूनतम आयु 21 वर्ष से घटाकर 18 वर्ष किस संशोधन द्वारा की गई?",
+      "claimed_answer": "A) 61वाँ संशोधन (1989)",
+      "independent_verification": "A) 61वाँ संशोधन (1989) - 61st Amendment Act 1988 amended Article 326 lowering voting age to 18 years (enacted 1989)",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 7,
+      "question": "भारतीय संविधान की '10वीं अनुसूची' (10th Schedule) का संबंध किससे है?",
+      "claimed_answer": "B) दलबदल विरोधी कानून",
+      "independent_verification": "B) दलबदल विरोधी कानून - Added by 52nd Amendment Act 1985 on disqualification on grounds of defection",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 8,
+      "question": "राष्ट्रपति पर महाभियोग (Impeachment) चलाने की प्रक्रिया किस अनुच्छेद में है?",
+      "claimed_answer": "C) अनुच्छेद 61",
+      "independent_verification": "C) अनुच्छेद 61 - Procedure for impeachment of the President for violation of the Constitution",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://legislative.gov.in/constitution-of-india"
+    },
+    {
+      "number": 9,
+      "question": "संविधान सभा की 'प्रारूप समिति' (Drafting Committee) के अध्यक्ष कौन थे?",
+      "claimed_answer": "B) डॉ. बी.आर. अंबेडकर",
+      "independent_verification": "B) डॉ. बी.आर. अंबेडकर - Elected Chairman of 7-member Drafting Committee on 29 August 1947",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://sansad.in/rs/debates"
+    },
+    {
+      "number": 10,
+      "question": "भारत के 'प्रथम मुख्य चुनाव आयुक्त' (First Chief Election Commissioner) कौन थे?",
+      "claimed_answer": "B) सुकुमार सेन",
+      "independent_verification": "B) सुकुमार सेन - Served as first Chief Election Commissioner from 21 March 1950 to 19 December 1958",
+      "verified": true,
+      "confidence": 1.0,
+      "source_url": "https://eci.gov.in"
+    }
+  ]
+}

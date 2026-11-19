@@ -1,0 +1,29 @@
+{
+  "experiment_id": "exp_20261117_pacing_compression",
+  "date": "2026-11-17",
+  "channel_id": "UCjh63suNzws9XB2sF1xKzyw",
+  "channel_handle": "@examiqbharat",
+  "variable": "duration_and_pacing_compression",
+  "control": {
+    "question_count": 10,
+    "target_duration_seconds": 65,
+    "narration_speed": 1.15,
+    "median_views": 54,
+    "avg_apv": 52.0
+  },
+  "variant": {
+    "question_count": 10,
+    "target_duration_seconds": 54,
+    "narration_speed": 1.25,
+    "pause_between_qa_seconds": 0.3,
+    "title_style": "english_under_50_chars",
+    "part_number_format": "sequential_category_series",
+    "target_apv": 75.0,
+    "target_views": 200
+  },
+  "hypothesis": "Compressing 10 questions into 50-54s (under 60s Shorts threshold) with 1.25x speed and 0.3s snappy cuts prevents swipe-away drop-off and keeps the video firmly in the high-velocity Shorts recommendation feed.",
+  "sample_size_target": 5,
+  "variant_n_completed": 0,
+  "decision_date": "2026-11-20",
+  "status": "active"
+}

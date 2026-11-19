@@ -2669,7 +2669,7 @@ class AIVideoGenerator {
           noImages: useCleanTemplate,
           image: imageUri,
           narrationText: qText,
-          pauseAfter: 0.4,
+          pauseAfter: Number(quiz.pauseAfterQuestionSeconds) || 0.4,
           estimatedSpeechDuration: Math.max(1.8, estimateSpeechDuration(qText, language)),
           narrationWords: Math.max(3, wordCount(qText))
         });
@@ -2692,7 +2692,7 @@ class AIVideoGenerator {
           image: imageUri,
           narrationText: aText,
           isCommentChallenge: isLastShortQuestion,
-          pauseAfter: 0.8,
+          pauseAfter: Number(quiz.pauseAfterAnswerSeconds) || 0.45,
           estimatedSpeechDuration: Math.max(1.2, estimateSpeechDuration(aText, language)),
           narrationWords: Math.max(2, wordCount(aText))
         });
@@ -2804,15 +2804,20 @@ class AIVideoGenerator {
               const isShortSlide = Boolean(String(slide.kind || '').startsWith('shortQuiz') || script.isShort);
               let voiceSpeed = 1.0;
               if (isShortSlide) {
-                try {
-                  const gp = path.resolve(__dirname, '..', 'config', 'growth.json');
-                  if (require('fs').existsSync(gp)) {
-                    voiceSpeed = Number(JSON.parse(require('fs').readFileSync(gp, 'utf8')).shorts?.voiceSpeed) || 1.15;
-                  } else {
+                const quizSpeed = parseFloat(script.quiz?.audioDesign?.tts_speed || script.quiz?.voiceSpeed || 0);
+                if (Number.isFinite(quizSpeed) && quizSpeed >= 0.9 && quizSpeed <= 1.35) {
+                  voiceSpeed = quizSpeed;
+                } else {
+                  try {
+                    const gp = path.resolve(__dirname, '..', 'config', 'growth.json');
+                    if (require('fs').existsSync(gp)) {
+                      voiceSpeed = Number(JSON.parse(require('fs').readFileSync(gp, 'utf8')).shorts?.voiceSpeed) || 1.15;
+                    } else {
+                      voiceSpeed = 1.15;
+                    }
+                  } catch (_) {
                     voiceSpeed = 1.15;
                   }
-                } catch (_) {
-                  voiceSpeed = 1.15;
                 }
               }
               const speedFilters = (isShortSlide && voiceSpeed && voiceSpeed !== 1.0)

@@ -47,3 +47,5 @@ timestamp,video_id,content_type,variant_id,question_count,title_style,title,stat
 2026-11-13T11:17:42.502Z,youtube-now,long_form,dedup_20q,20,standard,Publish now,uploaded,14-day growth algorithm recovery trial
 2026-11-13T11:30:22.327Z,provenance-video,long_form,dedup_20q,20,standard,Evidence-aware automation,uploaded,14-day growth algorithm recovery trial
 2026-11-13T11:31:06.185Z,youtube-now,long_form,dedup_20q,20,standard,Publish now,uploaded,14-day growth algorithm recovery trial
+
+2026-11-18T06:42:46.821Z,sRAtV92JZzA,short,exp_20261117_pacing_compression,10,english_under_50_chars,"Static GK Part 2 | Top 10 MCQs 🎯 #shorts",published,"10Q pacing compression (PT58S), duration: 57s, quota used: 1655"

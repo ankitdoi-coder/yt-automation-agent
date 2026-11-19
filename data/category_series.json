@@ -3,24 +3,24 @@
     "category": "science",
     "displayName": "General Science",
     "displayNameHi": "सामान्य विज्ञान",
-    "currentPart": 2,
-    "lastVideoId": "7hn0HrMEcHQ",
-    "updatedAt": "2026-11-14 07:17:26"
+    "currentPart": 4,
+    "lastVideoId": "sm0JuNJNRZo",
+    "updatedAt": "2026-11-14 08:07:21"
   },
   "polity": {
     "category": "polity",
     "displayName": "Indian Polity",
     "displayNameHi": "भारतीय संविधान",
-    "currentPart": 0,
-    "lastVideoId": "sync_vid_4",
-    "updatedAt": "2026-11-14 07:12:12"
+    "currentPart": 2,
+    "lastVideoId": "jIXH1ItufMk",
+    "updatedAt": "2026-11-14 08:07:21"
   },
   "history": {
     "category": "history",
     "displayName": "Indian History",
     "displayNameHi": "भारत का इतिहास",
-    "currentPart": 0,
-    "lastVideoId": null,
+    "currentPart": 1,
+    "lastVideoId": "iIJExAXFfDE",
     "updatedAt": "2026-11-13 11:19:55"
   },
   "geography": {
@@ -35,8 +35,8 @@
     "category": "static",
     "displayName": "Static GK",
     "displayNameHi": "सामान्य ज्ञान (GK)",
-    "currentPart": 0,
-    "lastVideoId": null,
-    "updatedAt": "2026-11-13 11:19:55"
+    "currentPart": 2,
+    "lastVideoId": "sRAtV92JZzA",
+    "updatedAt": "2026-11-18 06:42:46"
   }
 }
