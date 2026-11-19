@@ -139,7 +139,8 @@
     "geo_dollar_12",
     "stat_dam_02",
     "math_age_logic_13",
-    "stat_soil_18"
+    "stat_soil_18",
+    "sci_dryice_11"
   ],
   "uploads": [
     {
@@ -1398,6 +1399,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-19T11:59:04.317Z",
       "answer": "C) काली मिट्टी (Black Soil / Regur)"
+    },
+    {
+      "id": "sci_dryice_11",
+      "category": "general_science",
+      "topic": "शुष्क बर्फ (Dry Ice)",
+      "title": "'शुष्क बर्फ' (Dry Ice) वास्तव में क्या होती है?",
+      "fbVideoId": null,
+      "zernioPostId": "6aff766a2ca862558ebde22e",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-19T22:22:13.687Z",
+      "answer": "B) ठोस कार्बन डाइऑक्साइड (Solid CO2)"
     }
   ]
 }
