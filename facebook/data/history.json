@@ -138,7 +138,8 @@
     "geo_un_veto_08",
     "geo_dollar_12",
     "stat_dam_02",
-    "math_age_logic_13"
+    "math_age_logic_13",
+    "stat_soil_18"
   ],
   "uploads": [
     {
@@ -1383,6 +1384,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-18T22:12:40.161Z",
       "answer": "C) 15 वर्ष (पुत्र: 15, पिता: 45)"
+    },
+    {
+      "id": "stat_soil_18",
+      "category": "static_gk",
+      "topic": "भारतीय मृदा (Indian Soils)",
+      "title": "कपास की खेती के लिए प्रसिद्ध 'रेगुड़ मिट्टी' को क्या कहा जाता है?",
+      "fbVideoId": null,
+      "zernioPostId": "6afee44b2e9c53f36904043a",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-19T11:59:04.317Z",
+      "answer": "C) काली मिट्टी (Black Soil / Regur)"
     }
   ]
 }
