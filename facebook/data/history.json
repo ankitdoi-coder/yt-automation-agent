@@ -140,7 +140,8 @@
     "stat_dam_02",
     "math_age_logic_13",
     "stat_soil_18",
-    "sci_dryice_11"
+    "sci_dryice_11",
+    "stat_desert_11"
   ],
   "uploads": [
     {
@@ -1413,6 +1414,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-19T22:22:13.687Z",
       "answer": "B) ठोस कार्बन डाइऑक्साइड (Solid CO2)"
+    },
+    {
+      "id": "stat_desert_11",
+      "category": "static_gk",
+      "topic": "मरुस्थल (Deserts)",
+      "title": "भारत का सबसे बड़ा मरुस्थल कौन सा है?",
+      "fbVideoId": null,
+      "zernioPostId": "6b00361ff97ebf5550c2a071",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 42,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-20T12:00:35.962Z",
+      "answer": "D) थार मरुस्थल (राजस्थान)"
     }
   ]
 }
