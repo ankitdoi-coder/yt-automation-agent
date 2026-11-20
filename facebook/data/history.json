@@ -141,7 +141,8 @@
     "math_age_logic_13",
     "stat_soil_18",
     "sci_dryice_11",
-    "stat_desert_11"
+    "stat_desert_11",
+    "math_pi_circle_15"
   ],
   "uploads": [
     {
@@ -1428,6 +1429,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-20T12:00:35.962Z",
       "answer": "D) थार मरुस्थल (राजस्थान)"
+    },
+    {
+      "id": "math_pi_circle_15",
+      "category": "math_quiz",
+      "topic": "पाई का रहस्य (The Number Pi - π)",
+      "title": "वृत्त की परिधि और उसके व्यास के अनुपात को क्या कहा जाता है?",
+      "fbVideoId": null,
+      "zernioPostId": "6b00c18d5b173d76dc505384",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 44,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-20T21:54:57.256Z",
+      "answer": "B) पाई (π - मान लगभग 22/7 या 3.14159)"
     }
   ]
 }
