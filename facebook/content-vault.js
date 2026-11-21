@@ -103,23 +103,46 @@ class ContentVault {
         ? (uploadRes?.fbVideoId || null)
         : (uploadRes?.fbVideoId || uploadRes?.id || uploadRes?.videoId || null);
 
-      data.uploadedIds.push(item.id);
-      data.uploads.push({
-        id: item.id,
-        category: item.category,
-        topic: item.topic,
-        title: item.title,
-        fbVideoId: resolvedFbVideoId,
-        zernioPostId: uploadRes?.zernioPostId || null,
-        deliveryMode: uploadRes?.deliveryMode || 'FACEBOOK_API',
-        platform: uploadRes?.platform || (uploadRes?.instagram ? 'both' : (uploadRes?.fbVideoId ? 'facebook' : null)),
-        hookScore: item.hookScore || null,
-        hookFormula: item.hookFormula || null,
-        uploadedAt: new Date().toISOString(),
-        answer: item.answerText,
-      });
+      if (Array.isArray(item)) {
+        const primary = item[0] || {};
+        for (const it of item) {
+          if (it && it.id) data.uploadedIds.push(it.id);
+        }
+        data.uploads.push({
+          id: primary.id,
+          questionIds: item.map(q => q.id),
+          category: primary.category,
+          topic: primary.topic,
+          title: primary.title,
+          questionCount: item.length,
+          fbVideoId: resolvedFbVideoId,
+          zernioPostId: uploadRes?.zernioPostId || null,
+          deliveryMode: uploadRes?.deliveryMode || 'FACEBOOK_API',
+          platform: uploadRes?.platform || (uploadRes?.instagram ? 'both' : (uploadRes?.fbVideoId ? 'facebook' : null)),
+          hookScore: primary.hookScore || null,
+          hookFormula: primary.hookFormula || null,
+          uploadedAt: new Date().toISOString(),
+          answer: primary.answerText,
+        });
+      } else {
+        data.uploadedIds.push(item.id);
+        data.uploads.push({
+          id: item.id,
+          category: item.category,
+          topic: item.topic,
+          title: item.title,
+          fbVideoId: resolvedFbVideoId,
+          zernioPostId: uploadRes?.zernioPostId || null,
+          deliveryMode: uploadRes?.deliveryMode || 'FACEBOOK_API',
+          platform: uploadRes?.platform || (uploadRes?.instagram ? 'both' : (uploadRes?.fbVideoId ? 'facebook' : null)),
+          hookScore: item.hookScore || null,
+          hookFormula: item.hookFormula || null,
+          uploadedAt: new Date().toISOString(),
+          answer: item.answerText,
+        });
+      }
       fs.writeFileSync(this.historyFile, JSON.stringify(data, null, 2), 'utf8');
-      console.log(`[ContentVault] ✅ Recorded history for question: ${item.id} ("${item.title}")`);
+      console.log(`[ContentVault] ✅ Recorded history for upload (ID: ${Array.isArray(item) ? item[0]?.id : item.id})`);
     } catch (err) {
       console.warn('Failed recording upload history:', err.message);
     }

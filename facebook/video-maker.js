@@ -592,15 +592,17 @@ class FacebookVideoMaker {
         tempFiles.push(qAudio, ansAudio, f1Png, f2Png, segQ, segA);
 
         const qNarration = item.voiceQuestion || item.question;
+        const { numberToHindiWords } = require('../utils/quiz-narration');
+        const qNumWord = numberToHindiWords(i + 1) || String(i + 1);
         const aNarration = isLast
-          ? (item.voiceCommentChallenge || `सवाल नंबर ${i + 1} का सही जवाब कमेंट बॉक्स में बताएं!`)
+          ? (item.voiceCommentChallenge || `सवाल नंबर ${qNumWord} का सही जवाब आप कमेंट बॉक्स में बताइए! देखते हैं कितने लोग सही उत्तर देते हैं! और रोज़ाना ऐसे ही नए GK टेस्ट के लिए Exam IQ Bharat को Follow करें!`)
           : (item.voiceAnswer || `सही जवाब है ${item.answerText}`);
 
         await this._getAudio(qNarration, qAudio);
         await this._getAudio(aNarration, ansAudio);
 
         const svgQ = this._buildSVG({ item, partNum, showFollowBtn: true, showHandInSvg: false });
-        const svgA = this._buildSVG({ item, isAnswer: !isLast, isCommentChallenge: isLast, partNum, showFollowBtn: false, showHandInSvg: false });
+        const svgA = this._buildSVG({ item, isAnswer: !isLast, isCommentChallenge: isLast, partNum, showFollowBtn: true, showHandInSvg: false });
 
         await sharp(Buffer.from(svgQ)).png().toFile(f1Png);
         await sharp(Buffer.from(svgA)).png().toFile(f2Png);
@@ -639,36 +641,58 @@ class FacebookVideoMaker {
         }
         segmentFiles.push(segQ);
 
-        // Answer Segment with Ding Chime
-        const sFlashFilter = `drawbox=x=0:y=0:w=iw:h=ih:color=white@0.18:t=fill:enable='between(t,0,0.16)'`;
-        if (this.audioAssets?.chimePath && fs.existsSync(this.audioAssets.chimePath)) {
-          const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
+        // Answer / Comment Challenge Segment
+        if (isLast) {
+          // Comment Challenge & Follow CTA segment with animated tapping hand cursor
+          const hasBgm = this.audioAssets?.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
           const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
           const filterStr = hasBgm
-            ? `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout];[2:a]volume=0.38[ding];[3:a]volume=0.10[bgm];[1:a][ding][bgm]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[aout]`
-            : `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout];[2:a]volume=0.38[ding];[1:a][ding]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]`;
+            ? `[0:v][2:v]overlay=x=860:y=${tapAnimY}:enable='between(t,0,${dA.toFixed(3)})',fps=30,format=yuv420p,${tapPulse}[vout];[3:a]volume=0.12[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]`
+            : `[0:v][2:v]overlay=x=860:y=${tapAnimY}:enable='between(t,0,${dA.toFixed(3)})',fps=30,format=yuv420p,${tapPulse}[vout]`;
 
           await ffmpeg.runFFmpeg([
             '-y', '-loop', '1', '-t', String(dA), '-i', f2Png,
             '-i', ansAudio,
-            '-i', this.audioAssets.chimePath,
+            '-loop', '1', '-t', String(dA), '-i', handPng,
             ...extraArgs,
             '-filter_complex', filterStr,
-            '-map', '[vout]', '-map', '[aout]',
+            '-map', '[vout]', '-map', hasBgm ? '[aout]' : '1:a',
             '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
             '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
             '-t', String(dA), segA
           ]);
         } else {
-          await ffmpeg.runFFmpeg([
-            '-y', '-loop', '1', '-t', String(dA), '-i', f2Png,
-            '-i', ansAudio,
-            '-filter_complex', `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout]`,
-            '-map', '[vout]', '-map', '1:a',
-            '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
-            '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
-            '-shortest', segA
-          ]);
+          // Standard answer reveal with green checkmark and Ding chime
+          const sFlashFilter = `drawbox=x=0:y=0:w=iw:h=ih:color=white@0.18:t=fill:enable='between(t,0,0.16)'`;
+          if (this.audioAssets?.chimePath && fs.existsSync(this.audioAssets.chimePath)) {
+            const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
+            const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
+            const filterStr = hasBgm
+              ? `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout];[2:a]volume=0.38[ding];[3:a]volume=0.10[bgm];[1:a][ding][bgm]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[aout]`
+              : `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout];[2:a]volume=0.38[ding];[1:a][ding]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]`;
+
+            await ffmpeg.runFFmpeg([
+              '-y', '-loop', '1', '-t', String(dA), '-i', f2Png,
+              '-i', ansAudio,
+              '-i', this.audioAssets.chimePath,
+              ...extraArgs,
+              '-filter_complex', filterStr,
+              '-map', '[vout]', '-map', '[aout]',
+              '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
+              '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+              '-t', String(dA), segA
+            ]);
+          } else {
+            await ffmpeg.runFFmpeg([
+              '-y', '-loop', '1', '-t', String(dA), '-i', f2Png,
+              '-i', ansAudio,
+              '-filter_complex', `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout]`,
+              '-map', '[vout]', '-map', '1:a',
+              '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
+              '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+              '-shortest', segA
+            ]);
+          }
         }
         segmentFiles.push(segA);
       }

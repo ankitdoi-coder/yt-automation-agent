@@ -98,11 +98,17 @@ function generateViralEnglishHook(item = {}) {
 /**
  * Builds standardized Facebook Reel title, description, tags, and engagement comment.
  */
-function buildReelMetadata(item = {}) {
+function buildReelMetadata(itemOrItems = {}) {
+  const isMulti = Array.isArray(itemOrItems);
+  const items = isMulti ? itemOrItems : [itemOrItems];
+  const item = items[0] || {};
   const englishHook = generateViralEnglishHook(item);
-  const safeTitle = item.title || 'सामान्य ज्ञान GK Quiz';
   const safeTopic = item.topic || 'सामान्य ज्ञान';
-  const title = `${englishHook} | Exam IQ Bharat #Reels`;
+  const totalCount = items.length;
+
+  let title;
+  let description;
+  let pinnedComment;
 
   const baseTags = Array.isArray(item.tags)
     ? [...item.tags]
@@ -113,27 +119,55 @@ function buildReelMetadata(item = {}) {
   if (!baseTags.some(t => /^#reels$/i.test(t))) baseTags.push('#Reels');
   if (!baseTags.some(t => /^#facebookreels$/i.test(t))) baseTags.push('#FacebookReels');
   if (!baseTags.some(t => /^#reelsviral$/i.test(t))) baseTags.push('#ReelsViral');
+  if (!baseTags.some(t => /^#instagramreels$/i.test(t))) baseTags.push('#InstagramReels');
 
-  const optionLines = (item.options || []).map(o => `${o.letter}) ${o.text}`);
-  const description = [
-    `🔥 ${englishHook}`,
-    '',
-    `🎯 ${safeTitle} | ${safeTopic}`,
-    '',
-    item.question ? `Q. ${item.question}` : '',
-    ...optionLines,
-    '',
-    '👉 अपना जवाब (A, B, C या D) कमेंट बॉक्स में बताएं! Only 1% know the real answer 🏆',
-    '⏱️ सही उत्तर वीडियो के अंत में देखें!',
-    '🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!',
-    '',
-    baseTags.join(' '),
-  ]
-    .filter((line, idx, arr) => !(line === '' && (idx === 0 || arr[idx - 1] === '')))
-    .join('\n');
+  if (isMulti && totalCount > 1) {
+    title = `Top ${totalCount} GK Rapid Fire Questions | Exam IQ Bharat #Reels`;
+    const qList = items.map((q, idx) => {
+      const isLastQ = (idx === totalCount - 1);
+      const qText = q.question || q.title || `Question ${idx + 1}`;
+      return `Q${idx + 1}. ${qText}${isLastQ ? ' 💬 (कमेंट चैलेंज)' : ''}`;
+    });
 
-  const pinnedComment =
-    '💬 आपका उत्तर (A, B, C या D) क्या है? कमेंट करें! 90% लोग इसमें गलती करते हैं 👇';
+    description = [
+      `🔥 Top ${totalCount} GK Rapid-Fire Questions • ${safeTopic}`,
+      '',
+      ...qList,
+      '',
+      `👉 सवाल नंबर ${totalCount} का सही जवाब कमेंट बॉक्स में बताएं! Only 1% know the real answer 🏆`,
+      '⏱️ बाकी सभी सवालों के सही उत्तर वीडियो में देखें!',
+      '🔔 रोज़ाना ऐसे ही नए GK Tests के लिए Exam IQ Bharat को Follow करें!',
+      '',
+      baseTags.join(' '),
+    ]
+      .filter((line, idx, arr) => !(line === '' && (idx === 0 || arr[idx - 1] === '')))
+      .join('\n');
+
+    pinnedComment = `💬 सवाल नंबर ${totalCount} का सही जवाब (A, B, C या D) क्या है? कमेंट में बताएं! और रोज़ाना नए GK टेस्ट के लिए Exam IQ Bharat को Follow करें! 👇`;
+  } else {
+    const safeTitle = item.title || 'सामान्य ज्ञान GK Quiz';
+    title = `${englishHook} | Exam IQ Bharat #Reels`;
+    const optionLines = (item.options || []).map(o => `${o.letter}) ${o.text}`);
+    description = [
+      `🔥 ${englishHook}`,
+      '',
+      `🎯 ${safeTitle} | ${safeTopic}`,
+      '',
+      item.question ? `Q. ${item.question}` : '',
+      ...optionLines,
+      '',
+      '👉 अपना जवाब (A, B, C या D) कमेंट बॉक्स में बताएं! Only 1% know the real answer 🏆',
+      '⏱️ सही उत्तर वीडियो के अंत में देखें!',
+      '🔔 रोज़ाना नए GK Tests के लिए Exam IQ Bharat को Follow करें!',
+      '',
+      baseTags.join(' '),
+    ]
+      .filter((line, idx, arr) => !(line === '' && (idx === 0 || arr[idx - 1] === '')))
+      .join('\n');
+
+    pinnedComment =
+      '💬 आपका उत्तर (A, B, C या D) क्या है? कमेंट करें! 90% लोग इसमें गलती करते हैं 👇';
+  }
 
   const answerKey = item.answerText || item.correctOption || '';
 

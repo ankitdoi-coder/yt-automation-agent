@@ -86,9 +86,28 @@ function parseRequestedCount(args = [], fallback = 1) {
   return fallback;
 }
 
+/**
+ * Parses questions-per-reel flag (bounded 1..15, default 5)
+ */
+function parseQuestionsPerReel(args = [], env = process.env, fallback = 5) {
+  const idx = args.indexOf('--questions-per-reel');
+  if (idx !== -1 && args[idx + 1]) {
+    const parsed = parseInt(args[idx + 1], 10);
+    if (Number.isFinite(parsed) && parsed >= 1) {
+      return Math.min(parsed, 15);
+    }
+  }
+  const envVal = parseInt(env.FB_QUESTIONS_PER_REEL || env.QUESTIONS_PER_REEL, 10);
+  if (Number.isFinite(envVal) && envVal >= 1) {
+    return Math.min(envVal, 15);
+  }
+  return fallback;
+}
+
 async function runFacebookReelsAutomation(options = {}) {
   const args = options.args || process.argv.slice(2);
   const count = options.count || parseRequestedCount(args, 1);
+  const questionsPerReel = options.questionsPerReel || parseQuestionsPerReel(args, process.env, 5);
   const deliveryMode = options.deliveryMode || resolveDeliveryMode(args, process.env);
   const isPhotoOnly = options.isPhotoOnly ?? args.includes('--photo-only');
   const skipPhoto = options.skipPhoto ?? args.includes('--skip-photo');
@@ -99,7 +118,7 @@ async function runFacebookReelsAutomation(options = {}) {
   console.log('🚀 EXAM IQ BHARAT: SOCIAL REELS AGENT (FB & INSTA)');
   console.log('====================================================');
   console.log(`Target Page: ${process.env.FB_PAGE_NAME || 'Exam IQ Bharat'} (ID: ${process.env.FB_PAGE_ID || '1289712677569663'})`);
-  console.log(`Delivery Mode: ${deliveryMode.toUpperCase()} | Social Target: ${socialTarget.toUpperCase()} | Reels Count: ${isPhotoOnly ? 0 : count}`);
+  console.log(`Delivery Mode: ${deliveryMode.toUpperCase()} | Social Target: ${socialTarget.toUpperCase()} | Reels: ${isPhotoOnly ? 0 : count} (${questionsPerReel} Qs/Reel)`);
   console.log('----------------------------------------------------\n');
 
   const vault = options.vault || new ContentVault();
@@ -115,41 +134,48 @@ async function runFacebookReelsAutomation(options = {}) {
   // 1. Render & Deliver Exam GK Reels (Videos)
   // ==========================================
   if (!isPhotoOnly) {
-    const questions = await vault.getBatchQuestions(count);
-    console.log(`[Batch] Selected ${questions.length} Exam GK question(s) for this run.\n`);
+    const totalQuestions = count * questionsPerReel;
+    const allQuestions = await vault.getBatchQuestions(totalQuestions);
+    console.log(`[Batch] Selected ${allQuestions.length} Exam GK question(s) across ${count} Reel(s) (${questionsPerReel} questions per Reel).\n`);
 
-    for (let i = 0; i < questions.length; i++) {
-      const item = questions[i];
+    for (let reelIdx = 0; reelIdx < count; reelIdx++) {
+      const reelQuestions = allQuestions.slice(reelIdx * questionsPerReel, (reelIdx + 1) * questionsPerReel);
+      if (reelQuestions.length === 0) break;
+
+      const primaryItem = reelQuestions[0];
       console.log('----------------------------------------------------');
-      console.log(`🎬 Processing Reel [${i + 1}/${questions.length}]: "${item.title}"`);
-      console.log(`📚 Topic: ${item.topic}`);
-      console.log(`❓ Question: ${item.question}`);
-      console.log(`🔐 Answer Key: ${item.answerText}`);
+      console.log(`🎬 Processing Reel [${reelIdx + 1}/${count}]: "${primaryItem.title}" (${reelQuestions.length} questions)`);
+      console.log(`📚 Topic: ${primaryItem.topic}`);
+      console.log(`❓ Questions: Q1 to Q${reelQuestions.length} (Last Q: Comment Challenge + Follow CTA)`);
       console.log('----------------------------------------------------');
 
       try {
         // Evaluate and select highest-scoring hook formula (Hindi/English/Hinglish)
-        const hookResult = selectBestHook(item);
+        const hookResult = selectBestHook(primaryItem);
         if (hookResult && hookResult.hookText) {
-          item.englishHook = hookResult.hookText;
-          item.hookScore = hookResult.score;
-          item.hookFormula = hookResult.winningHook ? hookResult.winningHook.formula : null;
-          console.log(`🎯 Algorithmic Hook Selected [Score: ${hookResult.score}, Formula: ${item.hookFormula || 'Custom'}]: "${item.englishHook}"`);
+          primaryItem.englishHook = hookResult.hookText;
+          primaryItem.hookScore = hookResult.score;
+          primaryItem.hookFormula = hookResult.winningHook ? hookResult.winningHook.formula : null;
+          console.log(`🎯 Algorithmic Hook Selected [Score: ${hookResult.score}, Formula: ${primaryItem.hookFormula || 'Custom'}]: "${primaryItem.englishHook}"`);
         }
 
-        const metadata = buildReelMetadata(item);
-        const enrichedItem = { ...item, englishHook: metadata.englishHook, hookScore: item.hookScore, hookFormula: item.hookFormula };
+        const metadata = buildReelMetadata(reelQuestions);
+        const enrichedItem = { ...primaryItem, englishHook: metadata.englishHook, hookScore: primaryItem.hookScore, hookFormula: primaryItem.hookFormula };
 
         const startTime = Date.now();
-        const videoPath = await videoMaker.createReel(enrichedItem, { index: i, commentChallenge: true });
+        const makeReel = (typeof videoMaker.createMultiQuestionReel === 'function' && reelQuestions.length > 1)
+          ? () => videoMaker.createMultiQuestionReel(reelQuestions, { index: reelIdx, partNum: reelIdx + 1, commentChallenge: true })
+          : () => videoMaker.createReel(enrichedItem, { index: reelIdx, commentChallenge: true });
+
+        const videoPath = await makeReel();
         const renderDuration = ((Date.now() - startTime) / 1000).toFixed(1);
         console.log(`⚡ Rendered in ${renderDuration}s: ${videoPath}`);
 
         if (deliveryMode === 'export') {
-          renderedForExport.push({ item, videoPath, metadata });
+          renderedForExport.push({ item: primaryItem, items: reelQuestions, videoPath, metadata });
           results.push({
             type: 'REEL_EXPORT',
-            title: item.title,
+            title: metadata.title,
             status: 'EXPORTED',
             file: path.basename(videoPath),
           });
@@ -160,9 +186,10 @@ async function runFacebookReelsAutomation(options = {}) {
             description: metadata.description,
             firstComment: metadata.pinnedComment,
             target: socialTarget,
-            item: enrichedItem,
+            item: primaryItem,
+            items: reelQuestions,
           });
-          vault.recordUpload(item, uploadRes);
+          vault.recordUpload(reelQuestions, uploadRes);
 
           const resultType = socialTarget === 'instagram'
             ? 'INSTAGRAM_REEL'
@@ -170,14 +197,14 @@ async function runFacebookReelsAutomation(options = {}) {
 
           results.push({
             type: resultType,
-            title: item.title,
+            title: metadata.title,
             status: 'SUCCESS',
             id: uploadRes.id,
             url: uploadRes.url || uploadRes.zernioPostId,
           });
-          console.log(`🎉 [${i + 1}/${questions.length}] Live publicly via Zernio! URL: ${uploadRes.url || uploadRes.zernioPostId}\n`);
+          console.log(`🎉 [${reelIdx + 1}/${count}] Live publicly via Zernio! URL: ${uploadRes.url || uploadRes.zernioPostId}\n`);
 
-          if (i < questions.length - 1) {
+          if (reelIdx < count - 1) {
             console.log('⏳ Waiting 5s before next upload...');
             await new Promise(r => setTimeout(r, 5000));
           }
@@ -187,27 +214,27 @@ async function runFacebookReelsAutomation(options = {}) {
             title: metadata.title,
             description: metadata.description,
           });
-          vault.recordUpload(item, { ...uploadRes, deliveryMode: 'FACEBOOK_API' });
+          vault.recordUpload(reelQuestions, { ...uploadRes, deliveryMode: 'FACEBOOK_API' });
 
           results.push({
             type: 'REEL_VIDEO',
-            title: item.title,
+            title: metadata.title,
             status: 'SUCCESS',
             id: uploadRes.id,
             url: uploadRes.url,
           });
-          console.log(`🎉 [${i + 1}/${questions.length}] Reel published! URL: ${uploadRes.url}\n`);
+          console.log(`🎉 [${reelIdx + 1}/${count}] Reel published! URL: ${uploadRes.url}\n`);
 
-          if (i < questions.length - 1) {
+          if (reelIdx < count - 1) {
             console.log('⏳ Waiting 8s before next item...');
             await new Promise(r => setTimeout(r, 8000));
           }
         }
       } catch (err) {
-        console.error(`❌ [${i + 1}/${questions.length}] Failed for "${item.title}":`, err.response?.data || err.message);
+        console.error(`❌ [${reelIdx + 1}/${count}] Failed for "${primaryItem.title}":`, err.response?.data || err.message);
         results.push({
           type: deliveryMode === 'export' ? 'REEL_EXPORT' : (deliveryMode === 'zernio' ? 'ZERNIO_REEL' : 'REEL_VIDEO'),
-          title: item.title,
+          title: primaryItem.title,
           status: 'FAILED',
           error: err.message,
         });
@@ -227,7 +254,7 @@ async function runFacebookReelsAutomation(options = {}) {
     });
 
     exportBundle.items.forEach((manifestItem, idx) => {
-      vault.recordUpload(renderedForExport[idx].item, {
+      vault.recordUpload(renderedForExport[idx].items || renderedForExport[idx].item, {
         id: null,
         deliveryMode: 'EXPORT_READY',
       });

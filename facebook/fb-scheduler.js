@@ -21,19 +21,18 @@ async function postSingleReel() {
   const videoMaker = new FacebookVideoMaker();
   const uploader = new FacebookUploader();
 
-  const questions = await vault.getBatchQuestions(1);
+  const questions = await vault.getBatchQuestions(5);
   if (!questions.length) {
     console.log('No questions available.');
     return;
   }
 
-  const item = questions[0];
   try {
-    const videoPath = await videoMaker.createReel(item, { index: Math.floor(Math.random() * 3), commentChallenge: true });
-    const { title, description } = buildReelMetadata(item);
+    const videoPath = await videoMaker.createMultiQuestionReel(questions, { index: 0, partNum: 1, commentChallenge: true });
+    const { title, description } = buildReelMetadata(questions);
 
     const uploadRes = await uploader.uploadVideo(videoPath, { title, description });
-    vault.recordUpload(item, uploadRes);
+    vault.recordUpload(questions, uploadRes);
     console.log(`[Scheduled] ✅ Successfully published Exam GK Reel: ${uploadRes.url}`);
   } catch (err) {
     console.error('[Scheduled] ❌ Failed to post reel:', err.response?.data || err.message);
