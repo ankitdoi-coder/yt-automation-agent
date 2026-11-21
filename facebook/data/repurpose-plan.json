@@ -1,17 +1,17 @@
 {
-  "repurposedAt": "2026-11-14T06:05:48.854Z",
+  "repurposedAt": "2026-11-21T09:00:00.467Z",
   "sourceItem": {
-    "id": "pol_pm_age_06",
-    "title": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
-    "topic": "प्रधानमंत्री (Prime Minister of India)",
-    "category": "polity",
-    "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?"
+    "id": "stat_soil_18",
+    "title": "कपास की खेती के लिए प्रसिद्ध 'रेगुड़ मिट्टी' को क्या कहा जाता है?",
+    "topic": "भारतीय मृदा (Indian Soils)",
+    "category": "static_gk",
+    "originalHook": "कपास की खेती के लिए प्रसिद्ध 'रेगुड़ मिट्टी' को क्या कहा जाता है?"
   },
   "platformHooks": {
     "youtube": {
       "platform": "youtube",
-      "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
-      "adaptedHook": "India Prime Minister of India GK Quiz | UPSC",
+      "originalHook": "कपास की खेती के लिए प्रसिद्ध 'रेगुड़ मिट्टी' को क्या कहा जाता है?",
+      "adaptedHook": "India Indian Soils GK Quiz | SSC/Railway",
       "strategy": {
         "maxChars": 70,
         "preferKeywordFirst": true,
@@ -21,8 +21,8 @@
     },
     "instagram": {
       "platform": "instagram",
-      "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
-      "adaptedHook": "97% UPSC students fail karte hain yeh Polity/Constitution",
+      "originalHook": "कपास की खेती के लिए प्रसिद्ध 'रेगुड़ मिट्टी' को क्या कहा जाता है?",
+      "adaptedHook": "97% SSC/Railway students fail karte hain yeh GK sawaal! 🔥",
       "strategy": {
         "maxChars": 65,
         "preferKeywordFirst": false,
@@ -32,8 +32,8 @@
     },
     "facebook": {
       "platform": "facebook",
-      "originalHook": "भारत का प्रधानमंत्री बनने के लिए न्यूनतम आयु कितनी है?",
-      "adaptedHook": "Can you answer this? Prime Minister of India Quiz | Comment",
+      "originalHook": "कपास की खेती के लिए प्रसिद्ध 'रेगुड़ मिट्टी' को क्या कहा जाता है?",
+      "adaptedHook": "Can you answer this? Indian Soils Quiz | Comment your",
       "strategy": {
         "maxChars": 60,
         "preferKeywordFirst": false,
@@ -43,10 +43,10 @@
     }
   },
   "instagramDelivery": {
-    "overlayHookText": "97% UPSC students fail karte hain yeh Polity/Constitution",
-    "caption": "97% UPSC students fail karte hain yeh Polity/Constitution\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़रूर बताएं और अपनी तैयारी चेक करें!\n\n👇 जवाब कमेंट करें!\n\n#IndianPolity #Constitution #UPSC #SSCExam #Polity #GKQuiz #ExamIQBharat #IndiaGK",
-    "foldPreview": "97% UPSC students fail karte hain yeh Polity/Constitution\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़रू",
-    "hashtags": "#IndianPolity #Constitution #UPSC #SSCExam #Polity #GKQuiz #ExamIQBharat #IndiaGK",
+    "overlayHookText": "97% SSC/Railway students fail karte hain yeh GK sawaal! 🔥",
+    "caption": "97% SSC/Railway students fail karte hain yeh GK sawaal! 🔥\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़रूर बताएं और अपनी तैयारी चेक करें!\n\n👇 जवाब कमेंट करें!\n\n#StaticGK #IndiaGK #SSCExam #UPSC #GKQuiz #ExamIQBharat #CurrentAffairs",
+    "foldPreview": "97% SSC/Railway students fail karte hain yeh GK sawaal! 🔥\n\nक्या आप इस सवाल का सही जवाब जानते हैं? 🤔\nकमेंट में अपना जवाब ज़र",
+    "hashtags": "#StaticGK #IndiaGK #SSCExam #UPSC #GKQuiz #ExamIQBharat #CurrentAffairs",
     "recommendedScheduleIST": "20:00 IST (Peak Instagram Reels Traffic)"
   }
 }

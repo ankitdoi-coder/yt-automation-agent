@@ -547,6 +547,152 @@ class FacebookVideoMaker {
       }
     }
   }
+
+  /**
+   * Generates a rapid-fire multi-question Reel (10-15 questions in 60-80s)
+   * Matches the Smart Study Plus 2 rapid-fire pause-and-loop virality format
+   */
+  async createMultiQuestionReel(items = [], options = {}) {
+    if (!Array.isArray(items) || items.length === 0) {
+      throw new Error('[VideoMaker] createMultiQuestionReel requires a non-empty array of items');
+    }
+
+    if (items.length === 1) {
+      return this.createReel(items[0], options);
+    }
+
+    const timestamp = Date.now();
+    const prefix = path.join(this.tempDir, `fb_multi_${timestamp}`);
+    const finalMp4 = path.join(this.outputDir, `FB_MULTI_REEL_${timestamp}.mp4`);
+    const concatList = `${prefix}_concat.txt`;
+    const tempFiles = [concatList];
+    const segmentFiles = [];
+
+    const handSvg = this._buildHandSVG();
+    const handPng = `${prefix}_hand.png`;
+    await sharp(Buffer.from(handSvg)).png().toFile(handPng);
+    tempFiles.push(handPng);
+
+    try {
+      console.log(`[VideoMaker] Building rapid-fire multi-question Reel with ${items.length} questions...`);
+
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const isLast = (i === items.length - 1);
+        const partNum = options.partNum || item.partNum || 1;
+        const qPrefix = `${prefix}_q${i + 1}`;
+
+        const qAudio = `${qPrefix}_q.mp3`;
+        const ansAudio = `${qPrefix}_ans.mp3`;
+        const f1Png = `${qPrefix}_f1.png`;
+        const f2Png = `${qPrefix}_f2.png`;
+        const segQ = `${qPrefix}_seg_q.mp4`;
+        const segA = `${qPrefix}_seg_a.mp4`;
+
+        tempFiles.push(qAudio, ansAudio, f1Png, f2Png, segQ, segA);
+
+        const qNarration = item.voiceQuestion || item.question;
+        const aNarration = isLast
+          ? (item.voiceCommentChallenge || `सवाल नंबर ${i + 1} का सही जवाब कमेंट बॉक्स में बताएं!`)
+          : (item.voiceAnswer || `सही जवाब है ${item.answerText}`);
+
+        await this._getAudio(qNarration, qAudio);
+        await this._getAudio(aNarration, ansAudio);
+
+        const svgQ = this._buildSVG({ item, partNum, showFollowBtn: true, showHandInSvg: false });
+        const svgA = this._buildSVG({ item, isAnswer: !isLast, isCommentChallenge: isLast, partNum, showFollowBtn: false, showHandInSvg: false });
+
+        await sharp(Buffer.from(svgQ)).png().toFile(f1Png);
+        await sharp(Buffer.from(svgA)).png().toFile(f2Png);
+
+        const dQ = Math.max(1.5, await ffmpeg.getMediaDuration(qAudio));
+        const dA = Math.max(1.2, await ffmpeg.getMediaDuration(ansAudio));
+
+        // Question Segment with animated tapping hand
+        const tapAnimY = `'1485-18*abs(sin(3.14159*t*1.5))'`;
+        const tapPulse = `drawbox=x=725:y=1445:w=275:h=78:color=white@0.32:t=fill:enable='lt(mod(t,0.67),0.12)'`;
+        const sQDipFilter = `${tapPulse},drawbox=x=0:y=0:w=iw:h=ih:color=black@0.22:t=fill:enable='between(t,${Math.max(0, dQ - 0.08).toFixed(3)},${dQ.toFixed(3)})'`;
+
+        if (this.audioAssets?.bgmPath && fs.existsSync(this.audioAssets.bgmPath)) {
+          await ffmpeg.runFFmpeg([
+            '-y', '-loop', '1', '-t', String(dQ), '-i', f1Png,
+            '-i', qAudio,
+            '-stream_loop', '-1', '-i', this.audioAssets.bgmPath,
+            '-loop', '1', '-t', String(dQ), '-i', handPng,
+            '-filter_complex', `[0:v][3:v]overlay=x=860:y=${tapAnimY}:enable='between(t,0,${dQ.toFixed(3)})',fps=30,format=yuv420p,${sQDipFilter}[vout];[2:a]volume=0.12[bgm];[1:a][bgm]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]`,
+            '-map', '[vout]', '-map', '[aout]',
+            '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
+            '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+            '-t', String(dQ), segQ
+          ]);
+        } else {
+          await ffmpeg.runFFmpeg([
+            '-y', '-loop', '1', '-t', String(dQ), '-i', f1Png,
+            '-i', qAudio,
+            '-loop', '1', '-t', String(dQ), '-i', handPng,
+            '-filter_complex', `[0:v][2:v]overlay=x=860:y=${tapAnimY}:enable='between(t,0,${dQ.toFixed(3)})',fps=30,format=yuv420p,${sQDipFilter}[vout]`,
+            '-map', '[vout]', '-map', '1:a',
+            '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
+            '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+            '-shortest', segQ
+          ]);
+        }
+        segmentFiles.push(segQ);
+
+        // Answer Segment with Ding Chime
+        const sFlashFilter = `drawbox=x=0:y=0:w=iw:h=ih:color=white@0.18:t=fill:enable='between(t,0,0.16)'`;
+        if (this.audioAssets?.chimePath && fs.existsSync(this.audioAssets.chimePath)) {
+          const hasBgm = this.audioAssets.bgmPath && fs.existsSync(this.audioAssets.bgmPath);
+          const extraArgs = hasBgm ? ['-stream_loop', '-1', '-i', this.audioAssets.bgmPath] : [];
+          const filterStr = hasBgm
+            ? `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout];[2:a]volume=0.38[ding];[3:a]volume=0.10[bgm];[1:a][ding][bgm]amix=inputs=3:duration=first:dropout_transition=0:normalize=0[aout]`
+            : `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout];[2:a]volume=0.38[ding];[1:a][ding]amix=inputs=2:duration=first:dropout_transition=0:normalize=0[aout]`;
+
+          await ffmpeg.runFFmpeg([
+            '-y', '-loop', '1', '-t', String(dA), '-i', f2Png,
+            '-i', ansAudio,
+            '-i', this.audioAssets.chimePath,
+            ...extraArgs,
+            '-filter_complex', filterStr,
+            '-map', '[vout]', '-map', '[aout]',
+            '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
+            '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+            '-t', String(dA), segA
+          ]);
+        } else {
+          await ffmpeg.runFFmpeg([
+            '-y', '-loop', '1', '-t', String(dA), '-i', f2Png,
+            '-i', ansAudio,
+            '-filter_complex', `[0:v]fps=30,format=yuv420p,${sFlashFilter}[vout]`,
+            '-map', '[vout]', '-map', '1:a',
+            '-c:v', 'libx264', '-preset', 'fast', '-crf', '22', '-b:v', '2500k', '-maxrate', '3000k', '-bufsize', '6000k', '-r', '30',
+            '-c:a', 'aac', '-b:a', '192k', '-ar', '44100', '-pix_fmt', 'yuv420p',
+            '-shortest', segA
+          ]);
+        }
+        segmentFiles.push(segA);
+      }
+
+      // Concat all segments into one rapid-fire video
+      const concatContent = segmentFiles.map(f => `file '${f.replace(/\\/g, '/')}'`).join('\n') + '\n';
+      fs.writeFileSync(concatList, concatContent, 'utf8');
+
+      console.log(`[VideoMaker] Stitching ${segmentFiles.length} segments into rapid-fire Reel...`);
+      await ffmpeg.runFFmpeg([
+        '-y', '-f', 'concat', '-safe', '0', '-i', concatList,
+        '-c', 'copy', '-movflags', '+faststart', finalMp4
+      ]);
+
+      console.log(`[VideoMaker] Rapid-Fire Exam GK Multi-Reel generated: ${path.basename(finalMp4)}`);
+      return finalMp4;
+    } finally {
+      for (const file of tempFiles) {
+        if (fs.existsSync(file)) {
+          try { fs.unlinkSync(file); } catch (_) {}
+        }
+      }
+    }
+  }
 }
 
 module.exports = {

@@ -177,8 +177,8 @@ async function main() {
   const maxAllowedDuration = expData?.variant?.max_duration_seconds
     ? Number(expData.variant.max_duration_seconds)
     : (expData?.variant?.target_duration_seconds
-      ? Math.min(60, Number(expData.variant.target_duration_seconds) + 6)
-      : (qCount > 5 ? 60 : 35));
+      ? Math.min(90, Number(expData.variant.target_duration_seconds) + 15)
+      : (qCount > 5 ? 90 : 35));
   const minAllowedDuration = 15;
 
   const gates = {
