@@ -143,7 +143,12 @@
     "sci_dryice_11",
     "stat_desert_11",
     "math_pi_circle_15",
-    "math_discount_04"
+    "math_discount_04",
+    "stat_park_04",
+    "math_average_08",
+    "geo_semiconductor_16",
+    "hist_viceroy_11",
+    "hist_chauri_15"
   ],
   "uploads": [
     {
@@ -1458,6 +1463,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-21T11:32:52.812Z",
       "answer": "A) 28% [10 + 20 - (10×20)/100 = 28%]"
+    },
+    {
+      "id": "stat_park_04",
+      "questionIds": [
+        "stat_park_04",
+        "math_average_08",
+        "geo_semiconductor_16",
+        "hist_viceroy_11",
+        "hist_chauri_15"
+      ],
+      "category": "static_gk",
+      "topic": "राष्ट्रीय उद्यान (National Parks)",
+      "title": "भारत का पहला राष्ट्रीय उद्यान कौन सा था?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b020153f3996748121dba25",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-21T20:39:47.117Z",
+      "answer": "B) हेली नेशनल पार्क (अब जिम कॉर्बेट, उत्तराखंड)"
     }
   ]
 }
