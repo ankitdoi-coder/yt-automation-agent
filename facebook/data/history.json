@@ -142,7 +142,8 @@
     "stat_soil_18",
     "sci_dryice_11",
     "stat_desert_11",
-    "math_pi_circle_15"
+    "math_pi_circle_15",
+    "math_discount_04"
   ],
   "uploads": [
     {
@@ -1443,6 +1444,20 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-20T21:54:57.256Z",
       "answer": "B) पाई (π - मान लगभग 22/7 या 3.14159)"
+    },
+    {
+      "id": "math_discount_04",
+      "category": "math_quiz",
+      "topic": "क्रमिक छूट (Successive Discounts)",
+      "title": "10% और 20% की दो क्रमिक छूट का एकल समतुल्य बट्टा क्या है?",
+      "fbVideoId": null,
+      "zernioPostId": "6b01812369c7f3c3eb1e703a",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-21T11:32:52.812Z",
+      "answer": "A) 28% [10 + 20 - (10×20)/100 = 28%]"
     }
   ]
 }
