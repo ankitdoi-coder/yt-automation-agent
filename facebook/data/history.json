@@ -153,7 +153,12 @@
     "stat_viral_women_26",
     "stat_temple_16",
     "hist_ashoka_08",
-    "hist_ink_13"
+    "hist_ink_13",
+    "sci_heart_chambers_10",
+    "geo_gdp_10",
+    "stat_volcano_09",
+    "hist_maurya_07",
+    "stat_notes_20"
   ],
   "uploads": [
     {
@@ -1512,6 +1517,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-22T11:48:12.835Z",
       "answer": "D) शुक्र (Venus - ग्रीनहाउस प्रभाव के कारण)"
+    },
+    {
+      "id": "sci_heart_chambers_10",
+      "questionIds": [
+        "sci_heart_chambers_10",
+        "geo_gdp_10",
+        "stat_volcano_09",
+        "hist_maurya_07",
+        "stat_notes_20"
+      ],
+      "category": "general_science",
+      "topic": "मानव हृदय (Human Heart)",
+      "title": "मानव हृदय में कुल कितने कोष्ठक (Chambers) होते हैं?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b0355065ac0ded304815d08",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-22T20:48:51.722Z",
+      "answer": "D) 4 कोष्ठक (दो आलिंद और दो निलय)"
     }
   ]
 }
