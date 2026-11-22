@@ -148,7 +148,12 @@
     "math_average_08",
     "geo_semiconductor_16",
     "hist_viceroy_11",
-    "hist_chauri_15"
+    "hist_chauri_15",
+    "sci_venus_hottest_14",
+    "stat_viral_women_26",
+    "stat_temple_16",
+    "hist_ashoka_08",
+    "hist_ink_13"
   ],
   "uploads": [
     {
@@ -1485,6 +1490,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-21T20:39:47.117Z",
       "answer": "B) हेली नेशनल पार्क (अब जिम कॉर्बेट, उत्तराखंड)"
+    },
+    {
+      "id": "sci_venus_hottest_14",
+      "questionIds": [
+        "sci_venus_hottest_14",
+        "stat_viral_women_26",
+        "stat_temple_16",
+        "hist_ashoka_08",
+        "hist_ink_13"
+      ],
+      "category": "general_science",
+      "topic": "शुक्र ग्रह (Venus)",
+      "title": "सौरमंडल का सबसे गर्म ग्रह कौन सा है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b02d639e1cfba0e4bdc72da",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 42,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-22T11:48:12.835Z",
+      "answer": "D) शुक्र (Venus - ग्रीनहाउस प्रभाव के कारण)"
     }
   ]
 }
