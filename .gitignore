@@ -95,3 +95,7 @@ data/thumbnails/
 facebook/output/
 facebook/temp/
 .agents/teamwork/
+
+# Quiz Pipeline outputs
+clips/
+frames/

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ExamIQ Bharat – Quiz Card</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Playfair+Display:ital,wght@1,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #000;
+    --gold: #e8b92f;
+    --gold-light: #f6d56a;
+    --gold-dark: #b8860b;
+    --text: #f2f2f2;
+    --muted: #9a9a9a;
+    --card: #141414;
+    --card-border: #2c2c2c;
+    --correct: #2ecc71;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #000; overflow: hidden; }
+  body { display: flex; align-items: center; justify-content: center; font-family: "Mukta", "Noto Sans Devanagari", sans-serif; }
+
+  /* 1080 x 1920 (9:16) canvas, scaled to fit any window by JS */
+  .stage {
+    width: 1080px; height: 1920px; flex: none;
+    background: radial-gradient(120% 60% at 50% 0%, #1a1a1a 0%, #000 60%);
+    padding: 150px 70px 90px;
+    display: flex; flex-direction: column;
+    transform-origin: center center;
+    color: var(--text);
+  }
+
+  .title {
+    text-align: center; font-size: 84px; font-weight: 700; line-height: 1.2;
+    background: linear-gradient(180deg, var(--gold-light), var(--gold) 55%, var(--gold-dark));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .meta { text-align: center; color: var(--muted); font-size: 38px; margin-top: 14px; }
+
+  .progress { height: 8px; background: #2a2a2a; border-radius: 8px; margin: 34px 0 0; overflow: hidden; }
+  .progress i { display: block; height: 100%; width: 10%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 8px; }
+
+  .question {
+    text-align: center; font-size: 62px; font-weight: 600; line-height: 1.5;
+    margin: 120px 0 110px; min-height: 280px;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .options { display: flex; flex-direction: column; gap: 36px; }
+  .option {
+    display: flex; align-items: center; gap: 36px;
+    background: var(--card); border: 2px solid var(--card-border);
+    border-radius: 36px; padding: 34px 40px; min-height: 150px;
+  }
+  .badge {
+    flex: none; width: 88px; height: 88px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
+    color: #1a1200; font-size: 48px; font-weight: 700;
+  }
+  .option span.txt { font-size: 56px; font-weight: 400; line-height: 1.3; }
+
+  .option.correct { border-color: var(--correct); background: #0e2418; }
+  .option.correct .badge { background: var(--correct); color: #04200f; }
+
+  .brand { margin-top: auto; display: flex; align-items: center; gap: 30px; }
+  .logo {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
+    display: grid; place-items: center;
+  }
+  .logo svg { width: 66px; height: 66px; fill: #1a1200; }
+  .brand-name { font-weight: 700; font-size: 50px; letter-spacing: 8px; color: #fff; line-height: 1; }
+  .brand-plus { font-family: "Playfair Display", serif; font-style: italic; font-weight: 700; font-size: 72px; color: var(--gold); line-height: 1.1; margin-top: 6px; }
+</style>
+</head>
+<body>
+
+<main class="stage" id="stage">
+  <h1 class="title" id="title">भारतीय राजव्यवस्था</h1>
+  <p class="meta" id="meta">भाग 5 | प्रश्न 2 / 30</p>
+  <div class="progress"><i id="bar"></i></div>
+
+  <h2 class="question" id="question">राष्ट्रपति को संसद के किसी भी सदन को संबोधित करने का अधिकार किस अनुच्छेद में है ?</h2>
+
+  <section class="options">
+    <div class="option" data-key="A"><div class="badge">A</div><span class="txt">अनुच्छेद 86</span></div>
+    <div class="option" data-key="B"><div class="badge">B</div><span class="txt">अनुच्छेद 85</span></div>
+    <div class="option" data-key="C"><div class="badge">C</div><span class="txt">अनुच्छेद 87</span></div>
+    <div class="option" data-key="D"><div class="badge">D</div><span class="txt">अनुच्छेद 88</span></div>
+  </section>
+
+  <footer class="brand">
+    <div class="logo">
+      <svg viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3Zm-6 9.2V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.8l-6 3.3-6-3.3Z"/></svg>
+    </div>
+    <div>
+      <div class="brand-name" id="brand-name">EXAMIQ</div>
+      <div class="brand-plus" id="brand-plus">Bharat</div>
+    </div>
+  </footer>
+</main>
+
+<script>
+  /* Fill the card from URL params, e.g.
+     quiz-card.html?title=भारतीय राजव्यवस्था&part=5&n=2&total=30&q=...&a=...&b=...&c=...&d=...&correct=B */
+  const p = new URLSearchParams(location.search);
+  const $ = id => document.getElementById(id);
+  if (p.get('title')) $('title').textContent = p.get('title');
+  if (p.get('q')) $('question').textContent = p.get('q');
+  const n = +(p.get('n') || 2), total = +(p.get('total') || 30), part = p.get('part') || 5;
+  $('meta').textContent = `भाग ${part} | प्रश्न ${n} / ${total}`;
+  $('bar').style.width = Math.min(100, (n / total) * 100) + '%';
+  ['a','b','c','d'].forEach(k => {
+    if (p.get(k)) document.querySelector(`[data-key="${k.toUpperCase()}"] .txt`).textContent = p.get(k);
+  });
+  const correct = (p.get('correct') || '').toUpperCase();
+  if (p.get('reveal') === '1' && correct) {
+    document.querySelector(`[data-key="${correct}"]`).classList.add('correct');
+  }
+
+  // Allow brand name and sub customization if provided, default to EXAMIQ Bharat
+  if (p.get('brand')) $('brand-name').textContent = p.get('brand');
+  if (p.get('sub')) $('brand-plus').textContent = p.get('sub');
+
+  /* Scale 1080x1920 canvas to the window (screenshots/recording stay pixel-exact at 1080x1920) */
+  function fit() {
+    const s = Math.min(innerWidth / 1080, innerHeight / 1920);
+    $('stage').style.transform = `scale(${s})`;
+  }
+  addEventListener('resize', fit); fit();
+</script>
+</body>
+</html>

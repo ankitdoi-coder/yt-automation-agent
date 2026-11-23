@@ -1626,9 +1626,9 @@ class AIVideoGenerator {
     <meta charset="UTF-8">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Playfair+Display:ital,wght@1,700&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Mukta:wght@400;600;700&family=Playfair+Display:ital,wght@1,700&family=Noto+Sans+Devanagari:wght@400;600;700;800;900&display=swap');
         *, *::before, *::after {
             box-sizing: border-box;
             transition: none !important;
@@ -2175,11 +2175,23 @@ class AIVideoGenerator {
             letter-spacing: 0.5px;
         }
 
-                /* ---------- Short Quiz (Smart Study Plus 2 / Exam IQ Bharat Reference Style 9:16) ---------- */
+                /* ---------- Short Quiz (Dark Luxury Gold-and-Black Quiz Card 9:16) ---------- */
+        :root {
+            --stage-bg: #000;
+            --gold: #e8b92f;
+            --gold-light: #f6d56a;
+            --gold-dark: #b8860b;
+            --text-main: #f2f2f2;
+            --muted-text: #9a9a9a;
+            --card-bg: #141414;
+            --card-border: #2c2c2c;
+            --correct-green: #2ecc71;
+        }
+
         .slide.quiz-short.clean {
-            background: #ffffff;
-            color: #111111;
-            padding: 0;
+            background: radial-gradient(120% 60% at 50% 0%, #1a1a1a 0%, #000 60%);
+            color: var(--text-main);
+            padding: 150px 70px 90px;
             margin: 0;
             width: 1080px;
             height: 1920px;
@@ -2187,270 +2199,174 @@ class AIVideoGenerator {
             flex-direction: column;
             justify-content: flex-start;
             overflow: hidden;
-            position: relative;
-            font-family: 'Noto Sans Devanagari', 'Nirmala UI', 'Segoe UI', Arial, sans-serif;
-            box-sizing: border-box;
-        }
-
-        /* Top Yellow Header Bar (Matches Smart Study Plus reference: 1080x220, #FFD800) */
-        .smart-header {
-            width: 1080px;
-            height: 220px;
-            background: #FFD800;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0 40px;
-            box-sizing: border-box;
-            box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
-            position: relative;
-            z-index: 5;
-            flex-shrink: 0;
-        }
-        .header-media-icons {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-        .header-circle-btn {
-            width: 90px;
-            height: 90px;
-            border-radius: 45px;
-            background: rgba(117, 107, 90, 0.65);
-            color: #ffffff;
-            font-size: 38px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .header-title-box {
-            text-align: center;
-            flex: 1;
-            padding: 0 10px;
-        }
-        .header-title-top {
-            font-family: Arial, 'Noto Sans', sans-serif;
-            font-size: 48px;
-            font-weight: 900;
-            color: #000000;
-            line-height: 1.25;
-        }
-        .header-title-sub {
-            font-family: Arial, 'Noto Sans', sans-serif;
-            font-size: 48px;
-            font-weight: 900;
-            color: #000000;
-            line-height: 1.25;
-            margin-top: 4px;
-        }
-        .header-menu-icon {
-            display: flex;
-            align-items: center;
-        }
-
-        /* Subtle center circular watermark */
-        .watermark-bg {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 640px;
-            height: 640px;
-            border-radius: 50%;
-            border: 5px dashed #cbd5e1;
-            opacity: 0.14;
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-        }
-        .watermark-inner {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .watermark-cap {
-            font-size: 110px;
-            margin-bottom: 6px;
-        }
-        .watermark-name {
-            font-size: 52px;
-            font-weight: 900;
-            color: #0f172a;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-        }
-        .watermark-tag {
-            font-size: 22px;
-            font-weight: 800;
-            color: #64748b;
-            letter-spacing: 4px;
-            margin-top: 8px;
-        }
-
-        /* Content Body */
-        .smart-content-body {
-            position: relative;
-            z-index: 2;
-            width: 1080px;
-            padding: 70px 80px 0 80px;
+            top: 0;
+            left: 0;
+            font-family: "Mukta", "Noto Sans Devanagari", sans-serif;
             box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
+            opacity: 0;
+            visibility: hidden;
         }
 
-        /* Centered Bold Red Question (Devanagari #C0392B) */
-        .smart-question-box {
-            min-height: 180px;
-            max-height: 320px;
+        .slide.quiz-short.clean.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .slide.quiz-short.clean .stage {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            box-sizing: border-box;
+        }
+
+        .slide.quiz-short.clean .title {
+            text-align: center;
+            font-size: 84px;
+            font-weight: 700;
+            line-height: 1.2;
+            background: linear-gradient(180deg, var(--gold-light), var(--gold) 55%, var(--gold-dark));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+            padding: 0;
+        }
+
+        .slide.quiz-short.clean .meta {
+            text-align: center;
+            color: var(--muted-text);
+            font-size: 38px;
+            margin-top: 14px;
+            margin-bottom: 0;
+        }
+
+        .slide.quiz-short.clean .progress {
+            height: 8px;
+            background: #2a2a2a;
+            border-radius: 8px;
+            margin: 34px 0 0;
+            overflow: hidden;
+        }
+
+        .slide.quiz-short.clean .progress i {
+            display: block;
+            height: 100%;
+            background: linear-gradient(90deg, var(--gold-dark), var(--gold-light));
+            border-radius: 8px;
+        }
+
+        .slide.quiz-short.clean .question {
+            text-align: center;
+            font-size: 62px;
+            font-weight: 600;
+            line-height: 1.5;
+            margin: 120px 0 110px;
+            min-height: 280px;
             display: flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            margin-bottom: 50px;
-        }
-        .smart-question-text {
-            font-family: 'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif;
-            font-size: 60px;
-            font-weight: 900;
-            color: #C0392B;
-            line-height: 1.35;
-            text-align: center;
-            word-break: break-word;
-        }
-        .smart-question-text.small {
-            font-size: 50px;
-            line-height: 1.3;
-        }
-        .smart-question-text.tiny {
-            font-size: 42px;
-            line-height: 1.25;
+            color: var(--text-main);
         }
 
-        /* Options List: plain bold text (A) ... (B) ... (C) ... (D) ... */
-        .smart-options-list {
+        .slide.quiz-short.clean .question.small {
+            font-size: 52px;
+            line-height: 1.4;
+        }
+
+        .slide.quiz-short.clean .question.tiny {
+            font-size: 44px;
+            line-height: 1.35;
+        }
+
+        .slide.quiz-short.clean .options {
             display: flex;
             flex-direction: column;
             gap: 36px;
-            padding-left: 20px;
-        }
-        .smart-opt-row {
-            font-family: 'Noto Sans Devanagari', 'Nirmala UI', Arial, sans-serif;
-            font-size: 52px;
-            font-weight: 900;
-            color: #000000;
-            line-height: 1.3;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .smart-opt-row.dimmed {
-            color: #888888;
-        }
-        .smart-opt-letter {
-            font-weight: 900;
-        }
-        .smart-opt-text {
-            font-weight: 900;
-        }
-        .smart-check-mark {
-            color: #22C55E;
-            font-size: 58px;
-            font-weight: 900;
-            margin-left: 12px;
         }
 
-        /* Comment Challenge prompt */
-        .smart-comment-box {
-            margin-top: 30px;
-            padding: 16px 28px;
-            background: #fff7ed;
-            border: 3px solid #ea580c;
-            border-radius: 16px;
-            text-align: center;
-        }
-        .smart-comment-title {
-            font-size: 32px;
-            font-weight: 900;
-            color: #ea580c;
-        }
-        .smart-comment-sub {
-            font-size: 26px;
-            font-weight: 700;
-            color: #9a3412;
-            margin-top: 4px;
-        }
-
-        /* Bottom Brand Bar (Reels & Shorts safe zone above y=1560) */
-        .smart-bottom-bar {
-            position: absolute;
-            left: 0;
-            top: 1430px;
-            width: 1080px;
-            height: 110px;
+        .slide.quiz-short.clean .option {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            padding: 0 60px;
+            gap: 36px;
+            background: var(--card-bg);
+            border: 2px solid var(--card-border);
+            border-radius: 36px;
+            padding: 34px 40px;
+            min-height: 150px;
             box-sizing: border-box;
-            z-index: 5;
         }
-        .smart-pink-brand-box {
-            width: 510px;
-            height: 105px;
-            background: #FF5376;
-            border: 4px solid #B71C1C;
-            border-radius: 14px;
+
+        .slide.quiz-short.clean .badge {
+            flex: none;
+            width: 88px;
+            height: 88px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
+            color: #1a1200;
+            font-size: 48px;
+            font-weight: 700;
+        }
+
+        .slide.quiz-short.clean .option span.txt {
+            font-size: 56px;
+            font-weight: 400;
+            line-height: 1.3;
+            color: var(--text-main);
+        }
+
+        .slide.quiz-short.clean .option.correct {
+            border-color: var(--correct-green);
+            background: #0e2418;
+        }
+
+        .slide.quiz-short.clean .option.correct .badge {
+            background: var(--correct-green);
+            color: #04200f;
+        }
+
+        .slide.quiz-short.clean .brand {
+            margin-top: auto;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 30px;
         }
-        .smart-brand-text {
-            font-family: 'Arial Black', 'Impact', 'Noto Sans', sans-serif;
-            font-size: 44px;
-            font-weight: 900;
+
+        .slide.quiz-short.clean .logo {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
+            display: grid;
+            place-items: center;
+            flex: none;
+        }
+
+        .slide.quiz-short.clean .logo svg {
+            width: 66px;
+            height: 66px;
+            fill: #1a1200;
+        }
+
+        .slide.quiz-short.clean .brand-name {
+            font-weight: 700;
+            font-size: 50px;
+            letter-spacing: 8px;
+            color: #fff;
+            line-height: 1;
+        }
+
+        .slide.quiz-short.clean .brand-plus {
+            font-family: "Playfair Display", serif;
             font-style: italic;
-            color: #FFE600;
-            -webkit-text-stroke: 3px #000000;
-            paint-order: stroke fill;
-        }
-        .smart-cta-container {
-            position: relative;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .smart-bell-icon {
-            font-size: 52px;
-        }
-        .smart-red-btn {
-            background: #E50914;
-            border: 2px solid #B71C1C;
-            border-radius: 39px;
-            width: 275px;
-            height: 78px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.18);
-        }
-        .smart-red-btn span {
-            font-family: Arial, 'Noto Sans', sans-serif;
-            font-size: 38px;
-            font-weight: 900;
-            color: #ffffff;
-            letter-spacing: 0.5px;
-        }
-        .smart-hand-cursor {
-            position: absolute;
-            right: 20px;
-            top: 38px;
-            font-size: 60px;
-            transform: rotate(-10deg);
-            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+            font-weight: 700;
+            font-size: 72px;
+            color: var(--gold);
+            line-height: 1.1;
+            margin-top: 6px;
         }
 </style>
 </head>
@@ -3347,7 +3263,7 @@ ${optionsHtml}
   }
 
     // 9:16 Vertical Short Quiz Clean Structured Typography template (Without Images) (1080x1920)
-    // Matches Smart Study Plus 2 / Exam IQ Bharat exact reference layout
+  // Dark Luxury Gold-and-Black Quiz Card format for ExamIQ Bharat / YouTube Shorts
   renderShortQuizCleanSlideHtml(slide) {
     const question = slide.question || {};
     const isAnswer = slide.kind === 'shortQuizCleanAnswer' || slide.kind === 'shortQuizAnswer';
@@ -3356,57 +3272,43 @@ ${optionsHtml}
     const answerIndex = Number.isInteger(question.answerIndex) ? question.answerIndex : -1;
     const channelName = slide.channel || process.env.CHANNEL_NAME || 'ExamIQ Bharat';
     const partNumber = slide.partNumber || 1;
+    const categoryTitle = slide.subjectHindi || slide.subject || 'भारतीय राजव्यवस्था';
+    const totalQuestions = slide.totalQuestions || 10;
+    const qNum = slide.questionNumber || question.number || question.id || 1;
+    const progressPct = Math.min(100, Math.max(10, Math.round((qNum / totalQuestions) * 100)));
 
     if (isHook) {
-      const hookTitle = slide.headline || slide.narrationText || 'दम है तो 15 में से 12 सही करके दिखाओ!';
+      const hookTitle = slide.headline || slide.narrationText || 'दम है तो 10 में से 7 सही करके दिखाओ!';
       return `
     <div class="slide quiz-short clean${active}">
-        <!-- Top Yellow Header Bar (Matches Smart Study Plus reference: 1080x220, #FFD800) -->
-        <div class="smart-header">
-            <div class="header-media-icons">
-                <span class="header-circle-btn">⏸</span>
-                <span class="header-circle-btn">🔊</span>
-            </div>
-            <div class="header-title-box">
-                <div class="header-title-top">Most General Knowledge</div>
-                <div class="header-title-sub">Questions part ${partNumber}</div>
-            </div>
-            <div class="header-menu-icon">
-                <span class="header-circle-btn">⋮</span>
-            </div>
-        </div>
+        <main class="stage">
+            <h1 class="title">${this.escapeHtml(categoryTitle)} • भाग ${partNumber}</h1>
+            <p class="meta">PART ${partNumber} • GK CHALLENGE</p>
+            <div class="progress"><i style="width: 100%;"></i></div>
 
-        <div class="watermark-bg">
-            <div class="watermark-inner">
-                <div class="watermark-cap">🎓</div>
-                <div class="watermark-name">${this.escapeHtml(channelName)}</div>
-                <div class="watermark-tag">LEARN • PRACTICE • SCORE</div>
-            </div>
-        </div>
+            <h2 class="question">${this.escapeHtml(hookTitle)}</h2>
 
-        <div class="smart-content-body" style="align-items: center; justify-content: center; text-align: center; margin-top: 100px;">
-            <div class="smart-question-box" style="margin-bottom: 30px;">
-                <div class="smart-question-text" style="font-size: 64px; color: #000000; line-height: 1.3;">
-                    ${this.escapeHtml(hookTitle)}
+            <section class="options">
+                <div class="option">
+                    <div class="badge">🔥</div>
+                    <span class="txt">10 अति महत्वपूर्ण प्रश्न</span>
                 </div>
-            </div>
-            <div style="margin-top: 30px;">
-                <span style="background: #fee2e2; color: #dc2626; font-size: 38px; font-weight: 900; padding: 14px 40px; border-radius: 40px; border: 3px solid #dc2626;">⚡ RAPID FIRE TEST ⚡</span>
-            </div>
-        </div>
-
-        <div class="smart-bottom-bar">
-            <div class="smart-pink-brand-box">
-                <span class="smart-brand-text">${this.escapeHtml(channelName)}</span>
-            </div>
-            <div class="smart-cta-container">
-                <span class="smart-bell-icon">🔔</span>
-                <div class="smart-red-btn">
-                    <span>SUBSCRIBE</span>
+                <div class="option">
+                    <div class="badge">⚡</div>
+                    <span class="txt">RAPID FIRE GK TEST</span>
                 </div>
-                <div class="smart-hand-cursor">👆</div>
-            </div>
-        </div>
+            </section>
+
+            <footer class="brand">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3Zm-6 9.2V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.8l-6 3.3-6-3.3Z"/></svg>
+                </div>
+                <div>
+                    <div class="brand-name">EXAMIQ</div>
+                    <div class="brand-plus">Bharat</div>
+                </div>
+            </footer>
+        </main>
     </div>`;
     }
 
@@ -3418,74 +3320,41 @@ ${optionsHtml}
     const optionsHtml = (question.options || []).map((option, index) => {
       const optLetter = LETTERS[index] || 'A';
       const isCorrect = isAnswer && !slide.isCommentChallenge && index === answerIndex;
-      const isDimmed = isAnswer && !isCorrect && !slide.isCommentChallenge;
 
-      return `                <div class="smart-opt-row${isDimmed ? ' dimmed' : ''}">
-                    <span class="smart-opt-letter">(${optLetter})</span>
-                    <span class="smart-opt-text">${this.escapeHtml(option)}</span>
-                    ${isCorrect ? '<span class="smart-check-mark">✓</span>' : ''}
-                </div>`;
+      return `            <div class="option${isCorrect ? ' correct' : ''}">
+                <div class="badge">${optLetter}</div>
+                <span class="txt">${this.escapeHtml(option)}</span>
+            </div>`;
     }).join('\n');
 
     return `
     <div class="slide quiz-short clean${active}">
-        <!-- Top Yellow Header Bar (Matches Smart Study Plus reference: 1080x220, #FFD800) -->
-        <div class="smart-header">
-            <div class="header-media-icons">
-                <span class="header-circle-btn">⏸</span>
-                <span class="header-circle-btn">🔊</span>
-            </div>
-            <div class="header-title-box">
-                <div class="header-title-top">Most General Knowledge</div>
-                <div class="header-title-sub">Questions part ${partNumber}</div>
-            </div>
-            <div class="header-menu-icon">
-                <span class="header-circle-btn">⋮</span>
-            </div>
-        </div>
+        <main class="stage">
+            <h1 class="title">${this.escapeHtml(categoryTitle)}</h1>
+            <p class="meta">${this.escapeHtml(categoryTitle)} • भाग ${partNumber} | प्रश्न ${qNum} / ${totalQuestions}</p>
+            <div class="progress"><i style="width: ${progressPct}%;"></i></div>
 
-        <!-- Subtle center circular watermark -->
-        <div class="watermark-bg">
-            <div class="watermark-inner">
-                <div class="watermark-cap">🎓</div>
-                <div class="watermark-name">${this.escapeHtml(channelName)}</div>
-                <div class="watermark-tag">LEARN • PRACTICE • SCORE</div>
-            </div>
-        </div>
+            <h2 class="question ${qTextClass}">${this.escapeHtml(questionText)}</h2>
 
-        <div class="smart-content-body">
-            <!-- Question Block: Bold Red, Centered -->
-            <div class="smart-question-box">
-                <div class="smart-question-text ${qTextClass}">
-                    ${this.escapeHtml(questionText)}
-                </div>
-            </div>
-
-            <!-- Options: Plain (A), (B), (C), (D) in bold black text -->
-            <div class="smart-options-list">
+            <section class="options">
 ${optionsHtml}
-            </div>
+            </section>
 
             ${slide.isCommentChallenge ? `
-            <div class="smart-comment-box">
-                <div class="smart-comment-title">💬 Comment Your Answer (कमेंट चैलेंज)</div>
-                <div class="smart-comment-sub">👉 अपना सही उत्तर कमेंट में बताएं! 🏆</div>
+            <div style="margin-top: 24px; padding: 20px 30px; background: #141414; border: 2px solid #e8b92f; border-radius: 28px; text-align: center;">
+                <span style="font-size: 44px; font-weight: 700; color: #f6d56a;">💬 सवाल नंबर ${qNum} का जवाब कमेंट में दें!</span>
             </div>` : ''}
-        </div>
 
-        <!-- Bottom Brand Bar: Pink Box + Red CTA Button + Hand Pointer -->
-        <div class="smart-bottom-bar">
-            <div class="smart-pink-brand-box">
-                <span class="smart-brand-text">${this.escapeHtml(channelName)}</span>
-            </div>
-            <div class="smart-cta-container">
-                <span class="smart-bell-icon">🔔</span>
-                <div class="smart-red-btn">
-                    <span>SUBSCRIBE</span>
+            <footer class="brand">
+                <div class="logo">
+                    <svg viewBox="0 0 24 24"><path d="M12 3 1 9l11 6 9-4.9V17h2V9L12 3Zm-6 9.2V16c0 1.7 2.7 3 6 3s6-1.3 6-3v-3.8l-6 3.3-6-3.3Z"/></svg>
                 </div>
-                <div class="smart-hand-cursor">👆</div>
-            </div>
-        </div>
+                <div>
+                    <div class="brand-name">EXAMIQ</div>
+                    <div class="brand-plus">Bharat</div>
+                </div>
+            </footer>
+        </main>
     </div>`;
   }
 
