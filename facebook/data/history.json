@@ -158,7 +158,12 @@
     "geo_gdp_10",
     "stat_volcano_09",
     "hist_maurya_07",
-    "stat_notes_20"
+    "stat_notes_20",
+    "sci_tyre_02",
+    "geo_semiconductor_16",
+    "stat_river_01",
+    "geo_border_14",
+    "geo_arctic_20"
   ],
   "uploads": [
     {
@@ -1539,6 +1544,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-22T20:48:51.722Z",
       "answer": "D) 4 कोष्ठक (दो आलिंद और दो निलय)"
+    },
+    {
+      "id": "sci_tyre_02",
+      "questionIds": [
+        "sci_tyre_02",
+        "geo_semiconductor_16",
+        "stat_river_01",
+        "geo_border_14",
+        "geo_arctic_20"
+      ],
+      "category": "general_science",
+      "topic": "दैनिक विज्ञान (Everyday Science)",
+      "title": "हवाई जहाज के टायरों में कौन सी गैस भरी जाती है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b043ea081845fb90b5bd33d",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-23T13:25:55.566Z",
+      "answer": "D) नाइट्रोजन गैस (Nitrogen Gas)"
     }
   ]
 }
