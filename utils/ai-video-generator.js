@@ -2191,7 +2191,8 @@ class AIVideoGenerator {
         .slide.quiz-short.clean {
             background: radial-gradient(120% 60% at 50% 0%, #1a1a1a 0%, #000 60%);
             color: var(--text-main);
-            padding: 150px 70px 90px;
+            /* YouTube Shorts Safe Zone: 270px top padding clears Subscriptions/Live chips */
+            padding: 270px 80px 100px;
             margin: 0;
             width: 1080px;
             height: 1920px;
@@ -2223,9 +2224,9 @@ class AIVideoGenerator {
 
         .slide.quiz-short.clean .title {
             text-align: center;
-            font-size: 84px;
+            font-size: 58px;
             font-weight: 700;
-            line-height: 1.2;
+            line-height: 1.25;
             background: linear-gradient(180deg, var(--gold-light), var(--gold) 55%, var(--gold-dark));
             -webkit-background-clip: text;
             background-clip: text;
@@ -2237,8 +2238,8 @@ class AIVideoGenerator {
         .slide.quiz-short.clean .meta {
             text-align: center;
             color: var(--muted-text);
-            font-size: 38px;
-            margin-top: 14px;
+            font-size: 30px;
+            margin-top: 10px;
             margin-bottom: 0;
         }
 
@@ -2246,7 +2247,7 @@ class AIVideoGenerator {
             height: 8px;
             background: #2a2a2a;
             border-radius: 8px;
-            margin: 34px 0 0;
+            margin: 20px 0 0;
             overflow: hidden;
         }
 
@@ -2259,11 +2260,11 @@ class AIVideoGenerator {
 
         .slide.quiz-short.clean .question {
             text-align: center;
-            font-size: 62px;
+            font-size: 46px;
             font-weight: 600;
-            line-height: 1.5;
-            margin: 120px 0 110px;
-            min-height: 280px;
+            line-height: 1.45;
+            margin: 45px 0 40px;
+            min-height: 160px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -2271,48 +2272,48 @@ class AIVideoGenerator {
         }
 
         .slide.quiz-short.clean .question.small {
-            font-size: 52px;
+            font-size: 40px;
             line-height: 1.4;
         }
 
         .slide.quiz-short.clean .question.tiny {
-            font-size: 44px;
+            font-size: 34px;
             line-height: 1.35;
         }
 
         .slide.quiz-short.clean .options {
             display: flex;
             flex-direction: column;
-            gap: 36px;
+            gap: 20px;
         }
 
         .slide.quiz-short.clean .option {
             display: flex;
             align-items: center;
-            gap: 36px;
+            gap: 24px;
             background: var(--card-bg);
             border: 2px solid var(--card-border);
-            border-radius: 36px;
-            padding: 34px 40px;
-            min-height: 150px;
+            border-radius: 24px;
+            padding: 16px 28px;
+            min-height: 108px;
             box-sizing: border-box;
         }
 
         .slide.quiz-short.clean .badge {
             flex: none;
-            width: 88px;
-            height: 88px;
+            width: 68px;
+            height: 68px;
             border-radius: 50%;
             display: grid;
             place-items: center;
             background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
             color: #1a1200;
-            font-size: 48px;
+            font-size: 36px;
             font-weight: 700;
         }
 
         .slide.quiz-short.clean .option span.txt {
-            font-size: 56px;
+            font-size: 40px;
             font-weight: 400;
             line-height: 1.3;
             color: var(--text-main);
@@ -2329,15 +2330,15 @@ class AIVideoGenerator {
         }
 
         .slide.quiz-short.clean .brand {
-            margin-top: auto;
+            margin-top: 45px;
             display: flex;
             align-items: center;
-            gap: 30px;
+            gap: 22px;
         }
 
         .slide.quiz-short.clean .logo {
-            width: 120px;
-            height: 120px;
+            width: 76px;
+            height: 76px;
             border-radius: 50%;
             background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
             display: grid;
@@ -2346,15 +2347,15 @@ class AIVideoGenerator {
         }
 
         .slide.quiz-short.clean .logo svg {
-            width: 66px;
-            height: 66px;
+            width: 44px;
+            height: 44px;
             fill: #1a1200;
         }
 
         .slide.quiz-short.clean .brand-name {
             font-weight: 700;
-            font-size: 50px;
-            letter-spacing: 8px;
+            font-size: 34px;
+            letter-spacing: 6px;
             color: #fff;
             line-height: 1;
         }
@@ -2363,10 +2364,10 @@ class AIVideoGenerator {
             font-family: "Playfair Display", serif;
             font-style: italic;
             font-weight: 700;
-            font-size: 72px;
+            font-size: 48px;
             color: var(--gold);
             line-height: 1.1;
-            margin-top: 6px;
+            margin-top: 4px;
         }
 </style>
 </head>

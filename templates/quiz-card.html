@@ -23,58 +23,63 @@
   html, body { height: 100%; background: #000; overflow: hidden; }
   body { display: flex; align-items: center; justify-content: center; font-family: "Mukta", "Noto Sans Devanagari", sans-serif; }
 
-  /* 1080 x 1920 (9:16) canvas, scaled to fit any window by JS */
+  /* 1080 x 1920 (9:16) canvas, scaled to fit any window by JS
+     YOUTUBE SHORTS MOBILE SAFE ZONE OPTIMIZED:
+     - Top Safe Margin: 270px (Clears Shorts header, Subscriptions, Live, Lens chips)
+     - Bottom Safe Margin: 650px (Clears channel handle, Subscribe, title, seekbar)
+     - Content Zone: y = 270px to y = 1250px (100% visibility on all phones)
+  */
   .stage {
     width: 1080px; height: 1920px; flex: none;
     background: radial-gradient(120% 60% at 50% 0%, #1a1a1a 0%, #000 60%);
-    padding: 150px 70px 90px;
+    padding: 270px 80px 100px;
     display: flex; flex-direction: column;
     transform-origin: center center;
     color: var(--text);
   }
 
   .title {
-    text-align: center; font-size: 84px; font-weight: 700; line-height: 1.2;
+    text-align: center; font-size: 58px; font-weight: 700; line-height: 1.25;
     background: linear-gradient(180deg, var(--gold-light), var(--gold) 55%, var(--gold-dark));
     -webkit-background-clip: text; background-clip: text; color: transparent;
   }
-  .meta { text-align: center; color: var(--muted); font-size: 38px; margin-top: 14px; }
+  .meta { text-align: center; color: var(--muted); font-size: 30px; margin-top: 10px; }
 
-  .progress { height: 8px; background: #2a2a2a; border-radius: 8px; margin: 34px 0 0; overflow: hidden; }
+  .progress { height: 8px; background: #2a2a2a; border-radius: 8px; margin: 20px 0 0; overflow: hidden; }
   .progress i { display: block; height: 100%; width: 10%; background: linear-gradient(90deg, var(--gold-dark), var(--gold-light)); border-radius: 8px; }
 
   .question {
-    text-align: center; font-size: 62px; font-weight: 600; line-height: 1.5;
-    margin: 120px 0 110px; min-height: 280px;
+    text-align: center; font-size: 46px; font-weight: 600; line-height: 1.45;
+    margin: 45px 0 40px; min-height: 160px;
     display: flex; align-items: center; justify-content: center;
   }
 
-  .options { display: flex; flex-direction: column; gap: 36px; }
+  .options { display: flex; flex-direction: column; gap: 20px; }
   .option {
-    display: flex; align-items: center; gap: 36px;
+    display: flex; align-items: center; gap: 24px;
     background: var(--card); border: 2px solid var(--card-border);
-    border-radius: 36px; padding: 34px 40px; min-height: 150px;
+    border-radius: 24px; padding: 16px 28px; min-height: 108px;
   }
   .badge {
-    flex: none; width: 88px; height: 88px; border-radius: 50%;
+    flex: none; width: 68px; height: 68px; border-radius: 50%;
     display: grid; place-items: center;
     background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
-    color: #1a1200; font-size: 48px; font-weight: 700;
+    color: #1a1200; font-size: 36px; font-weight: 700;
   }
-  .option span.txt { font-size: 56px; font-weight: 400; line-height: 1.3; }
+  .option span.txt { font-size: 40px; font-weight: 400; line-height: 1.3; }
 
   .option.correct { border-color: var(--correct); background: #0e2418; }
   .option.correct .badge { background: var(--correct); color: #04200f; }
 
-  .brand { margin-top: auto; display: flex; align-items: center; gap: 30px; }
+  .brand { margin-top: 45px; display: flex; align-items: center; gap: 22px; }
   .logo {
-    width: 120px; height: 120px; border-radius: 50%;
+    width: 76px; height: 76px; border-radius: 50%;
     background: radial-gradient(circle at 35% 30%, var(--gold-light), var(--gold) 60%, var(--gold-dark));
     display: grid; place-items: center;
   }
-  .logo svg { width: 66px; height: 66px; fill: #1a1200; }
-  .brand-name { font-weight: 700; font-size: 50px; letter-spacing: 8px; color: #fff; line-height: 1; }
-  .brand-plus { font-family: "Playfair Display", serif; font-style: italic; font-weight: 700; font-size: 72px; color: var(--gold); line-height: 1.1; margin-top: 6px; }
+  .logo svg { width: 44px; height: 44px; fill: #1a1200; }
+  .brand-name { font-weight: 700; font-size: 34px; letter-spacing: 6px; color: #fff; line-height: 1; }
+  .brand-plus { font-family: "Playfair Display", serif; font-style: italic; font-weight: 700; font-size: 48px; color: var(--gold); line-height: 1.1; margin-top: 4px; }
 </style>
 </head>
 <body>
