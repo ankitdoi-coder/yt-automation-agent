@@ -173,7 +173,12 @@
     "pol_voting_age_14",
     "pol_money_bill_13",
     "sci_diamond_carbon_16",
-    "hist_swaraj_02"
+    "hist_swaraj_02",
+    "geo_lithium_19",
+    "sci_diamond_carbon_16",
+    "stat_notes_21",
+    "hist_shivaji_10",
+    "geo_canal_panama_15"
   ],
   "uploads": [
     {
@@ -1620,6 +1625,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-24T14:05:03.104Z",
       "answer": "A) सांभर झील (राजस्थान)"
+    },
+    {
+      "id": "geo_lithium_19",
+      "questionIds": [
+        "geo_lithium_19",
+        "sci_diamond_carbon_16",
+        "stat_notes_21",
+        "hist_shivaji_10",
+        "geo_canal_panama_15"
+      ],
+      "category": "geopolitics",
+      "topic": "भविष्य की ऊर्जा (White Gold)",
+      "title": "दुनिया में 'लिथियम त्रिकोण' किन देशों को कहा जाता है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b061f62e58f4ae7ad673ad3",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-24T23:37:10.354Z",
+      "answer": "D) अर्जेंटीना, बोलिविया, चिली (दक्षिण अमेरिका)"
     }
   ]
 }
