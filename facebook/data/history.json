@@ -168,7 +168,12 @@
     "geo_nato_09",
     "hist_quitindia_05",
     "hist_ink_13",
-    "geo_gdp_10"
+    "geo_gdp_10",
+    "stat_saltiest_water_25",
+    "pol_voting_age_14",
+    "pol_money_bill_13",
+    "sci_diamond_carbon_16",
+    "hist_swaraj_02"
   ],
   "uploads": [
     {
@@ -1593,6 +1598,28 @@
       "hookFormula": "The Clock",
       "uploadedAt": "2026-11-24T01:49:12.712Z",
       "answer": "A) रायबहादुर दयाराम साहनी (1921)"
+    },
+    {
+      "id": "stat_saltiest_water_25",
+      "questionIds": [
+        "stat_saltiest_water_25",
+        "pol_voting_age_14",
+        "pol_money_bill_13",
+        "sci_diamond_carbon_16",
+        "hist_swaraj_02"
+      ],
+      "category": "static_gk",
+      "topic": "अंतर्देशीय झील (Inland Salt Lake)",
+      "title": "भारत की सबसे बड़ी अंतर्देशीय खारे पानी की झील कौन सी है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b05994c5690b785f539d9aa",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 44,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-24T14:05:03.104Z",
+      "answer": "A) सांभर झील (राजस्थान)"
     }
   ]
 }
