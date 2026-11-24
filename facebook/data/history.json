@@ -163,7 +163,12 @@
     "geo_semiconductor_16",
     "stat_river_01",
     "geo_border_14",
-    "geo_arctic_20"
+    "geo_arctic_20",
+    "hist_harappa_16",
+    "geo_nato_09",
+    "hist_quitindia_05",
+    "hist_ink_13",
+    "geo_gdp_10"
   ],
   "uploads": [
     {
@@ -1566,6 +1571,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-23T13:25:55.566Z",
       "answer": "D) नाइट्रोजन गैस (Nitrogen Gas)"
+    },
+    {
+      "id": "hist_harappa_16",
+      "questionIds": [
+        "hist_harappa_16",
+        "geo_nato_09",
+        "hist_quitindia_05",
+        "hist_ink_13",
+        "geo_gdp_10"
+      ],
+      "category": "history",
+      "topic": "सिंधु घाटी सभ्यता (Indus Valley)",
+      "title": "1921 में हड़प्पा की खोज किसने की थी?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b04ecc28ef35bdd1783a104",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 45,
+      "hookFormula": "The Clock",
+      "uploadedAt": "2026-11-24T01:49:12.712Z",
+      "answer": "A) रायबहादुर दयाराम साहनी (1921)"
     }
   ]
 }
