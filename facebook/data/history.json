@@ -178,7 +178,12 @@
     "sci_diamond_carbon_16",
     "stat_notes_21",
     "hist_shivaji_10",
-    "geo_canal_panama_15"
+    "geo_canal_panama_15",
+    "stat_saltlake_12",
+    "sci_vitaminc_08",
+    "sci_ozone_layer_15",
+    "pol_languages_17",
+    "math_speed_12"
   ],
   "uploads": [
     {
@@ -1647,6 +1652,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-24T23:37:10.354Z",
       "answer": "D) अर्जेंटीना, बोलिविया, चिली (दक्षिण अमेरिका)"
+    },
+    {
+      "id": "stat_saltlake_12",
+      "questionIds": [
+        "stat_saltlake_12",
+        "sci_vitaminc_08",
+        "sci_ozone_layer_15",
+        "pol_languages_17",
+        "math_speed_12"
+      ],
+      "category": "static_gk",
+      "topic": "खारे पानी की झील (Saltwater Lake)",
+      "title": "भारत की सबसे बड़ी खारे पानी की लैगून झील कौन सी है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b06e0382ce183b8488d9ba1",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-25T13:19:55.418Z",
+      "answer": "B) चिल्का झील (ओडिशा)"
     }
   ]
 }
