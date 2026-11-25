@@ -183,7 +183,12 @@
     "sci_vitaminc_08",
     "sci_ozone_layer_15",
     "pol_languages_17",
-    "math_speed_12"
+    "math_speed_12",
+    "hist_first_gov_20",
+    "stat_coastline_07",
+    "geo_lake_baikal_17",
+    "stat_notes_21",
+    "stat_tropic_08"
   ],
   "uploads": [
     {
@@ -1674,6 +1679,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-25T13:19:55.418Z",
       "answer": "B) चिल्का झील (ओडिशा)"
+    },
+    {
+      "id": "hist_first_gov_20",
+      "questionIds": [
+        "hist_first_gov_20",
+        "stat_coastline_07",
+        "geo_lake_baikal_17",
+        "stat_notes_21",
+        "stat_tropic_08"
+      ],
+      "category": "history",
+      "topic": "स्वतंत्र भारत (First in Free India)",
+      "title": "स्वतंत्र भारत के प्रथम और अंतिम भारतीय गवर्नर जनरल कौन थे?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b076b8f43258bd4fd518484",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 45,
+      "hookFormula": "The Clock",
+      "uploadedAt": "2026-11-25T23:14:28.546Z",
+      "answer": "A) चक्रवर्ती राजगोपालाचारी (राजाजी)"
     }
   ]
 }
