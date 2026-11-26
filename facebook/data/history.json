@@ -193,7 +193,12 @@
     "geo_nato_09",
     "stat_gateway_india_30",
     "stat_river_01",
-    "stat_railway_13"
+    "stat_railway_13",
+    "stat_river_01",
+    "pol_languages_17",
+    "hist_azadhind_06",
+    "hist_viceroy_11",
+    "stat_south_ganga_24"
   ],
   "uploads": [
     {
@@ -1728,6 +1733,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-26T12:59:35.658Z",
       "answer": "D) सिक्किम (कंचनजंघा - 8,586 मीटर)"
+    },
+    {
+      "id": "stat_river_01",
+      "questionIds": [
+        "stat_river_01",
+        "pol_languages_17",
+        "hist_azadhind_06",
+        "hist_viceroy_11",
+        "stat_south_ganga_24"
+      ],
+      "category": "static_gk",
+      "topic": "भारतीय भूगोल (Indian Rivers)",
+      "title": "भारत की सबसे लंबी नदी कौन सी है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b08bc4e261c216b006ecfd9",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "both",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-26T23:11:05.814Z",
+      "answer": "A) गंगा (लंबाई: 2,525 किमी)"
     }
   ]
 }
