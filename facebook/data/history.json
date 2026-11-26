@@ -188,7 +188,12 @@
     "stat_coastline_07",
     "geo_lake_baikal_17",
     "stat_notes_21",
-    "stat_tropic_08"
+    "stat_tropic_08",
+    "stat_peak_03",
+    "geo_nato_09",
+    "stat_gateway_india_30",
+    "stat_river_01",
+    "stat_railway_13"
   ],
   "uploads": [
     {
@@ -1701,6 +1706,28 @@
       "hookFormula": "The Clock",
       "uploadedAt": "2026-11-25T23:14:28.546Z",
       "answer": "A) चक्रवर्ती राजगोपालाचारी (राजाजी)"
+    },
+    {
+      "id": "stat_peak_03",
+      "questionIds": [
+        "stat_peak_03",
+        "geo_nato_09",
+        "stat_gateway_india_30",
+        "stat_river_01",
+        "stat_railway_13"
+      ],
+      "category": "static_gk",
+      "topic": "पर्वत चोटियां (Mountain Peaks)",
+      "title": "भारत की सबसे ऊंची पर्वत चोटी कौन सी है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b082d051cfd51ba610072bf",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-26T12:59:35.658Z",
+      "answer": "D) सिक्किम (कंचनजंघा - 8,586 मीटर)"
     }
   ]
 }
