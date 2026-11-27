@@ -198,7 +198,12 @@
     "pol_languages_17",
     "hist_azadhind_06",
     "hist_viceroy_11",
-    "stat_south_ganga_24"
+    "stat_south_ganga_24",
+    "pol_election_11",
+    "hist_chauri_15",
+    "pol_panchayat_12",
+    "sci_diamond_carbon_16",
+    "math_train_01"
   ],
   "uploads": [
     {
@@ -1755,6 +1760,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-26T23:11:05.814Z",
       "answer": "A) गंगा (लंबाई: 2,525 किमी)"
+    },
+    {
+      "id": "pol_election_11",
+      "questionIds": [
+        "pol_election_11",
+        "hist_chauri_15",
+        "pol_panchayat_12",
+        "sci_diamond_carbon_16",
+        "math_train_01"
+      ],
+      "category": "polity",
+      "topic": "चुनाव आयोग (Election Commission)",
+      "title": "मुख्य चुनाव आयुक्त की नियुक्ति कौन करता है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b097d68cb7d286bb9b43dfa",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-27T12:55:07.017Z",
+      "answer": "B) भारत के राष्ट्रपति"
     }
   ]
 }
