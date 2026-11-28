@@ -1,0 +1,19 @@
+{
+  "date": "2026-11-28",
+  "topic": "Top 10 Static GK",
+  "qa_gate_passed": true,
+  "total_questions": 10,
+  "verified_count": 10,
+  "checks": [
+    {"number":1,"claimed_answer":"D) प्रशांत महासागर","independent_verification":"NOAA identifies the Pacific as Earth's largest ocean basin.","verified":true,"confidence":0.99,"source_url":"https://oceanservice.noaa.gov/facts/pacific.html"},
+    {"number":2,"claimed_answer":"B) 26 नवंबर 1949","independent_verification":"The official Constitution preamble says it was adopted on 26 November 1949.","verified":true,"confidence":0.99,"source_url":"https://www.legislative.gov.in/static/uploads/2025/07/359f70a69695affb9d72f8393102bd2e.pdf"},
+    {"number":3,"claimed_answer":"C) आर्यभट्ट","independent_verification":"ISRO FAQ names Aryabhata as India's first satellite.","verified":true,"confidence":0.99,"source_url":"https://www.isro.gov.in/ISRO_EN/FAQ.html"},
+    {"number":4,"claimed_answer":"B) बृहस्पति","independent_verification":"NASA lists Jupiter as the largest planet in the Solar System.","verified":true,"confidence":0.99,"source_url":"https://science.nasa.gov/solar-system/planets/planet-sizes-and-locations-in-our-solar-system/"},
+    {"number":5,"claimed_answer":"B) असम","independent_verification":"UNESCO locates Kaziranga National Park in Assam.","verified":true,"confidence":0.99,"source_url":"https://whc.unesco.org/en/list/337/"},
+    {"number":6,"claimed_answer":"B) दूसरी और पहली शताब्दी ईसा पूर्व","independent_verification":"UNESCO says most monuments at Sanchi date from the 2nd and 1st centuries BCE.","verified":true,"confidence":0.98,"source_url":"https://whc.unesco.org/en/list/524/"},
+    {"number":7,"claimed_answer":"D) नई दिल्ली","independent_verification":"The New Delhi district administration describes New Delhi as lying in the capital city of India.","verified":true,"confidence":0.96,"source_url":"https://dmnewdelhi.delhi.gov.in/history/"},
+    {"number":8,"claimed_answer":"C) भारत रत्न","independent_verification":"The President of India's official profile calls Bharat Ratna the highest civilian award.","verified":true,"confidence":0.98,"source_url":"https://presidentofindia.nic.in/dr-apj-abdul-kalam-profile"},
+    {"number":9,"claimed_answer":"B) यमुना","independent_verification":"ASI places the Taj Mahal mausoleum on the right bank of the Yamuna.","verified":true,"confidence":0.99,"source_url":"https://asi.nic.in/pages/WorldHeritageAgra"},
+    {"number":10,"claimed_answer":"C) माउंट एवरेस्ट","independent_verification":"USGS identifies Everest as the tallest mountain above sea level at about 8,848 metres.","verified":true,"confidence":0.97,"source_url":"https://www.usgs.gov/faqs/how-big-are-hawaiian-volcanoes?qt-news_science_products=0"}
+  ]
+}

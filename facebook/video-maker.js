@@ -17,6 +17,7 @@ const axios = require('axios');
 const sharp = require('sharp');
 const ffmpeg = require('../utils/ffmpeg');
 const { ensureAudioAssets } = require('./audio-effects');
+const quizRenderer = require('../quiz-renderer');
 
 class FacebookVideoMaker {
   constructor() {
@@ -64,6 +65,18 @@ class FacebookVideoMaker {
       }
     }
     return this._aiVideoGenerator;
+  }
+
+  async _renderQuizSlides(item, options = {}) {
+    return quizRenderer.renderQuizSlides({
+      ...item,
+      subject: item.subject || item.topic || item.title,
+      part: item.part || item.partNum || options.partNum,
+      qNo: item.qNo || item.questionNumber || item.number || 1,
+      answerIndex: item.answerIndex ?? item.correct_index ?? item.correctIndex,
+      correctOption: item.correctOption ?? item.correctLetter ?? item.correct,
+      explanation: item.explanation || item.answerExplanation || item.explanationText || '',
+    }, { profile: options.profile || 'reel-9x16', showCtaButtons: options.showCtaButtons });
   }
 
   // Generate ultra-realistic voice audio (ElevenLabs / Gemini primary, Edge-TTS fallback)
@@ -414,17 +427,24 @@ class FacebookVideoMaker {
 
       console.log(`[VideoMaker] Rendering educational frames matching Exam IQ layout (part ${partNum})...`);
       // Seg1: Question slide — pink box examiqbharat + red FOLLOW button (hand overlaid via animation)
-      const svg1 = this._buildSVG({ item: itemWithImage, partNum, showFollowBtn: true, showHandInSvg: false });
-      // Seg2: Timer slide — FOLLOW btn visible, timerText shown
-      const svg2 = this._buildSVG({ item: itemWithImage, timerText, partNum, showFollowBtn: true, showHandInSvg: false });
-      // Seg3: Answer slide — clean answer reveal with green checkmark ✓
-      const svg3 = this._buildSVG({ item: itemWithImage, isAnswer: !isCommentChallenge, isCommentChallenge, partNum, showFollowBtn: false, showHandInSvg: false });
-
       await sharp(Buffer.from(this._buildHandSVG())).png().toFile(handPng);
-
-      await sharp(Buffer.from(svg1)).png().toFile(f1Png);
-      await sharp(Buffer.from(svg2)).png().toFile(f2Png);
-      await sharp(Buffer.from(svg3)).png().toFile(f3Png);
+      if (process.env.QUIZ_TEMPLATE === 'legacy') {
+        const svg1 = this._buildSVG({ item: itemWithImage, partNum, showFollowBtn: true, showHandInSvg: false });
+        const svg2 = this._buildSVG({ item: itemWithImage, timerText, partNum, showFollowBtn: true, showHandInSvg: false });
+        const svg3 = this._buildSVG({ item: itemWithImage, isAnswer: !isCommentChallenge, isCommentChallenge, partNum, showFollowBtn: false, showHandInSvg: false });
+        await Promise.all([
+          sharp(Buffer.from(svg1)).png().toFile(f1Png),
+          sharp(Buffer.from(svg2)).png().toFile(f2Png),
+          sharp(Buffer.from(svg3)).png().toFile(f3Png),
+        ]);
+      } else {
+        const slides = await this._renderQuizSlides({ ...itemWithImage, part: itemWithImage.part || partNum }, { profile: 'reel-9x16', partNum });
+        await Promise.all([
+          fs.promises.writeFile(f1Png, slides.questionPng),
+          fs.promises.writeFile(f2Png, slides.questionPng),
+          fs.promises.writeFile(f3Png, slides.answerPng),
+        ]);
+      }
 
       const d1 = await ffmpeg.getMediaDuration(qAudio);
       const d2 = await ffmpeg.getMediaDuration(timerAudio);
@@ -601,11 +621,20 @@ class FacebookVideoMaker {
         await this._getAudio(qNarration, qAudio);
         await this._getAudio(aNarration, ansAudio);
 
-        const svgQ = this._buildSVG({ item, partNum, showFollowBtn: true, showHandInSvg: false });
-        const svgA = this._buildSVG({ item, isAnswer: !isLast, isCommentChallenge: isLast, partNum, showFollowBtn: true, showHandInSvg: false });
-
-        await sharp(Buffer.from(svgQ)).png().toFile(f1Png);
-        await sharp(Buffer.from(svgA)).png().toFile(f2Png);
+        if (process.env.QUIZ_TEMPLATE === 'legacy') {
+          const svgQ = this._buildSVG({ item, partNum, showFollowBtn: true, showHandInSvg: false });
+          const svgA = this._buildSVG({ item, isAnswer: !isLast, isCommentChallenge: isLast, partNum, showFollowBtn: true, showHandInSvg: false });
+          await Promise.all([
+            sharp(Buffer.from(svgQ)).png().toFile(f1Png),
+            sharp(Buffer.from(svgA)).png().toFile(f2Png),
+          ]);
+        } else {
+          const slides = await this._renderQuizSlides({ ...item, part: item.part || partNum }, { profile: 'reel-9x16', partNum });
+          await Promise.all([
+            fs.promises.writeFile(f1Png, slides.questionPng),
+            fs.promises.writeFile(f2Png, slides.answerPng),
+          ]);
+        }
 
         const dQ = Math.max(1.5, await ffmpeg.getMediaDuration(qAudio));
         const dA = Math.max(1.2, await ffmpeg.getMediaDuration(ansAudio));

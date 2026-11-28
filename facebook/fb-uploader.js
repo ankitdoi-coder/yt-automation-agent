@@ -289,6 +289,35 @@ class FacebookUploader {
     };
   }
 
+  async uploadPhotoCarousel(imagePaths, { caption } = {}) {
+    if (!Array.isArray(imagePaths) || imagePaths.length < 2) {
+      throw new Error('uploadPhotoCarousel requires at least two image paths');
+    }
+    const attachedMedia = [];
+    for (const imagePath of imagePaths) {
+      if (!fs.existsSync(imagePath)) throw new Error(`Image file not found: ${imagePath}`);
+      const form = new NodeFormData();
+      form.append('access_token', this.accessToken);
+      form.append('published', 'false');
+      form.append('source', fs.createReadStream(imagePath));
+      const res = await axios.post(`https://graph.facebook.com/v21.0/${this.pageId}/photos`, form, {
+        headers: form.getHeaders(), maxContentLength: Infinity, maxBodyLength: Infinity, timeout: 60000,
+      });
+      if (!res.data?.id) throw new Error(`Facebook did not return an unpublished photo ID: ${JSON.stringify(res.data)}`);
+      attachedMedia.push({ media_fbid: res.data.id });
+    }
+
+    const res = await axios.post(`https://graph.facebook.com/v21.0/${this.pageId}/feed`, null, {
+      params: {
+        access_token: this.accessToken,
+        message: caption || '🎯 आज का महत्वपूर्ण GK टेस्ट! अपना उत्तर बताएं।',
+        attached_media: JSON.stringify(attachedMedia),
+      }, timeout: 60000,
+    });
+    const postId = res.data?.id;
+    return { success: true, id: postId, postId, url: postId ? `https://www.facebook.com/${postId}` : null, pageUrl: `https://www.facebook.com/${this.pageId}` };
+  }
+
   /**
    * Dedicated Reels Publisher for Riddle/Question items
    */

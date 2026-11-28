@@ -1276,6 +1276,18 @@ class AIVideoGenerator {
       // Create HTML for slideshow (only real image files can be embedded)
       const imageAssets = await this.filterImageAssets(visualAssets);
       const slides = this.buildSlideData(script, imageAssets);
+      const unifiedShortQuiz = isShort && script.quiz?.questions?.length &&
+        !script.quizVisuals && process.env.QUIZ_TEMPLATE !== 'legacy';
+      let unifiedQuizSlides = null;
+      if (unifiedShortQuiz) {
+        const { renderQuizBatch } = require('../quiz-renderer');
+        const subject = script.quiz.subjectHindi || script.quiz.subject || 'सामान्य ज्ञान';
+        unifiedQuizSlides = await renderQuizBatch(script.quiz.questions, {
+          profile: 'shorts-9x16',
+          showCtaButtons: false,
+          context: { subject, part: script.quiz.part || script.partNumber || '1/2' },
+        });
+      }
       await page.setContent(this.createSlideshowHTML(script, imageAssets, slides), { waitUntil: 'domcontentloaded' });
       // Ensure Hindi/Devanagari web fonts and system fonts are fully loaded before capturing stills
       await page.evaluate(async () => {
@@ -1328,7 +1340,15 @@ class AIVideoGenerator {
         }
 
         const stillPath = path.join(slidesDir, `slide_${String(i).padStart(3, '0')}.png`);
-        await page.screenshot({ path: stillPath });
+        const unifiedSlide = unifiedShortQuiz &&
+          ['shortQuizCleanQuestion', 'shortQuizCleanAnswer'].includes(slide.kind);
+        if (unifiedSlide) {
+          const pair = unifiedQuizSlides[Math.max(0, (Number(slide.questionNumber) || 1) - 1)];
+          const frame = slide.kind === 'shortQuizCleanAnswer' ? pair.answerPng : pair.questionPng;
+          await fs.writeFile(stillPath, frame);
+        } else {
+          await page.screenshot({ path: stillPath });
+        }
         stills.push(stillPath);
         if (quizDurations) {
           finalDurations.push(slideDur);

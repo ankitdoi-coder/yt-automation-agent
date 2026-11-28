@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="hi" data-profile="{{PROFILE}}" data-show-cta="{{SHOW_CTA}}">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ExamIQ Quiz Answer</title>
+  <style>
+{{FONT_CSS}}
+{{BASE_CSS}}
+  </style>
+</head>
+<body>
+  <div class="canvas">
+    <img class="bg-layer" src="{{ASSET_BG_GLOBE_BLUE}}" alt="" />
+    <div class="stage" style="{{STAGE_STYLE}}">
+      <!-- Shared Header -->
+      <img class="logo-img" src="{{ASSET_LOGO_EXAMIQ}}" alt="ExamIQ Bharat" />
+      <div class="logo-tagline">सही तैयारी<br>सफलता की गारंटी</div>
+
+      <div class="topic-brush {{TOPIC_PART_CLASS}}">
+        <svg class="topic-brush-svg" viewBox="0 0 600 220" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="yellowBrushGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#FFE424"/>
+              <stop offset="60%" stop-color="#FAD405"/>
+              <stop offset="100%" stop-color="#F0C000"/>
+            </linearGradient>
+            <filter id="brushShadow" x="-10%" y="-15%" width="120%" height="135%">
+              <feDropShadow dx="0" dy="6" stdDeviation="5" flood-color="#000B24" flood-opacity="0.5"/>
+            </filter>
+          </defs>
+          <path filter="url(#brushShadow)" fill="url(#yellowBrushGrad)" d="
+            M 56,28 L 190,20 L 360,16 L 542,22
+            L 568,36 L 548,46 L 584,62 L 560,78
+            L 590,98 L 562,118 L 586,140 L 552,158
+            L 570,180 L 520,192 L 320,198 L 88,196
+            L 40,182 L 62,164 L 22,148 L 48,128
+            L 14,108 L 46,88 L 18,68 L 54,50 Z
+          "/>
+        </svg>
+        <div class="topic-text">
+          <span class="topic-main">{{SUBJECT}}</span>
+          {{SUBJECT_SUB_HTML}}
+        </div>
+      </div>
+
+      {{PART_BADGE_HTML}}
+
+      <!-- Answer Content -->
+      <img class="correct-banner" src="{{ASSET_BADGE_CORRECT_ANSWER}}" alt="Correct Answer" />
+
+      <div class="ans-pill">Answer:</div>
+      <div class="ans-box">
+        <svg class="ans-burst ans-burst-left" viewBox="0 0 90 76" aria-hidden="true">
+          <path d="M 46,24 L 30,6" stroke="#FAD606" stroke-width="7" stroke-linecap="round"/>
+          <path d="M 32,42 L 8,30" stroke="#FAD606" stroke-width="7" stroke-linecap="round"/>
+          <path d="M 34,62 L 10,60" stroke="#FAD606" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+        <svg class="ans-burst ans-burst-right" viewBox="0 0 90 76" aria-hidden="true">
+          <path d="M 46,24 L 30,6" stroke="#FAD606" stroke-width="7" stroke-linecap="round"/>
+          <path d="M 32,42 L 8,30" stroke="#FAD606" stroke-width="7" stroke-linecap="round"/>
+          <path d="M 34,62 L 10,60" stroke="#FAD606" stroke-width="7" stroke-linecap="round"/>
+        </svg>
+        <div class="ans-value"
+             data-fit="answer"
+             data-fit-max="{{FIT_ANS_MAX}}"
+             data-fit-min="{{FIT_ANS_MIN}}">{{ANSWER_VALUE_HTML}}</div>
+      </div>
+
+      <div class="expl-pill">
+        <img class="expl-bulb" src="{{ASSET_ICON_BULB}}" alt="" />
+        <span class="expl-pill-label">Explanation:</span>
+      </div>
+      <div class="expl-card">
+        <div class="expl-text"
+             data-fit="explanation"
+             data-fit-max="{{FIT_EXPL_MAX}}"
+             data-fit-min="{{FIT_EXPL_MIN}}">{{EXPLANATION_HTML}}</div>
+      </div>
+
+      <!-- Shared Bottom CTA + Footer -->
+      <div class="cta-row">
+        <img class="cta-subscribe" src="{{ASSET_BTN_SUBSCRIBE}}" alt="Subscribe" />
+        <div class="cta-divider"></div>
+        <img class="cta-instagram" src="{{ASSET_BTN_INSTAGRAM}}" alt="Follow On Instagram" />
+      </div>
+
+      <img class="footer-bar" src="{{ASSET_FOOTER_BAR}}" alt="ExamIQ Bharat" />
+    </div>
+  </div>
+  <script>
+{{FIT_TEXT_JS}}
+  </script>
+</body>
+</html>

@@ -1,0 +1,130 @@
+{
+  "title": "Top 10 Static GK Quiz | टॉप 10 स्थिर सामान्य ज्ञान",
+  "subject": "Static GK",
+  "subjectSub": "(Top 10)",
+  "part": "1/1",
+  "language": "hi",
+  "uniqueValue": "इस क्विज़ में भारत के इतिहास, भूगोल और संविधान के साथ दुनिया के 3 यादगार रिकॉर्ड भी दोहराएँ।",
+  "questions": [
+    {
+      "qNo": 1,
+      "question": "विश्व का सबसे बड़ा महासागर कौन सा है?",
+      "options": ["अटलांटिक महासागर", "हिंद महासागर", "आर्कटिक महासागर", "प्रशांत महासागर"],
+      "correct_index": 3,
+      "fact": "प्रशांत महासागर पृथ्वी का सबसे बड़ा और सबसे गहरा महासागर है।",
+      "source": "NOAA Ocean Service",
+      "source_url": "https://oceanservice.noaa.gov/facts/pacific.html",
+      "difficulty": "easy",
+      "verified": true,
+      "confidence": 0.99
+    },
+    {
+      "qNo": 2,
+      "question": "भारतीय संविधान को संविधान सभा ने कब अपनाया था?",
+      "options": ["15 अगस्त 1947", "26 नवंबर 1949", "26 जनवरी 1950", "2 अक्टूबर 1949"],
+      "correct_index": 1,
+      "fact": "संविधान की प्रस्तावना में 26 नवंबर 1949 को अपनाने की तारीख दी गई है।",
+      "source": "भारत सरकार, विधायी विभाग",
+      "source_url": "https://www.legislative.gov.in/static/uploads/2025/07/359f70a69695affb9d72f8393102bd2e.pdf",
+      "difficulty": "medium",
+      "verified": true,
+      "confidence": 0.99
+    },
+    {
+      "qNo": 3,
+      "question": "भारत का पहला उपग्रह कौन सा था?",
+      "options": ["भास्कर", "रोहिणी", "आर्यभट्ट", "APPLE"],
+      "correct_index": 2,
+      "fact": "आर्यभट्ट भारत का पहला उपग्रह था; इसे 19 अप्रैल 1975 को प्रक्षेपित किया गया।",
+      "source": "भारतीय अंतरिक्ष अनुसंधान संगठन (ISRO)",
+      "source_url": "https://www.isro.gov.in/ISRO_EN/FAQ.html",
+      "difficulty": "medium",
+      "verified": true,
+      "confidence": 0.99
+    },
+    {
+      "qNo": 4,
+      "question": "हमारे सौरमंडल का सबसे बड़ा ग्रह कौन सा है?",
+      "options": ["शनि", "बृहस्पति", "पृथ्वी", "नेपच्यून"],
+      "correct_index": 1,
+      "fact": "बृहस्पति सौरमंडल का सबसे बड़ा ग्रह है।",
+      "source": "NASA Science",
+      "source_url": "https://science.nasa.gov/solar-system/planets/planet-sizes-and-locations-in-our-solar-system/",
+      "difficulty": "easy",
+      "verified": true,
+      "confidence": 0.99
+    },
+    {
+      "qNo": 5,
+      "question": "काज़ीरंगा राष्ट्रीय उद्यान किस राज्य में स्थित है?",
+      "options": ["मेघालय", "असम", "सिक्किम", "मणिपुर"],
+      "correct_index": 1,
+      "fact": "यूनेस्को की विश्व धरोहर सूची काज़ीरंगा को असम में स्थित बताती है।",
+      "source": "UNESCO World Heritage Centre",
+      "source_url": "https://whc.unesco.org/en/list/337/",
+      "difficulty": "easy",
+      "verified": true,
+      "confidence": 0.99
+    },
+    {
+      "qNo": 6,
+      "question": "यूनेस्को के अनुसार साँची के अधिकतर प्राचीन स्मारक किन शताब्दियों के हैं?",
+      "options": ["तीसरी और दूसरी शताब्दी ईस्वी", "दूसरी और पहली शताब्दी ईसा पूर्व", "सातवीं और आठवीं शताब्दी ईस्वी", "पाँचवीं और छठी शताब्दी ईस्वी"],
+      "correct_index": 1,
+      "fact": "यूनेस्को के अनुसार साँची के अधिकतर स्मारक दूसरी और पहली शताब्दी ईसा पूर्व के हैं।",
+      "source": "UNESCO World Heritage Centre",
+      "source_url": "https://whc.unesco.org/en/list/524/",
+      "difficulty": "hard",
+      "verified": true,
+      "confidence": 0.98
+    },
+    {
+      "qNo": 7,
+      "question": "भारत की राजधानी कौन सी है?",
+      "options": ["मुंबई", "कोलकाता", "चेन्नई", "नई दिल्ली"],
+      "correct_index": 3,
+      "fact": "नई दिल्ली भारत की राजधानी है।",
+      "source": "दिल्ली सरकार; जिला नई दिल्ली",
+      "source_url": "https://dmnewdelhi.delhi.gov.in/history/",
+      "difficulty": "easy",
+      "verified": true,
+      "confidence": 0.96
+    },
+    {
+      "qNo": 8,
+      "question": "भारत का सर्वोच्च नागरिक सम्मान कौन सा है?",
+      "options": ["पद्म श्री", "पद्म भूषण", "भारत रत्न", "पद्म विभूषण"],
+      "correct_index": 2,
+      "fact": "भारत रत्न भारत का सर्वोच्च नागरिक सम्मान है।",
+      "source": "भारत के राष्ट्रपति की आधिकारिक वेबसाइट",
+      "source_url": "https://presidentofindia.nic.in/dr-apj-abdul-kalam-profile",
+      "difficulty": "medium",
+      "verified": true,
+      "confidence": 0.98
+    },
+    {
+      "qNo": 9,
+      "question": "ताजमहल किस नदी के दाएँ किनारे पर स्थित है?",
+      "options": ["गंगा", "यमुना", "गोदावरी", "नर्मदा"],
+      "correct_index": 1,
+      "fact": "भारतीय पुरातत्व सर्वेक्षण ताजमहल को यमुना के दाएँ किनारे पर स्थित बताता है।",
+      "source": "भारतीय पुरातत्व सर्वेक्षण (ASI)",
+      "source_url": "https://asi.nic.in/pages/WorldHeritageAgra",
+      "difficulty": "hard",
+      "verified": true,
+      "confidence": 0.99
+    },
+    {
+      "qNo": 10,
+      "question": "समुद्र तल से पृथ्वी का सबसे ऊँचा पर्वत कौन सा है?",
+      "options": ["K2", "कंचनजंघा", "माउंट एवरेस्ट", "मकालू"],
+      "correct_index": 2,
+      "fact": "माउंट एवरेस्ट का शिखर समुद्र तल से लगभग 8,848 मीटर ऊपर है।",
+      "source": "U.S. Geological Survey (USGS)",
+      "source_url": "https://www.usgs.gov/faqs/how-big-are-hawaiian-volcanoes?qt-news_science_products=0",
+      "difficulty": "medium",
+      "verified": true,
+      "confidence": 0.97
+    }
+  ]
+}

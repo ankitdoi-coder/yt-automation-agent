@@ -12,6 +12,7 @@ const path = require('path');
 const { pathToFileURL } = require('url');
 const { spawn } = require('child_process');
 const { chromium } = require('playwright');
+const quizRenderer = require('./quiz-renderer');
 
 // Helper to run FFmpeg commands with Promise
 function runFFmpeg(args) {
@@ -82,20 +83,29 @@ async function main() {
 
   const tickSoundPath = await ensureTickSound(assetsAudioDir);
 
-  // 1. Launch Playwright Chromium at 1080x1920 (deviceScaleFactor: 1)
-  console.log(`[1/3] Launching Playwright browser (1080x1920 viewport)...`);
+  const useLegacy = process.env.QUIZ_TEMPLATE === 'legacy';
+  let renderedSlides = null;
   let browser;
-  try {
-    browser = await chromium.launch({ channel: 'chrome', headless: true });
-  } catch (_) {
-    browser = await chromium.launch({ headless: true });
+  let context;
+  let page;
+  if (useLegacy) {
+    console.log(`[1/3] Using legacy quiz-card.html renderer...`);
+    try { browser = await chromium.launch({ channel: 'chrome', headless: true }); }
+    catch (_) { browser = await chromium.launch({ headless: true }); }
+    context = await browser.newContext({ viewport: { width: 1080, height: 1920 }, deviceScaleFactor: 1 });
+    page = await context.newPage();
+  } else {
+    console.log(`[1/3] Rendering shared quiz slides (1080x1920)...`);
+    renderedSlides = await quizRenderer.renderQuizBatch(questions.map((item, i) => ({
+      ...item,
+      subject: item.subject || item.topic || item.title,
+      question: item.question || item.q,
+      part: item.part || item.partNum || '1/2',
+      qNo: item.qNo || item.number || i + 1,
+      correctOption: item.correctOption || item.correctLetter || item.correct,
+      explanation: item.explanation || item.fact || item.reason || '',
+    })), { profile: 'shorts-9x16', showCtaButtons: false });
   }
-
-  const context = await browser.newContext({
-    viewport: { width: 1080, height: 1920 },
-    deviceScaleFactor: 1
-  });
-  const page = await context.newPage();
 
   const generatedClips = [];
 
@@ -126,19 +136,23 @@ async function main() {
 
     // Frame (a): Question Frame (no reveal)
     const questionFramePath = path.join(framesDir, `q${n}_question.png`);
-    await page.goto(fileUrlBase, { waitUntil: 'load' });
-    await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(100); // Buffer for layout stability
-    await page.screenshot({ path: questionFramePath });
+    if (useLegacy) {
+      await page.goto(fileUrlBase, { waitUntil: 'load' });
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(100);
+      await page.screenshot({ path: questionFramePath });
+    } else fs.writeFileSync(questionFramePath, renderedSlides[i].questionPng);
     console.log(`  📸 Captured Question Frame: frames/q${n}_question.png`);
 
     // Frame (b): Answer Frame (reveal=1)
     const answerFramePath = path.join(framesDir, `q${n}_answer.png`);
     const fileUrlAnswer = `${fileUrlBase}&reveal=1`;
-    await page.goto(fileUrlAnswer, { waitUntil: 'load' });
-    await page.evaluate(() => document.fonts.ready);
-    await page.waitForTimeout(100);
-    await page.screenshot({ path: answerFramePath });
+    if (useLegacy) {
+      await page.goto(fileUrlAnswer, { waitUntil: 'load' });
+      await page.evaluate(() => document.fonts.ready);
+      await page.waitForTimeout(100);
+      await page.screenshot({ path: answerFramePath });
+    } else fs.writeFileSync(answerFramePath, renderedSlides[i].answerPng);
     console.log(`  📸 Captured Answer Frame (Correct: ${correctLetter}): frames/q${n}_answer.png`);
 
     // 3. Render 1080x1920, 30fps clip via FFmpeg:
@@ -174,7 +188,7 @@ async function main() {
     console.log(`  ✅ Clip q${n}.mp4 ready (${(fs.statSync(clipPath).size / 1024 / 1024).toFixed(2)} MB)`);
   }
 
-  await browser.close();
+  if (browser) await browser.close();
 
   // 4. Concatenate all question clips into final.mp4
   console.log(`\n[3/3] Concatenating ${generatedClips.length} clips into final.mp4...`);

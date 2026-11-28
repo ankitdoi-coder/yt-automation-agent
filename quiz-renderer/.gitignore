@@ -1,0 +1,4 @@
+!assets/*.png
+!tests/reference/*.png
+tests/out/
+*.tmp

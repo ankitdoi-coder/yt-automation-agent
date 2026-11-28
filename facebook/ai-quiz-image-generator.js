@@ -11,6 +11,7 @@ const sharp = require('sharp');
 const { AIVideoGenerator } = require('../utils/ai-video-generator');
 const { FacebookUploader } = require('./fb-uploader');
 const { EXAM_GK_QUESTIONS } = require('./content-vault');
+const quizRenderer = require('../quiz-renderer');
 
 class AIQuizImageGenerator {
   constructor() {
@@ -35,8 +36,35 @@ class AIQuizImageGenerator {
    */
   async createQuizImage(item) {
     const timestamp = Date.now();
+    this.lastAnswerImagePath = null;
     const rawAiImagePath = path.join(this.tempDir, `ai_raw_${item.id}_${timestamp}.png`);
     const finalImagePath = path.join(this.outputDir, `AI_QUIZ_PHOTO_${item.id}_${timestamp}.png`);
+
+    if (process.env.QUIZ_TEMPLATE !== 'legacy') {
+      let backgroundDataUri;
+      if (process.env.QUIZ_USE_AI_BACKGROUND === 'true' || item.useAiBackground === true) {
+        const rawAiImagePath = path.join(this.tempDir, `ai_raw_${item.id}_${timestamp}.png`);
+        const prompt = item.aiPrompt || `${item.topic || item.title || 'educational'} educational concept illustration, cinematic lighting`;
+        try {
+          await this.aiGenerator.generateImage(prompt, rawAiImagePath);
+          if (fs.existsSync(rawAiImagePath) && fs.statSync(rawAiImagePath).size > 1000) backgroundDataUri = rawAiImagePath;
+        } catch (err) {
+          console.warn(`[AIQuizImage] AI background fallback: ${err.message}`);
+        }
+      }
+      const slides = await quizRenderer.renderQuizSlides({
+        ...item,
+        subject: item.subject || item.topic || item.title,
+        part: item.part || item.partNum || '1/2',
+        qNo: item.qNo || item.number || 1,
+        correctOption: item.correctOption || item.correctLetter || item.correct,
+        explanation: item.explanation || item.fact || item.reason || '',
+      }, { profile: 'feed-1x1', backgroundDataUri });
+      fs.writeFileSync(finalImagePath, slides.questionPng);
+      this.lastAnswerImagePath = path.join(this.outputDir, `AI_QUIZ_PHOTO_ANSWER_${item.id}_${timestamp}.png`);
+      fs.writeFileSync(this.lastAnswerImagePath, slides.answerPng);
+      return finalImagePath;
+    }
 
     // 1. Generate Thematic AI Background
     console.log(`[AIQuizImage] Generating AI background for "${item.title}"...`);
@@ -204,12 +232,15 @@ class AIQuizImageGenerator {
 
     const uploader = new FacebookUploader();
     console.log(`[AIQuizImage] Uploading AI Quiz Photo to Facebook Page (${uploader.pageId})...`);
-    const uploadRes = await uploader.uploadPhoto(imagePath, { caption });
+    const uploadRes = this.lastAnswerImagePath && process.env.QUIZ_TEMPLATE !== 'legacy'
+      ? await uploader.uploadPhotoCarousel([imagePath, this.lastAnswerImagePath], { caption })
+      : await uploader.uploadPhoto(imagePath, { caption });
     console.log(`[AIQuizImage] 🎉 Successfully posted AI Quiz Graphic! URL: ${uploadRes.url}`);
 
     return {
       success: true,
       imagePath,
+      answerImagePath: this.lastAnswerImagePath || null,
       uploadRes,
       item: selectedItem
     };
