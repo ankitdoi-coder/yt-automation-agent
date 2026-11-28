@@ -1446,8 +1446,11 @@ class AIVideoGenerator {
             const isQuestion = String(slide.kind || '').toLowerCase().includes('question');
             const isAnswer = String(slide.kind || '').toLowerCase().includes('answer');
 
-            if (isQuestion && dur >= 0.5) {
-              // 1. Dynamic Countdown Timer Track & Shrinking Crimson Bar on Question Slides
+            const isCleanQuizQuestion = String(slide.kind || '').startsWith('shortQuizCleanQuestion');
+            if (isQuestion && !isCleanQuizQuestion && dur >= 0.5) {
+              // 1. Dynamic Countdown Timer Track & Shrinking Crimson Bar on Question Slides.
+              // The clean ExamIQ card occupies y=582..942; y=620 crosses the Q-pill/card seam,
+              // so do not paint this overlay onto the reference-matched clean question template.
               const trackOut = `v${filterIdx++}`;
               filters.push(`[${prev}]drawbox=x=54:y=620:w=970:h=14:color=#cbd5e1@0.75:t=fill:enable='between(t,${ts.toFixed(3)},${te.toFixed(3)})'[${trackOut}]`);
               prev = trackOut;
