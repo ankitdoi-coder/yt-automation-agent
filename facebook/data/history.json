@@ -213,6 +213,11 @@
     "geo_island_13",
     "stat_viral_women_26",
     "stat_waterfall_10",
+    "geo_nato_09",
+    "sci_rusting_weight_12",
+    "hist_ashoka_08",
+    "hist_shivaji_10",
+    "stat_coastline_07",
     "geo_nato_09"
   ],
   "uploads": [
@@ -1836,6 +1841,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-28T07:35:08.535Z",
       "answer": "A) बैकाल झील (रूस - 1,642 मीटर गहरी)"
+    },
+    {
+      "id": "sci_rusting_weight_12",
+      "questionIds": [
+        "sci_rusting_weight_12",
+        "hist_ashoka_08",
+        "hist_shivaji_10",
+        "stat_coastline_07",
+        "geo_nato_09"
+      ],
+      "category": "general_science",
+      "topic": "लोहे में जंग (Rusting of Iron)",
+      "title": "लोहे में जंग लगने पर उसके वजन पर क्या प्रभाव पड़ता है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b0ac3c43f43c01a35b0eef4",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-28T12:07:23.237Z",
+      "answer": "A) वजन बढ़ जाता है (ऑक्सीजन जुड़ने के कारण)"
     }
   ]
 }
