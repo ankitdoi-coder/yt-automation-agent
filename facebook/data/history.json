@@ -208,7 +208,12 @@
     "hist_ironman_17",
     "stat_volcano_09",
     "pol_cj_term_07",
-    "hist_azadhind_06"
+    "hist_azadhind_06",
+    "geo_lake_baikal_17",
+    "geo_island_13",
+    "stat_viral_women_26",
+    "stat_waterfall_10",
+    "geo_nato_09"
   ],
   "uploads": [
     {
@@ -1809,6 +1814,28 @@
       "hookFormula": "IAS Favorite",
       "uploadedAt": "2026-11-27T22:50:47.713Z",
       "answer": "B) ताइवान (TSMC - Taiwan Semiconductor)"
+    },
+    {
+      "id": "geo_lake_baikal_17",
+      "questionIds": [
+        "geo_lake_baikal_17",
+        "geo_island_13",
+        "stat_viral_women_26",
+        "stat_waterfall_10",
+        "geo_nato_09"
+      ],
+      "category": "geopolitics",
+      "topic": "प्राकृतिक संसाधन (Natural Resources)",
+      "title": "दुनिया की सबसे गहरी और सबसे पुरानी मीठे पानी की झील कौन सी है?",
+      "questionCount": 5,
+      "fbVideoId": null,
+      "zernioPostId": "6b0a83eaf9f8142a9ee9f011",
+      "deliveryMode": "ZERNIO_API",
+      "platform": "instagram",
+      "hookScore": 43,
+      "hookFormula": "IAS Favorite",
+      "uploadedAt": "2026-11-28T07:35:08.535Z",
+      "answer": "A) बैकाल झील (रूस - 1,642 मीटर गहरी)"
     }
   ]
 }
